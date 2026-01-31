@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="gang.lu.riskmanagementproject.mapper.RiskHistoryMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="gang.lu.riskmanagementproject.domain.po.RiskHistory">
+        <id column="id" property="id"/>
+        <result column="worker_id" property="workerId"/>
+        <result column="heart_rate" property="heartRate"/>
+        <result column="sdnn_ms" property="sdnnMs"/>
+        <result column="fatigue_percent" property="fatiguePercent"/>
+        <result column="breath_rate" property="breathRate"/>
+        <result column="au_score" property="auScore"/>
+        <result column="stress_level" property="stressLevel"/>
+        <result column="record_time" property="recordTime"/>
+    </resultMap>
+
+
+</mapper>
