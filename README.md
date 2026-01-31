@@ -172,8 +172,6 @@ MIT License — 允许自由使用、修改和分发。
 ## 👨‍💻 作者
 
 **Franz Liszt**  
-📧 franz.liszt@example.com  
-🔗 [GitHub Profile](https://github.com/your-username)
 
 ---
 
