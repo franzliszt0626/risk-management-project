@@ -15,5 +15,29 @@
         <result column="created_time" property="createdTime"/>
     </resultMap>
 
+    <!-- 根据工人ID查询 -->
+    <select id="selectByWorkerId" resultType="gang.lu.riskmanagementproject.domain.po.AlertRecord">
+        SELECT *
+        FROM t_alert_record
+        WHERE worker_id = #{workerId}
+        ORDER BY created_time DESC
+    </select>
+
+    <!-- 根据预警级别查询 -->
+    <select id="selectByAlertLevel" resultType="gang.lu.riskmanagementproject.domain.po.AlertRecord">
+        SELECT *
+        FROM t_alert_record
+        WHERE alert_level = #{alertLevel}
+        ORDER BY created_time DESC
+    </select>
+
+    <!-- 根据预警类型模糊查询 -->
+    <select id="selectByAlertTypeLike" resultType="gang.lu.riskmanagementproject.domain.po.AlertRecord">
+        SELECT *
+        FROM t_alert_record
+        WHERE alert_type LIKE CONCAT('%', #{alertType}, '%')
+        ORDER BY created_time DESC
+    </select>
+
 
 </mapper>

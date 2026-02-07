@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 @Data
 @ApiModel(description = "预警记录 - 视图对象")
 public class AlertRecordVO {
-    private Long workerId;
     private String alertType;
     private String alertLevel;
     private String message;

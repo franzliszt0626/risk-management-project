@@ -10,10 +10,10 @@ public class FailureMessages {
     /**
      * 通用异常信息
      */
-    public static final String DATABASE_ERROR_MESSAGE = "数据库操作失败，请稍后重试";
-    public static final String PARAMETER_VERIFY_ERROR_MESSAGE = "参数校验失败，请重试";
-    public static final String REQUEST_PARAMETER_ERROR_MESSAGE = "请求参数错误，请重试";
-    public static final String UNIVERSAL_ERROR_MESSAGE = "系统内部错误，请联系管理员";
+    public static final String DATABASE_ERROR_MESSAGE = "数据库操作失败，请稍后重试！";
+    public static final String PARAMETER_VERIFY_ERROR_MESSAGE = "参数校验失败，请重试！";
+    public static final String REQUEST_PARAMETER_ERROR_MESSAGE = "请求参数错误，请重试！";
+    public static final String UNIVERSAL_ERROR_MESSAGE = "系统内部错误，请联系管理员！";
     public static final String INVALID_ID_ERROR_MESSAGE = "无效的id！";
 
     /**
@@ -43,4 +43,8 @@ public class FailureMessages {
     public static final String EMPTY_WORK_AREA_ID_ERROR_MESSAGE = "区域ID不能为空！";
     public static final String MISSING_WORK_AREA_ERROR_MESSAGE = "工作区域不存在！";
     public static final String MISSING_KEY_WORK_AREA_PARAMETER_ERROR_MESSAGE = "ID或修改参数不能为空！";
+
+    public static final String ALERT_RECORD_NOT_FOUND_ERROR_MESSAGE = "预警记录不存在！";
+    public static final String WORKER_ALERT_RECORD_NOT_FOUND_ERROR_MESSAGE = "该工人暂无预警记录！";
+    public static final String FAILED_HANDLED_ERROR_MESSAGE = "标记已处理失败！";
 }
