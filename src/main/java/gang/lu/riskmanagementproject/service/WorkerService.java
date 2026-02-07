@@ -1,5 +1,6 @@
 package gang.lu.riskmanagementproject.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import gang.lu.riskmanagementproject.domain.dto.WorkerDTO;
 import gang.lu.riskmanagementproject.domain.enums.Status;
@@ -75,4 +76,11 @@ public interface WorkerService extends IService<Worker> {
      */
     List<WorkerVO> getWorkersByPosition(String position);
 
+    /**
+     * 分页得到所有工人信息
+     * @param pageNum 页码
+     * @param pageSize 每页条数
+     * @return Page<WorkerVO>
+     */
+    Page<WorkerVO> getAllWorkers(Integer pageNum, Integer pageSize);
 }

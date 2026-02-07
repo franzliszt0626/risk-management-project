@@ -2,7 +2,9 @@ package gang.lu.riskmanagementproject.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import gang.lu.riskmanagementproject.domain.dto.WorkerDTO;
 import gang.lu.riskmanagementproject.domain.enums.Status;
@@ -12,6 +14,7 @@ import gang.lu.riskmanagementproject.exception.BizException;
 import gang.lu.riskmanagementproject.mapper.WorkerMapper;
 import gang.lu.riskmanagementproject.service.WorkerService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +32,7 @@ import static gang.lu.riskmanagementproject.common.FailureMessages.*;
  * @author Franz Liszt
  * @since 2026-01-31
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class WorkerServiceImpl extends ServiceImpl<WorkerMapper, Worker> implements WorkerService {
@@ -175,6 +179,42 @@ public class WorkerServiceImpl extends ServiceImpl<WorkerMapper, Worker> impleme
         wrapper.eq(Worker::getPosition, position.trim());
         List<Worker> workers = workerMapper.selectList(wrapper);
         return workers.stream().map(this::convertToVO).collect(Collectors.toList());
+    }
+
+    /**
+     * 分页得到所有工人信息
+     *
+     * @param pageNum  页码
+     * @param pageSize 每页条数
+     * @return Page<WorkerVO>
+     */
+    @Override
+    public Page<WorkerVO> getAllWorkers(Integer pageNum, Integer pageSize) {
+        // 1. 分页参数校验 & 赋默认值
+        pageNum = ObjectUtil.defaultIfNull(pageNum, 1);
+        // 每页20条数据
+        pageSize = ObjectUtil.defaultIfNull(pageSize, 20);
+        pageSize = Math.min(pageSize, 50);
+
+        // 2. 构建分页对象 + 执行分页查询（按更新时间降序，最新的在前）
+        Page<Worker> workerPage = new Page<>(pageNum, pageSize);
+        Page<Worker> resultPage = lambdaQuery()
+                .orderByDesc(Worker::getUpdateTime)
+                .page(workerPage);
+
+        // 3. PO 转换为 VO（分页对象属性拷贝 + 列表转换）
+        Page<WorkerVO> workerVOPage = new Page<>();
+        BeanUtil.copyProperties(resultPage, workerVOPage);
+
+        List<Worker> workerList = resultPage.getRecords();
+        List<WorkerVO> workerVOList = BeanUtil.copyToList(workerList, WorkerVO.class);
+        workerVOPage.setRecords(workerVOList);
+
+        // 4. 日志记录
+        log.info("分页查询所有工人信息：第{}页，每页{}条，共查询到{}条，总条数{}",
+                pageNum, pageSize, workerVOList.size(), resultPage.getTotal());
+
+        return workerVOPage;
     }
 
     /**

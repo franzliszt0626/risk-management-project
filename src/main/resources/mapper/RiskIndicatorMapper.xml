@@ -7,11 +7,20 @@
         <id column="id" property="id"/>
         <result column="worker_id" property="workerId"/>
         <result column="heart_rate" property="heartRate"/>
-        <result column="sdnn_ms" property="sdnnMs"/>
+        <result column="sdnn_ms" property="respiratoryRate"/>
         <result column="fatigue_percent" property="fatiguePercent"/>
         <result column="risk_level" property="riskLevel"/>
         <result column="alert_flag" property="alertFlag"/>
         <result column="record_time" property="recordTime"/>
     </resultMap>
+    <select id="selectLatestByWorkerId" resultType="gang.lu.riskmanagementproject.domain.po.RiskIndicator"
+            parameterType="java.lang.Long">
+        SELECT *
+        FROM t_risk_indicator
+        WHERE worker_id = #{workerId}
+        ORDER BY record_time DESC
+        LIMIT 1
+
+    </select>
 
 </mapper>

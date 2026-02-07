@@ -1,7 +1,11 @@
 package gang.lu.riskmanagementproject.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import gang.lu.riskmanagementproject.domain.dto.RiskIndicatorDTO;
 import gang.lu.riskmanagementproject.domain.po.RiskIndicator;
+import gang.lu.riskmanagementproject.domain.vo.RiskIndicatorVO;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +17,23 @@ import gang.lu.riskmanagementproject.domain.po.RiskIndicator;
  */
 public interface RiskIndicatorService extends IService<RiskIndicator> {
 
+    /**
+     * 由后台算法调用，插入风险指标信息
+     * @param riskIndicatorDTO 风险指标数据传输体
+     */
+    void insertRiskIndicator(RiskIndicatorDTO riskIndicatorDTO);
+
+    /**
+     * 由工人id查询对应工人最新一次的风险指标信息
+     * @param workerId 前端传来的工人id
+     * @return RiskIndicatorVO
+     */
+    RiskIndicatorVO getLatestRiskIndicatorByWorkerId(Long workerId);
+
+    /**
+     * 由工人id查询他历史所有的风险指标信息
+     * @param workerId 工人id
+     * @return 风险信息集合
+     */
+    List<RiskIndicatorVO> getRiskIndicatorsByWorkerId(Long workerId);
 }

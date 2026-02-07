@@ -2,7 +2,6 @@ package gang.lu.riskmanagementproject.domain.enums;
 
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonCreator;
-import gang.lu.riskmanagementproject.exception.BizException;
 import lombok.Getter;
 
 /**

@@ -18,14 +18,14 @@ import java.time.LocalDateTime;
 @Data
 @ApiModel(value = "实时风险指标 - 传输对象")
 public class RiskIndicatorDTO {
-    @ApiModelProperty(value = "关联工人ID", example = "1")
+    @ApiModelProperty(value = "关联工人ID，允许重复", example = "1")
     private Long workerId;
 
     @ApiModelProperty(value = "心率 (bpm)", example = "98")
     private Integer heartRate;
 
-    @ApiModelProperty(value = "心率变异性 SDNN (ms)", example = "25.6")
-    private Double sdnnMs;
+    @ApiModelProperty(value = "呼吸率（次/min）", example = "25")
+    private Integer respiratoryRate;
 
     @ApiModelProperty(value = "疲劳百分比 (%)", example = "78.5")
     private Double fatiguePercent;

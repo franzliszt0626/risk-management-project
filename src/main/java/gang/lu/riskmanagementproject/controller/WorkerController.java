@@ -1,5 +1,6 @@
 package gang.lu.riskmanagementproject.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import gang.lu.riskmanagementproject.common.Result;
 import gang.lu.riskmanagementproject.domain.dto.WorkerDTO;
 import gang.lu.riskmanagementproject.domain.enums.Status;
@@ -7,6 +8,7 @@ import gang.lu.riskmanagementproject.domain.vo.WorkerVO;
 import gang.lu.riskmanagementproject.service.WorkerService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -55,6 +57,20 @@ public class WorkerController {
     public Result<WorkerVO> getWorkerById(@PathVariable Long id) {
         WorkerVO vo = workerService.getWorkerById(id);
         return Result.ok(vo);
+    }
+
+    @GetMapping
+    @ApiOperation("分页列出所有工人信息")
+    public Result<Page<WorkerVO>> getAllWorkers(
+            @ApiParam(value = "页码（默认1）", example = "1")
+            @RequestParam(required = false) Integer pageNum,
+            @ApiParam(value = "每页条数（默认20，最大50）", example = "20")
+            @RequestParam(required = false) Integer pageSize
+    ) {
+        // 调用Service获取分页结果
+        Page<WorkerVO> workerVOPage = workerService.getAllWorkers(pageNum, pageSize);
+        // 返回统一格式结果（成功 + 分页数据）
+        return Result.ok(workerVOPage);
     }
 
     @GetMapping("/code/{workerCode}")

@@ -2,6 +2,7 @@ package gang.lu.riskmanagementproject.domain.vo;
 
 import gang.lu.riskmanagementproject.domain.enums.RiskLevel;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -17,11 +18,18 @@ import java.time.LocalDateTime;
 @Data
 @ApiModel(description = "实时风险指标 - 视图对象")
 public class RiskIndicatorVO {
+    @ApiModelProperty("工人id")
     private Long workerId;
+    @ApiModelProperty("工人心率")
     private Integer heartRate;
-    private Double sdnnMs;
+    @ApiModelProperty("工人呼吸率")
+    private Double respiratoryRate;
+    @ApiModelProperty("工人综合疲劳指数")
     private Double fatiguePercent;
+    @ApiModelProperty("工人的风险等级")
     private RiskLevel riskLevel;
+    @ApiModelProperty("是否标注为紧急")
     private Boolean alertFlag;
+    @ApiModelProperty("本次记录的时间")
     private LocalDateTime recordTime;
 }

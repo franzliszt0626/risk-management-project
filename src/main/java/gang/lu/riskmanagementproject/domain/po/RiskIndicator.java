@@ -36,9 +36,9 @@ public class RiskIndicator {
     private Integer heartRate;
 
     /**
-     * sdnn
+     * 呼吸率
      */
-    private Double sdnnMs;
+    private Integer respiratoryRate;
 
     /**
      * 劳累百分比，越高风险越大
