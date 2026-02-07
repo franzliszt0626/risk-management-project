@@ -8,18 +8,22 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import gang.lu.riskmanagementproject.domain.dto.WorkAreaDTO;
 import gang.lu.riskmanagementproject.domain.enums.RiskLevel;
 import gang.lu.riskmanagementproject.domain.po.WorkArea;
+import gang.lu.riskmanagementproject.domain.vo.WorkAreaRiskCountVO;
 import gang.lu.riskmanagementproject.domain.vo.WorkAreaVO;
 import gang.lu.riskmanagementproject.exception.BizException;
 import gang.lu.riskmanagementproject.mapper.WorkAreaMapper;
 import gang.lu.riskmanagementproject.service.WorkAreaService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static gang.lu.riskmanagementproject.common.FailureMessages.*;
+import static gang.lu.riskmanagementproject.util.StatisticUtil.getCountFromMap;
 
 /**
  * <p>
@@ -31,8 +35,10 @@ import static gang.lu.riskmanagementproject.common.FailureMessages.*;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class WorkAreaServiceImpl extends ServiceImpl<WorkAreaMapper, WorkArea> implements WorkAreaService {
 
+    private final WorkAreaMapper workAreaMapper;
 
     /**
      * 新增工作区域
@@ -220,5 +226,29 @@ public class WorkAreaServiceImpl extends ServiceImpl<WorkAreaMapper, WorkArea> i
         log.info("分页查询所有工作区域：第{}页，每页{}条，总条数{}",
                 pageNum, pageSize, resultPage.getTotal());
         return voPage;
+    }
+
+    /**
+     * 按风险等级统计工作区域数量
+     *
+     * @return 风险等级划分的统计数据
+     */
+    @Override
+    public WorkAreaRiskCountVO countWorkAreaByRiskLevel() {
+        // 1. 调用Mapper获取分组统计结果（双层Map）
+        Map<String, Map<String, Object>> riskCountMap = workAreaMapper.countWorkAreaByRiskLevel();
+        log.info("工作区域风险等级统计原始结果：{}", riskCountMap);
+
+        // 2. 初始化VO并赋值（从子Map提取count值）
+        WorkAreaRiskCountVO vo = new WorkAreaRiskCountVO();
+        vo.setLowRiskCount(getCountFromMap(riskCountMap, "低风险"));
+        vo.setMediumRiskCount(getCountFromMap(riskCountMap, "中风险"));
+        vo.setHighRiskCount(getCountFromMap(riskCountMap, "高风险"));
+
+        // 3. 计算总数量
+        int total = vo.getLowRiskCount() + vo.getMediumRiskCount() + vo.getHighRiskCount();
+        vo.setTotalCount(total);
+
+        return vo;
     }
 }

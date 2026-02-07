@@ -20,7 +20,37 @@
         WHERE worker_id = #{workerId}
         ORDER BY record_time DESC
         LIMIT 1
+    </select>
 
+
+    <select id="countDistinctWorkerByRiskLevel" resultType="java.util.Map">
+        SELECT risk_level, COUNT(DISTINCT worker_id) AS count
+        FROM t_risk_indicator
+        GROUP BY risk_level
+    </select>
+
+    <select id="countHighRiskWorkerByTimePeriod" resultType="java.util.Map">
+        SELECT
+            t.period,
+            IFNULL(c.count, 0) AS count
+        FROM (
+                 -- 生成6个固定时间段
+                 SELECT 0 AS period UNION ALL
+                 SELECT 4 AS period UNION ALL
+                 SELECT 8 AS period UNION ALL
+                 SELECT 12 AS period UNION ALL
+                 SELECT 16 AS period UNION ALL
+                 SELECT 20 AS period
+             ) t
+                 LEFT JOIN (
+            -- 原统计逻辑
+            SELECT
+                FLOOR(HOUR(record_time) / 4) * 4 AS period,
+                COUNT(DISTINCT worker_id) AS count
+            FROM t_risk_indicator
+            WHERE DATE(record_time) = #{statDate} AND risk_level != '低风险'
+            GROUP BY period
+        ) c ON t.period = c.period
     </select>
 
 </mapper>

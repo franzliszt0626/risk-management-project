@@ -3,12 +3,17 @@ package gang.lu.riskmanagementproject.controller;
 import gang.lu.riskmanagementproject.common.Result;
 import gang.lu.riskmanagementproject.domain.dto.RiskIndicatorDTO;
 import gang.lu.riskmanagementproject.domain.vo.RiskIndicatorVO;
+import gang.lu.riskmanagementproject.domain.vo.RiskLevelCountVO;
+import gang.lu.riskmanagementproject.domain.vo.RiskTimePeriodCountVO;
 import gang.lu.riskmanagementproject.service.RiskIndicatorService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -19,7 +24,7 @@ import java.util.List;
  * @description 风险指标管理，存储用户实时风险指标
  */
 @RestController
-@RequestMapping("/api/risk")
+@RequestMapping("/api/risk-indicator")
 @Api(tags = "指标管理 API")
 @RequiredArgsConstructor
 public class RiskIndicatorController {
@@ -51,5 +56,28 @@ public class RiskIndicatorController {
         return Result.ok(riskIndicatorService.getRiskIndicatorsByWorkerId(workerId));
     }
 
+    /**
+     * 统计去重工人的风险等级人数分布
+     */
+    @GetMapping("/count/risk-level")
+    @ApiOperation("统计不重复工人的风险等级人数分布")
+    public Result<RiskLevelCountVO> countDistinctWorkerByRiskLevel() {
+        RiskLevelCountVO countVO = riskIndicatorService.countDistinctWorkerByRiskLevel();
+        return Result.ok(countVO);
+    }
+
+    /**
+     * 统计当日各4小时时间段高风险工人数
+     *
+     * @param statDate 统计日期（格式：yyyy-MM-dd，不传则默认当天）
+     */
+    @GetMapping("/count/time-period")
+    @ApiOperation("统计当日4小时时间段高风险工人数（中+高+严重风险）")
+    public Result<RiskTimePeriodCountVO> countHighRiskWorkerByTimePeriod(
+            @ApiParam(value = "统计日期（yyyy-MM-dd），默认当天", example = "2026-02-01")
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate statDate) {
+        RiskTimePeriodCountVO countVO = riskIndicatorService.countHighRiskWorkerByTimePeriod(statDate);
+        return Result.ok(countVO);
+    }
 
 }

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import gang.lu.riskmanagementproject.domain.dto.WorkAreaDTO;
 import gang.lu.riskmanagementproject.domain.enums.RiskLevel;
 import gang.lu.riskmanagementproject.domain.po.WorkArea;
+import gang.lu.riskmanagementproject.domain.vo.WorkAreaRiskCountVO;
 import gang.lu.riskmanagementproject.domain.vo.WorkAreaVO;
 
 import java.util.List;
@@ -81,4 +82,10 @@ public interface WorkAreaService extends IService<WorkArea> {
      * @return 分页后的所有工作区域VO列表
      */
     Page<WorkAreaVO> getAllWorkAreas(Integer pageNum, Integer pageSize);
+
+    /**
+     * 按风险等级统计工作区域数量
+     * @return 风险等级划分的统计数据
+     */
+    WorkAreaRiskCountVO countWorkAreaByRiskLevel();
 }

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 2026-01-31
  */
 @RestController
-@RequestMapping("/alert")
+@RequestMapping("/api/alert-record")
 public class AlertRecordController {
 
 }

@@ -13,5 +13,11 @@
         <result column="update_time" property="updateTime"/>
     </resultMap>
 
+    <select id="countWorkAreaByRiskLevel" resultType="java.util.Map">
+        SELECT risk_level, COUNT(*) AS count
+        FROM t_work_area
+        GROUP BY risk_level
+    </select>
+
 
 </mapper>

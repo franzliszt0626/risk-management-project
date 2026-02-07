@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import gang.lu.riskmanagementproject.common.Result;
 import gang.lu.riskmanagementproject.domain.dto.WorkAreaDTO;
 import gang.lu.riskmanagementproject.domain.enums.RiskLevel;
+import gang.lu.riskmanagementproject.domain.vo.WorkAreaRiskCountVO;
 import gang.lu.riskmanagementproject.domain.vo.WorkAreaVO;
 import gang.lu.riskmanagementproject.service.WorkAreaService;
 import io.swagger.annotations.Api;
@@ -23,7 +24,7 @@ import java.util.List;
  * @since 2026-01-31
  */
 @RestController
-@RequestMapping("/api/area")
+@RequestMapping("/api/work-area")
 @RequiredArgsConstructor
 @Api(tags = "工作区域管理 API")
 public class WorkAreaController {
@@ -123,6 +124,16 @@ public class WorkAreaController {
             @RequestParam(required = false) Integer pageSize) {
         Page<WorkAreaVO> page = workAreaService.getAllWorkAreas(pageNum, pageSize);
         return Result.ok(page);
+    }
+
+    /**
+     * 按风险等级统计工作区域数量
+     */
+    @GetMapping("/count/risk-level")
+    @ApiOperation("按风险等级统计工作区域数量")
+    public Result<WorkAreaRiskCountVO> countWorkAreaByRiskLevel() {
+        WorkAreaRiskCountVO countVO = workAreaService.countWorkAreaByRiskLevel();
+        return Result.ok(countVO);
     }
 
 }

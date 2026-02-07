@@ -4,7 +4,10 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import gang.lu.riskmanagementproject.domain.dto.RiskIndicatorDTO;
 import gang.lu.riskmanagementproject.domain.po.RiskIndicator;
 import gang.lu.riskmanagementproject.domain.vo.RiskIndicatorVO;
+import gang.lu.riskmanagementproject.domain.vo.RiskLevelCountVO;
+import gang.lu.riskmanagementproject.domain.vo.RiskTimePeriodCountVO;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -36,4 +39,17 @@ public interface RiskIndicatorService extends IService<RiskIndicator> {
      * @return 风险信息集合
      */
     List<RiskIndicatorVO> getRiskIndicatorsByWorkerId(Long workerId);
+
+    /**
+     * 统计去重工人的风险等级人数分布
+     * @return 各种风险的人数信息集合
+     */
+    RiskLevelCountVO countDistinctWorkerByRiskLevel();
+
+    /**
+     * 统计当日各4小时时间段高风险工人数
+     * @param statDate 统计日期（不传则默认当天）
+     * @return 时间段统计结果
+     */
+    RiskTimePeriodCountVO countHighRiskWorkerByTimePeriod(LocalDate statDate);
 }
