@@ -46,10 +46,12 @@ public class FailureMessages {
     public static final String WORKER_DATA_NOT_EXIST = "工人不存在，请确认工人ID是否正确！";
     public static final String WORKER_PARAM_DUPLICATE_CODE = "工号重复，请更换工号后重试！";
     public static final String WORKER_PARAM_EMPTY_CODE = "工号不能为空！";
+    public static final String WORKER_PARAM_EMPTY_TYPE = "工种不能为空！";
+    public static final String WORKER_PARAM_EMPTY_STATUS = "状态不能为空！";
+    public static final String WORKER_PARAM_INVALID_TYPE = "无效的工种：%s！允许值为：高空作业, 受限空间, 设备操作, 正常作业";
+    public static final String WORKER_PARAM_INVALID_STATUS = "无效的状态：%s！允许值为：正常, 异常,离线";
     public static final String WORKER_PARAM_EMPTY_NAME = "姓名不能为空！";
-    public static final String RISK_PARAM_EMPTY_WORKER_ID = "工人ID不能为空！";
     public static final String RISK_DATA_WORKER_NOT_EXIST = "工人ID不存在，当前值：%s！";
-    public static final String WORKER_NOT_EXIST = "工人ID不存在：%s";
 
     /**
      * 风险指标相关
@@ -60,7 +62,6 @@ public class FailureMessages {
     public static final String RISK_OPERATE_CREATE_ERROR = "创建风险指标记录失败！";
     public static final String RISK_PARAM_EMPTY_RISK_LEVEL = "风险等级不能为空！";
     public static final String RISK_PARAM_INVALID_RISK_LEVEL = "无效的风险等级：%s！允许值为：低风险、中风险、高风险、严重风险";
-    public static final String RISK_DATA_NOT_EXIST = "风险指标记录不存在！";
     public static final String RISK_INDICATOR_NO_LATEST = "工人ID：%s 暂无最新风险指标记录！";
 
 
@@ -70,8 +71,8 @@ public class FailureMessages {
     public static final String WORK_AREA_PARAM_EMPTY_CODE = "工作区域编号不能为空！";
     public static final String WORK_AREA_PARAM_EMPTY_NAME = "工作区域名称不能为空！";
     public static final String WORK_AREA_PARAM_DUPLICATE_CODE = "工作区域编号重复，请更换编号！";
-    public static final String WORK_AREA_PARAM_EMPTY_ID = "工作区域ID不能为空！";
     public static final String WORK_AREA_DATA_NOT_EXIST = "工作区域不存在，请确认区域ID是否正确！";
+    public static final String WORK_AREA_PARAM_INVALID_RISK_LEVEL = "无效的工作区域风险等级：%s！允许值为：低风险、中风险、高风险";
 
 
     /**
@@ -81,6 +82,8 @@ public class FailureMessages {
     public static final String ALERT_DATA_WORKER_NOT_FOUND = "该工人暂无预警记录！";
     public static final String ALERT_OPERATE_HANDLE_ERROR = "标记预警记录已处理失败！";
     public static final String ALERT_PARAM_EMPTY_LEVEL = "预警等级不能为空！";
+    public static final String ALERT_PARAM_EMPTY_TYPE = "预警类型不能为空！";
+    public static final String ALERT_PARAM_EMPTY_HANDLER = "处理人不能为空！";
     public static final String ALERT_PARAM_INVALID_LEVEL = "无效的预警等级：%s！允许值为：警告、严重";
 
 

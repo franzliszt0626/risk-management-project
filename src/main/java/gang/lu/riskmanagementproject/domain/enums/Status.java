@@ -2,6 +2,7 @@ package gang.lu.riskmanagementproject.domain.enums;
 
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import gang.lu.riskmanagementproject.common.FailureMessages;
 import lombok.Getter;
 
 /**
@@ -36,13 +37,16 @@ public enum Status {
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static Status fromValue(String value) {
         if (value == null || value.trim().isEmpty()) {
-            throw new IllegalArgumentException("状态值不能为空");
+            throw new IllegalArgumentException(FailureMessages.WORKER_PARAM_EMPTY_STATUS);
         }
+        String trimValue = value.trim();
         for (Status status : values()) {
-            if (status.value.equals(value)) {
+            if (status.value.equals(trimValue)) {
                 return status;
             }
         }
-        throw new IllegalArgumentException("无效的工人状态: [" + value + "]，允许值为：正常、异常、离线");
+        throw new IllegalArgumentException(
+                String.format(FailureMessages.WORKER_PARAM_INVALID_STATUS, trimValue)
+        );
     }
 }

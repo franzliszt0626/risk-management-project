@@ -45,7 +45,7 @@ public enum AreaRiskLevel {
             }
         }
         throw new IllegalArgumentException(
-                String.format(String.format(FailureMessages.RISK_PARAM_INVALID_RISK_LEVEL, trimValue))
+                String.format(FailureMessages.WORK_AREA_PARAM_INVALID_RISK_LEVEL, trimValue)
         );
     }
 }

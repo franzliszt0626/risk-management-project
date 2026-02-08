@@ -27,7 +27,7 @@ public enum AlertLevel {
     }
 
     /**
-     * 工具方法：判断传来的字段是否合法
+     * 工具方法：判断传来的String格式的字段是否合法
      */
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static AlertLevel fromValue(String value) {
@@ -48,6 +48,7 @@ public enum AlertLevel {
     /**
      * 校验预警等级是否合法（保留原布尔值校验逻辑，兼容旧代码）
      */
+    @Deprecated
     public static boolean isValid(String value) {
         if (value == null || value.trim().isEmpty()) {
             return false;

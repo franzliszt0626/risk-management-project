@@ -46,7 +46,7 @@ public enum RiskLevel {
             }
         }
         throw new IllegalArgumentException(
-                String.format(String.format(FailureMessages.RISK_PARAM_INVALID_RISK_LEVEL, trimValue))
+                String.format(FailureMessages.RISK_PARAM_INVALID_RISK_LEVEL, trimValue)
         );
     }
 }

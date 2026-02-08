@@ -1,5 +1,6 @@
 package gang.lu.riskmanagementproject.controller;
 
+import cn.hutool.core.util.ObjectUtil;
 import gang.lu.riskmanagementproject.common.Result;
 import gang.lu.riskmanagementproject.domain.dto.RiskIndicatorDTO;
 import gang.lu.riskmanagementproject.domain.vo.RiskIndicatorVO;
@@ -49,15 +50,19 @@ public class RiskIndicatorController {
     @ApiOperation("根据工人id查询他【最新一次】的风险指标")
     @ApiImplicitParam(name = "workerId", value = "工人ID", required = true, dataType = "Long", paramType = "path")
     public Result<RiskIndicatorVO> getLatestRiskIndicatorByWorkerId(@PathVariable Long workerId) {
-        return Result.ok(RISK_INDICATOR_GET_LATEST_SUCCESS_MESSAGE, riskIndicatorService.getLatestRiskIndicatorByWorkerId(workerId));
+        RiskIndicatorVO vo = riskIndicatorService.getLatestRiskIndicatorByWorkerId(workerId);
+        if (ObjectUtil.isNull(vo)) {
+            return Result.ok(RISK_INDICATOR_GET_LATEST_SUCCESS_MESSAGE, null);
+        }
+        return Result.ok(RISK_INDICATOR_GET_LATEST_SUCCESS_MESSAGE, vo);
     }
 
     @GetMapping("/worker/{workerId}/history")
     @ApiOperation("根据工人ID查询历史风险指标（分页）")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "workerId", value = "工人ID", required = true, dataType = "Long", paramType = "path"),
-            @ApiImplicitParam(name = "pageNum", value = "页码（默认1）", required = false, dataType = "Integer", paramType = "query", example = "1"),
-            @ApiImplicitParam(name = "pageSize", value = "每页条数（默认10，最大100）", required = false, dataType = "Integer", paramType = "query", example = "10")
+            @ApiImplicitParam(name = "pageNum", value = "页码（默认1）", dataType = "Integer", paramType = "query", example = "1"),
+            @ApiImplicitParam(name = "pageSize", value = "每页条数（默认10，最大100）", dataType = "Integer", paramType = "query", example = "10")
     })
     public Result<List<RiskIndicatorVO>> getRiskIndicatorsByWorkerId(
             @PathVariable Long workerId,

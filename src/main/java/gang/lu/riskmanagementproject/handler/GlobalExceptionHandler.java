@@ -119,15 +119,27 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public Result<?> handleJsonParseError(HttpMessageNotReadableException e) {
         String message = FailureMessages.COMMON_JSON_PARSE_ERROR;
-        Throwable cause = e.getCause();
+        // 1. 获取最底层的根异常
+        Throwable rootCause = getRootCause(e);
 
-        // 枚举值不合法、参数类型错误等具体异常
-        if (cause instanceof IllegalArgumentException) {
-            String causeMsg = cause.getMessage();
+        // 2. 优先判断根异常是否是IllegalArgumentException（枚举解析异常）
+        if (rootCause instanceof IllegalArgumentException) {
+            String causeMsg = rootCause.getMessage();
             if (StrUtil.isNotBlank(causeMsg)) {
-                message = String.format(FailureMessages.COMMON_JSON_ILLEGAL_ARG_ERROR, causeMsg);
+                message = causeMsg;
             }
         }
+        // 3. 兼容：如果根异常是ValueInstantiationException，再取它的消息
+        else if (rootCause instanceof com.fasterxml.jackson.databind.exc.ValueInstantiationException) {
+            String causeMsg = rootCause.getMessage();
+            if (StrUtil.isNotBlank(causeMsg)) {
+                // 提取括号里的具体异常信息（如"预警等级不能为空！"）
+                if (causeMsg.contains("problem: ")) {
+                    message = causeMsg.split("problem: ")[1].split(";")[0].trim();
+                }
+            }
+        }
+
         log.warn("【JSON解析异常】{}", message, e);
         return Result.error(HttpStatus.BAD_REQUEST, message);
     }
@@ -177,5 +189,16 @@ public class GlobalExceptionHandler {
     public Result<?> handleUnexpectedException(Exception e) {
         log.error("【系统未知异常】{}", e.getMessage(), e);
         return Result.error(HttpStatus.INTERNAL_SERVER_ERROR, FailureMessages.COMMON_SYSTEM_ERROR);
+    }
+
+    /**
+     * 递归获取最底层的根异常
+     */
+    private Throwable getRootCause(Throwable throwable) {
+        Throwable cause = throwable.getCause();
+        if (cause == null) {
+            return throwable;
+        }
+        return getRootCause(cause);
     }
 }

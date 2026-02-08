@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
  * @author Franz Liszt
  * @version 1.0
  * @date 2026/2/8 16:47
- * @description 预警级别枚举转换器
+ * @description 预警级别枚举转换器，自动将传入的String参数转为controller的枚举对象
  */
 @Component
 public class AlertLevelConverter implements Converter<String, AlertLevel> {

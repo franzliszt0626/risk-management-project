@@ -2,6 +2,7 @@ package gang.lu.riskmanagementproject.domain.enums;
 
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import gang.lu.riskmanagementproject.common.FailureMessages;
 import lombok.Getter;
 
 /**
@@ -39,13 +40,16 @@ public enum WorkType {
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static WorkType fromValue(String value) {
         if (value == null || value.trim().isEmpty()) {
-            throw new IllegalArgumentException("工种不能为空");
+            throw new IllegalArgumentException(FailureMessages.WORKER_PARAM_EMPTY_TYPE);
         }
+        String trimValue = value.trim();
         for (WorkType type : values()) {
-            if (type.value.equals(value)) {
+            if (type.value.equals(trimValue)) {
                 return type;
             }
         }
-        throw new IllegalArgumentException("无效的工种: [" + value + "]，允许值为：高空作业, 受限空间, 设备操作, 正常作业");
+        throw new IllegalArgumentException(
+                String.format(FailureMessages.WORKER_PARAM_INVALID_TYPE, trimValue)
+        );
     }
 }

@@ -98,7 +98,7 @@ public class WorkAreaController {
             @ApiImplicitParam(name = "pageNum", value = "页码（默认1）", dataType = "Integer", paramType = "query", example = "1"),
             @ApiImplicitParam(name = "pageSize", value = "每页条数（默认20，最大50）", dataType = "Integer", paramType = "query", example = "20"),
             @ApiImplicitParam(name = "areaName", value = "区域名称（模糊查询）", dataType = "String", paramType = "query", example = "高空作业"),
-            @ApiImplicitParam(name = "riskLevel", value = "风险等级（低风险/中风险/高风险）", dataType = "String", paramType = "query", example = "低风险")
+            @ApiImplicitParam(name = "areaRiskLevel", value = "风险等级（低风险/中风险/高风险）", dataType = "String", paramType = "query", example = "低风险")
     })
     public Result<Page<WorkAreaVO>> queryWorkAreas(
             @RequestParam(required = false) Integer pageNum,

@@ -41,7 +41,7 @@ public class Worker {
     private String position;
 
     /**
-     *工龄
+     * 工龄
      */
     private Integer workYears;
 

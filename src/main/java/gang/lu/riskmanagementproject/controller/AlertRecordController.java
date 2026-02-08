@@ -25,7 +25,7 @@ import static gang.lu.riskmanagementproject.common.SuccessMessages.*;
  */
 @RestController
 @RequestMapping("/api/alert-record")
-@Api(tags = "预警记录管理")
+@Api(tags = "预警记录管理API")
 @RequiredArgsConstructor
 public class AlertRecordController {
 
@@ -46,7 +46,7 @@ public class AlertRecordController {
      */
     @ApiOperation("删除预警记录")
     @DeleteMapping("/{id}")
-    public Result<?> deleteAlertRecord(@ApiParam("预警记录ID") @PathVariable Long id) {
+    public Result<Void> deleteAlertRecord(@ApiParam("预警记录ID") @PathVariable Long id) {
         alertRecordService.deleteAlertRecord(id);
         return Result.ok(ALERT_RECORD_DELETE_SUCCESS_MESSAGE);
     }
@@ -88,7 +88,10 @@ public class AlertRecordController {
      */
     @ApiOperation("根据预警级别查询")
     @GetMapping("/level/{alertLevel}")
-    public Result<List<AlertRecordVO>> getAlertRecordsByAlertLevel(@ApiParam("预警级别（警告/严重）") @PathVariable AlertLevel alertLevel) {
+    public Result<List<AlertRecordVO>> getAlertRecordsByAlertLevel(
+            @ApiParam("预警级别（警告/严重）")
+            @PathVariable AlertLevel alertLevel
+    ) {
         List<AlertRecordVO> voList = alertRecordService.getAlertRecordsByAlertLevel(alertLevel);
         return Result.ok(ALERT_RECORD_GET_SUCCESS_MESSAGE, voList);
     }
@@ -108,7 +111,7 @@ public class AlertRecordController {
      */
     @ApiOperation("标记预警记录为已处理")
     @PutMapping("/{id}/handle")
-    public Result<?> markAlertRecordAsHandled(
+    public Result<Void> markAlertRecordAsHandled(
             @ApiParam("预警记录ID") @PathVariable Long id,
             @ApiParam("处理人") @RequestParam String handledBy) {
         alertRecordService.markAlertRecordAsHandled(id, handledBy);

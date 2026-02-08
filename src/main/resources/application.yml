@@ -20,6 +20,7 @@ mybatis-plus:
   configuration:
     default-enum-type-handler: com.baomidou.mybatisplus.core.handlers.MybatisEnumTypeHandler
     map-underscore-to-camel-case: true
+  type-enums-package: gang.lu.riskmanagementproject.domain.enums
 
 
 knife4j:

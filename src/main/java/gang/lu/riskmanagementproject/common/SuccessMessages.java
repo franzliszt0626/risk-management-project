@@ -37,5 +37,16 @@ public class SuccessMessages {
     public static final String WORK_AREA_DELETE_SUCCESS_MESSAGE = "删除工作区域成功！";
     public static final String WORK_AREA_ADD_SUCCESS_MESSAGE = "新增工作区域成功！";
 
+    /**
+     * 工人管理相关成功信息
+     */
+    public static final String WORKER_CREATE_SUCCESS_MESSAGE = "创建工人成功！";
+    public static final String WORKER_DELETE_SUCCESS_MESSAGE = "删除工人成功！";
+    public static final String WORKER_UPDATE_SUCCESS_MESSAGE = "更新工人成功！";
+    public static final String WORKER_GET_SUCCESS_MESSAGE = "查询工人成功！";
+    public static final String WORKER_GET_COUNT_SUCCESS_MESSAGE = "查询工人成功！共%s条";
+    public static final String WORKER_GET_COUNT_BY_STATUS_SUCCESS_MESSAGE = "按状态[%s]查询工人成功！共%s条";
+    public static final String WORKER_GET_COUNT_BY_POSITION_SUCCESS_MESSAGE = "按岗位[%s]查询工人成功！共%s条";
+    public static final String WORKER_GET_COUNT_BY_WORKTYPE_SUCCESS_MESSAGE = "按工种[%s]查询工人成功！共%s条";
 
 }
