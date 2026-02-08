@@ -4,7 +4,6 @@ import cn.hutool.core.util.ObjectUtil;
 import gang.lu.riskmanagementproject.exception.BizException;
 
 import static gang.lu.riskmanagementproject.common.FailureMessages.*;
-import static gang.lu.riskmanagementproject.common.MedicalConstants.*;
 
 /**
  * @author Franz Liszt
@@ -14,42 +13,50 @@ import static gang.lu.riskmanagementproject.common.MedicalConstants.*;
  */
 public class ParameterVerifyUtil {
 
-    /**
-     * 私有化构造器
-     */
-    private ParameterVerifyUtil() {
-    }
 
     /**
-     * 校验心率，只要心率不为负数或者null就可以
+     * 疲劳率常量
+     */
+    private static final double MIN_FATIGUE_PERCENT = 0.0;
+    private static final double MAX_FATIGUE_PERCENT = 100.0;
+
+    /**
+     * 校验心率
+     * 规则：非空 && 大于0
      *
-     * @param heartRate 心率
+     * @param heartRate 心率值
      */
     public static void validateHeartRate(Integer heartRate) {
         if (ObjectUtil.isNull(heartRate) || heartRate <= 0) {
-            throw new BizException(INVALID_HEARTRATE_ERROR_MESSAGE);
+            throw new BizException(RISK_PARAM_INVALID_HEART_RATE);
         }
     }
 
     /**
-     * 校验呼吸率，同上
+     * 校验呼吸率
+     * 规则：非空 && 大于0
+     * 修复点：入参类型改为Double，与DTO定义一致
      *
-     * @param respiratoryRate 呼吸率
+     * @param respiratoryRate 呼吸率值
      */
     public static void validateRespiratoryRate(Integer respiratoryRate) {
         if (ObjectUtil.isNull(respiratoryRate) || respiratoryRate <= 0) {
-            throw new BizException(INVALID_RESPIRATORY_RATE_ERROR_MESSAGE);
+            throw new BizException(String.format(RISK_PARAM_INVALID_RESPIRATORY_RATE));
         }
     }
 
     /**
-     * 校验疲劳率，疲劳率应该在0-100之间
+     * 校验疲劳率
+     * 规则：非空 && 0 ≤ 值 ≤ 100
      *
-     * @param fatiguePercent 疲劳率
+     * @param fatiguePercent 疲劳率值
      */
     public static void validateFatiguePercent(Double fatiguePercent) {
-        if (ObjectUtil.isNull(fatiguePercent) || fatiguePercent < MIN_FATIGUE_PERCENT || fatiguePercent > MAX_FATIGUE_PERCENT) {
-            throw new BizException(INVALID_FATIGUE_PERCENT_ERROR_MESSAGE);
+        if (ObjectUtil.isNull(fatiguePercent)
+                || fatiguePercent < MIN_FATIGUE_PERCENT
+                || fatiguePercent > MAX_FATIGUE_PERCENT) {
+            throw new BizException(RISK_PARAM_INVALID_FATIGUE_PERCENT);
         }
     }
+
 }

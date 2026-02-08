@@ -57,6 +57,13 @@ public class Result<T> {
         return new Result<>(1, message, data, HttpStatus.OK.value());
     }
 
+    /**
+     * 成功，仅自定义消息
+     */
+    public static <T> Result<T> ok(String message) {
+        return new Result<>(1, message, null, HttpStatus.OK.value());
+    }
+
 
     /**
      * 失败，通用错误

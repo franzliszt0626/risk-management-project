@@ -2,6 +2,7 @@ package gang.lu.riskmanagementproject.controller;
 
 import gang.lu.riskmanagementproject.common.Result;
 import gang.lu.riskmanagementproject.domain.dto.AlertRecordDTO;
+import gang.lu.riskmanagementproject.domain.enums.AlertLevel;
 import gang.lu.riskmanagementproject.domain.vo.AlertRecordVO;
 import gang.lu.riskmanagementproject.service.AlertRecordService;
 import io.swagger.annotations.Api;
@@ -11,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static gang.lu.riskmanagementproject.common.SuccessMessages.*;
 
 /**
  * <p>
@@ -35,7 +38,7 @@ public class AlertRecordController {
     @PostMapping
     public Result<AlertRecordVO> addAlertRecord(@RequestBody AlertRecordDTO dto) {
         AlertRecordVO vo = alertRecordService.addAlertRecord(dto);
-        return Result.ok(vo);
+        return Result.ok(ALERT_RECORD_ADD_SUCCESS_MESSAGE, vo);
     }
 
     /**
@@ -45,7 +48,7 @@ public class AlertRecordController {
     @DeleteMapping("/{id}")
     public Result<?> deleteAlertRecord(@ApiParam("预警记录ID") @PathVariable Long id) {
         alertRecordService.deleteAlertRecord(id);
-        return Result.ok("删除成功");
+        return Result.ok(ALERT_RECORD_DELETE_SUCCESS_MESSAGE);
     }
 
     /**
@@ -57,7 +60,7 @@ public class AlertRecordController {
             @ApiParam("预警记录ID") @PathVariable Long id,
             @RequestBody AlertRecordDTO dto) {
         AlertRecordVO vo = alertRecordService.updateAlertRecord(id, dto);
-        return Result.ok("修改成功", vo);
+        return Result.ok(ALERT_RECORD_UPDATE_SUCCESS_MESSAGE, vo);
     }
 
     /**
@@ -67,7 +70,7 @@ public class AlertRecordController {
     @GetMapping("/{id}")
     public Result<AlertRecordVO> getAlertRecordById(@ApiParam("预警记录ID") @PathVariable Long id) {
         AlertRecordVO vo = alertRecordService.getAlertRecordById(id);
-        return Result.ok(vo);
+        return Result.ok(ALERT_RECORD_GET_SUCCESS_MESSAGE, vo);
     }
 
     /**
@@ -77,7 +80,7 @@ public class AlertRecordController {
     @GetMapping("/worker/{workerId}")
     public Result<List<AlertRecordVO>> getAlertRecordsByWorkerId(@ApiParam("工人ID") @PathVariable Long workerId) {
         List<AlertRecordVO> voList = alertRecordService.getAlertRecordsByWorkerId(workerId);
-        return Result.ok(voList);
+        return Result.ok(ALERT_RECORD_GET_SUCCESS_MESSAGE, voList);
     }
 
     /**
@@ -85,9 +88,9 @@ public class AlertRecordController {
      */
     @ApiOperation("根据预警级别查询")
     @GetMapping("/level/{alertLevel}")
-    public Result<List<AlertRecordVO>> getAlertRecordsByAlertLevel(@ApiParam("预警级别（警告/严重）") @PathVariable String alertLevel) {
+    public Result<List<AlertRecordVO>> getAlertRecordsByAlertLevel(@ApiParam("预警级别（警告/严重）") @PathVariable AlertLevel alertLevel) {
         List<AlertRecordVO> voList = alertRecordService.getAlertRecordsByAlertLevel(alertLevel);
-        return Result.ok(voList);
+        return Result.ok(ALERT_RECORD_GET_SUCCESS_MESSAGE, voList);
     }
 
     /**
@@ -97,7 +100,7 @@ public class AlertRecordController {
     @GetMapping("/type")
     public Result<List<AlertRecordVO>> getAlertRecordsByAlertTypeLike(@ApiParam("预警类型关键词") @RequestParam String alertType) {
         List<AlertRecordVO> voList = alertRecordService.getAlertRecordsByAlertTypeLike(alertType);
-        return Result.ok(voList);
+        return Result.ok(ALERT_RECORD_GET_SUCCESS_MESSAGE, voList);
     }
 
     /**
@@ -109,6 +112,6 @@ public class AlertRecordController {
             @ApiParam("预警记录ID") @PathVariable Long id,
             @ApiParam("处理人") @RequestParam String handledBy) {
         alertRecordService.markAlertRecordAsHandled(id, handledBy);
-        return Result.ok("标记已处理成功");
+        return Result.ok(ALERT_RECORD_MARK_HANDLED_SUCCESS_MESSAGE);
     }
 }

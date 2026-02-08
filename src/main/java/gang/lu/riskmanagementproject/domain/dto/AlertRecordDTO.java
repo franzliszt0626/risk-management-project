@@ -1,5 +1,6 @@
 package gang.lu.riskmanagementproject.domain.dto;
 
+import gang.lu.riskmanagementproject.domain.enums.AlertLevel;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 
@@ -16,7 +17,7 @@ import java.time.LocalDateTime;
 public class AlertRecordDTO {
     private Long workerId;
     private String alertType;
-    private String alertLevel;
+    private AlertLevel alertLevel;
     private String message;
     private Boolean isHandled;
     private String handledBy;

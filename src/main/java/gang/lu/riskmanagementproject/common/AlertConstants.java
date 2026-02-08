@@ -4,7 +4,7 @@ package gang.lu.riskmanagementproject.common;
  * @author Franz Liszt
  * @version 1.0
  * @date 2026/2/7 16:07
- * @description 警告信息
+ * @description 预警报告相关常量信息
  */
 public class AlertConstants {
     /**

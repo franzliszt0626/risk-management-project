@@ -1,13 +1,12 @@
 package gang.lu.riskmanagementproject.domain.po;
 
 
-
-
 import com.baomidou.mybatisplus.annotation.*;
+import gang.lu.riskmanagementproject.domain.enums.AreaRiskLevel;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import java.time.LocalDateTime;
 
+import java.time.LocalDateTime;
 
 
 /**
@@ -28,7 +27,7 @@ public class WorkArea {
 
     private String areaName;
 
-    private String riskLevel;
+    private AreaRiskLevel areaRiskLevel;
 
     private String description;
 

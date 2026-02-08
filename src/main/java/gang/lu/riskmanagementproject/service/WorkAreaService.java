@@ -3,6 +3,7 @@ package gang.lu.riskmanagementproject.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import gang.lu.riskmanagementproject.domain.dto.WorkAreaDTO;
+import gang.lu.riskmanagementproject.domain.enums.AreaRiskLevel;
 import gang.lu.riskmanagementproject.domain.enums.RiskLevel;
 import gang.lu.riskmanagementproject.domain.po.WorkArea;
 import gang.lu.riskmanagementproject.domain.vo.WorkAreaRiskCountVO;
@@ -73,7 +74,7 @@ public interface WorkAreaService extends IService<WorkArea> {
      * @param riskLevel 风险等级（枚举）
      * @return 分页结果
      */
-    Page<WorkAreaVO> queryWorkAreas(Integer pageNum, Integer pageSize, String areaName, RiskLevel riskLevel);
+    Page<WorkAreaVO> queryWorkAreas(Integer pageNum, Integer pageSize, String areaName, AreaRiskLevel riskLevel);
 
     /**
      * 分页查询所有工作区域（无筛选条件）

@@ -2,6 +2,7 @@ package gang.lu.riskmanagementproject.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import gang.lu.riskmanagementproject.domain.dto.AlertRecordDTO;
+import gang.lu.riskmanagementproject.domain.enums.AlertLevel;
 import gang.lu.riskmanagementproject.domain.po.AlertRecord;
 import gang.lu.riskmanagementproject.domain.vo.AlertRecordVO;
 
@@ -57,7 +58,7 @@ public interface AlertRecordService extends IService<AlertRecord> {
      * @param alertLevel 级别
      * @return 结果集合
      */
-    List<AlertRecordVO> getAlertRecordsByAlertLevel(String alertLevel);
+    List<AlertRecordVO> getAlertRecordsByAlertLevel(AlertLevel alertLevel);
 
     /**
      * 根据预警类型模糊查询

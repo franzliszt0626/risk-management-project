@@ -23,7 +23,7 @@ public class RiskIndicatorVO {
     @ApiModelProperty("工人心率")
     private Integer heartRate;
     @ApiModelProperty("工人呼吸率")
-    private Double respiratoryRate;
+    private Integer respiratoryRate;
     @ApiModelProperty("工人综合疲劳指数")
     private Double fatiguePercent;
     @ApiModelProperty("工人的风险等级")

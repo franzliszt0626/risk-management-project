@@ -1,5 +1,6 @@
 package gang.lu.riskmanagementproject.domain.vo;
 
+import gang.lu.riskmanagementproject.domain.enums.AreaRiskLevel;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 
@@ -16,6 +17,6 @@ import lombok.Data;
 public class WorkAreaVO {
     private String areaCode;
     private String areaName;
-    private String riskLevel;
+    private AreaRiskLevel areaRiskLevel;
     private String description;
 }

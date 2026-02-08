@@ -23,8 +23,9 @@ public interface RiskIndicatorService extends IService<RiskIndicator> {
     /**
      * 由后台算法调用，插入风险指标信息
      * @param riskIndicatorDTO 风险指标数据传输体
+     * @return VO 把VO也返回给前端
      */
-    void insertRiskIndicator(RiskIndicatorDTO riskIndicatorDTO);
+    RiskIndicatorVO addRiskIndicator(RiskIndicatorDTO riskIndicatorDTO);
 
     /**
      * 由工人id查询对应工人最新一次的风险指标信息
@@ -36,9 +37,11 @@ public interface RiskIndicatorService extends IService<RiskIndicator> {
     /**
      * 由工人id查询他历史所有的风险指标信息
      * @param workerId 工人id
+     * @param pageNum 页码数
+     * @param pageSize 分页大小
      * @return 风险信息集合
      */
-    List<RiskIndicatorVO> getRiskIndicatorsByWorkerId(Long workerId);
+    List<RiskIndicatorVO> getRiskIndicatorsByWorkerId(Long workerId, Integer pageNum, Integer pageSize);
 
     /**
      * 统计去重工人的风险等级人数分布

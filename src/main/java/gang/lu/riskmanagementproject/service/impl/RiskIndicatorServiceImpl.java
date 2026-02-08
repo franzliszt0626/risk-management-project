@@ -1,10 +1,11 @@
 package gang.lu.riskmanagementproject.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import gang.lu.riskmanagementproject.common.FailureMessages;
 import gang.lu.riskmanagementproject.domain.dto.RiskIndicatorDTO;
 import gang.lu.riskmanagementproject.domain.enums.RiskLevel;
 import gang.lu.riskmanagementproject.domain.po.RiskIndicator;
@@ -13,22 +14,19 @@ import gang.lu.riskmanagementproject.domain.vo.RiskLevelCountVO;
 import gang.lu.riskmanagementproject.domain.vo.RiskTimePeriodCountVO;
 import gang.lu.riskmanagementproject.exception.BizException;
 import gang.lu.riskmanagementproject.mapper.RiskIndicatorMapper;
-import gang.lu.riskmanagementproject.mapper.WorkerMapper;
 import gang.lu.riskmanagementproject.service.RiskIndicatorService;
+import gang.lu.riskmanagementproject.util.BusinessVerifyUtil;
 import gang.lu.riskmanagementproject.util.ParameterVerifyUtil;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.*;
-
-import static gang.lu.riskmanagementproject.common.FailureMessages.*;
-import static gang.lu.riskmanagementproject.util.StatisticUtil.getCountFromMap;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -45,7 +43,6 @@ public class RiskIndicatorServiceImpl extends ServiceImpl<RiskIndicatorMapper, R
 
     private final RiskIndicatorMapper riskIndicatorMapper;
 
-    private final WorkerMapper workerMapper;
 
     /**
      * 由后台算法生成，前端调用，插入风险指标信息
@@ -54,29 +51,35 @@ public class RiskIndicatorServiceImpl extends ServiceImpl<RiskIndicatorMapper, R
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void insertRiskIndicator(RiskIndicatorDTO riskIndicatorDTO) {
-        // 得到工人id，但是不能是工人表中没有的
+    public RiskIndicatorVO addRiskIndicator(RiskIndicatorDTO riskIndicatorDTO) {
+        // 1、得到工人id，但是不能是工人表中没有的
         Long workerId = riskIndicatorDTO.getWorkerId();
-        if (ObjectUtil.isNull(workerId) || ObjectUtil.isNull(workerMapper.selectById(workerId))) {
-            throw new BizException(WORKER_NOT_EXISTING_ERROR_MESSAGE);
-        }
-        // 一系列的参数校验
+        // 校验工人ID+工人存在性
+        BusinessVerifyUtil.validateWorker(workerId, "新增风险指标");
+        // 2、一系列的参数校验
         ParameterVerifyUtil.validateHeartRate(riskIndicatorDTO.getHeartRate());
         ParameterVerifyUtil.validateRespiratoryRate(riskIndicatorDTO.getRespiratoryRate());
         ParameterVerifyUtil.validateFatiguePercent(riskIndicatorDTO.getFatiguePercent());
 
-        // 得到当前风险等级
-        RiskLevel riskLevel = riskIndicatorDTO.getRiskLevel();
-        if (ObjectUtil.isNull(riskLevel)) {
-            throw new BizException(NON_RISK_LEVEL_ERROR_MESSAGE);
+        // 3. 通用校验：风险等级合法性
+        BusinessVerifyUtil.validateRiskLevel(riskIndicatorDTO.getRiskLevel(), "新增风险指标");
+        // 4. 补充recordTime默认值（未传则取当前时间）
+        RiskIndicator riskIndicator = BeanUtil.copyProperties(riskIndicatorDTO, RiskIndicator.class);
+        if (ObjectUtil.isNull(riskIndicator.getRecordTime())) {
+            riskIndicator.setRecordTime(java.time.LocalDateTime.now());
+            log.info("【新增风险指标】工人ID：{}，自动填充记录时间为当前时间：{}", workerId, riskIndicator.getRecordTime());
         }
-        // 插入数据
-        RiskIndicator riskIndicator = new RiskIndicator();
-        BeanUtils.copyProperties(riskIndicatorDTO, riskIndicator);
+
+        // 5. 插入数据并校验结果
         int inserted = riskIndicatorMapper.insert(riskIndicator);
         if (inserted != 1) {
-            throw new BizException(CREATE_RISK_INDICATOR_ERROR_MESSAGE);
+            log.error("【新增风险指标失败】数据库插入异常，工人ID：{}，影响行数：{}", workerId, inserted);
+            throw new BizException(FailureMessages.RISK_OPERATE_CREATE_ERROR);
         }
+
+        log.info("【新增风险指标成功】工人ID：{}，风险指标记录ID：{}，风险等级：{}",
+                workerId, riskIndicator.getId(), riskIndicator.getRiskLevel().getValue());
+        return convertToVO(riskIndicator);
     }
 
     /**
@@ -87,17 +90,19 @@ public class RiskIndicatorServiceImpl extends ServiceImpl<RiskIndicatorMapper, R
      */
     @Override
     public RiskIndicatorVO getLatestRiskIndicatorByWorkerId(Long workerId) {
-        // 如果工人的id为空，传出工人不存在的信息
-        if (ObjectUtil.isNull(workerId)) {
-            throw new BizException(WORKER_NOT_EXISTING_ERROR_MESSAGE);
-        }
+        // 复用通用工具：校验工人ID+工人存在性
+        BusinessVerifyUtil.validateWorker(workerId, "查询最新风险指标");
+
         // 执行查询
         RiskIndicator latestRiskIndicator = riskIndicatorMapper.selectLatestByWorkerId(workerId);
-        // 转为VO
         if (ObjectUtil.isNull(latestRiskIndicator)) {
-            throw new BizException(LATEST_RISK_INDICATOR_NOT_EXISTING_ERROR_MESSAGE);
+            log.info("【查询最新风险指标】工人ID：{} 暂无最新记录", workerId);
+            throw new BizException(String.format(FailureMessages.RISK_INDICATOR_NO_LATEST, workerId));
         }
-        return BeanUtil.copyProperties(latestRiskIndicator, RiskIndicatorVO.class);
+
+        RiskIndicatorVO vo = BeanUtil.copyProperties(latestRiskIndicator, RiskIndicatorVO.class);
+        log.info("【查询最新风险指标成功】工人ID：{}，记录时间：{}", workerId, vo.getRecordTime());
+        return vo;
     }
 
     /**
@@ -107,23 +112,33 @@ public class RiskIndicatorServiceImpl extends ServiceImpl<RiskIndicatorMapper, R
      * @return 风险信息集合
      */
     @Override
-    public List<RiskIndicatorVO> getRiskIndicatorsByWorkerId(Long workerId) {
-        // 如果为空
-        if (ObjectUtil.isNull(workerId)) {
-            log.warn("查询风险指标失败：工人ID为空");
-            throw new BizException(WORKER_ID_NOT_EXISTING_ERROR_MESSAGE);
-        }
-        List<RiskIndicator> riskIndicators = lambdaQuery().eq(RiskIndicator::getWorkerId, workerId)
+    public List<RiskIndicatorVO> getRiskIndicatorsByWorkerId(Long workerId, Integer pageNum, Integer pageSize) {
+        // 复用通用工具：校验工人ID+工人存在性
+        BusinessVerifyUtil.validateWorker(workerId, "查询历史风险指标");
+
+        // 复用通用工具：处理分页参数
+        Integer[] pageParams = BusinessVerifyUtil.handlePageParams(pageNum, pageSize);
+        int finalPageNum = pageParams[0];
+        int finalPageSize = pageParams[1];
+
+        // 分页查询
+        log.info("【查询历史风险指标】工人ID：{}，分页：第{}页，每页{}条", workerId, finalPageNum, finalPageSize);
+        IPage<RiskIndicator> page = lambdaQuery()
+                .eq(RiskIndicator::getWorkerId, workerId)
                 .orderByDesc(RiskIndicator::getRecordTime)
-                .list();
-        // 如果查到为null，说明记录不存在
-        if (CollectionUtil.isEmpty(riskIndicators)) {
-            log.info("工人ID={}未查询到历史风险指标记录", workerId);
+                .page(new Page<>(finalPageNum, finalPageSize));
+
+        List<RiskIndicator> riskIndicators = page.getRecords();
+        if (ObjectUtil.isEmpty(riskIndicators)) {
+            log.info("【查询历史风险指标】工人ID：{} 暂无历史记录", workerId);
             return Collections.emptyList();
         }
-        log.info("工人ID={}查询到{}条历史风险指标记录", workerId, riskIndicators.size());
-        // 转VO集合
-        return BeanUtil.copyToList(riskIndicators, RiskIndicatorVO.class);
+
+        // 4. 转换为VO集合
+        List<RiskIndicatorVO> voList = convertToVOList(riskIndicators);
+        log.info("【查询历史风险指标成功】工人ID：{}，共查询到{}条历史记录（本页{}条）",
+                workerId, page.getTotal(), voList.size());
+        return voList;
     }
 
     /**
@@ -133,23 +148,23 @@ public class RiskIndicatorServiceImpl extends ServiceImpl<RiskIndicatorMapper, R
      */
     @Override
     public RiskLevelCountVO countDistinctWorkerByRiskLevel() {
-        // 1. 调用Mapper获取分组统计结果
+        log.info("【统计风险等级人数分布】开始执行");
         Map<String, Map<String, Object>> riskCountMap = riskIndicatorMapper.countDistinctWorkerByRiskLevel();
-        log.info("风险等级人数统计原始结果：{}", riskCountMap);
+        log.info("【统计风险等级人数分布】原始数据：{}", riskCountMap);
 
-        // 2. 初始化VO并赋值（默认0，避免空指针）
+        // 复用通用工具：安全提取count值
         RiskLevelCountVO vo = new RiskLevelCountVO();
-        // 提取风险人数：子Map.get("count")得到Object，转成Integer
-        vo.setLowRiskCount(getCountFromMap(riskCountMap, "低风险"));
-        vo.setMediumRiskCount(getCountFromMap(riskCountMap, "中风险"));
-        vo.setHighRiskCount(getCountFromMap(riskCountMap, "高风险"));
-        vo.setVeryHighRiskCount(getCountFromMap(riskCountMap, "严重风险"));
+        vo.setLowRiskCount(BusinessVerifyUtil.getCountFromMap(riskCountMap, RiskLevel.LOW_RISK.getValue()));
+        vo.setMediumRiskCount(BusinessVerifyUtil.getCountFromMap(riskCountMap, RiskLevel.MEDIUM_RISK.getValue()));
+        vo.setHighRiskCount(BusinessVerifyUtil.getCountFromMap(riskCountMap, RiskLevel.HIGH_RISK.getValue()));
+        vo.setVeryHighRiskCount(BusinessVerifyUtil.getCountFromMap(riskCountMap, RiskLevel.VERY_HIGH_RISK.getValue()));
 
-        // 3. 计算总人数
-        int total = vo.getLowRiskCount() + vo.getMediumRiskCount() +
-                vo.getHighRiskCount() + vo.getVeryHighRiskCount();
+        // 计算总人数
+        int total = vo.getLowRiskCount() + vo.getMediumRiskCount() + vo.getHighRiskCount() + vo.getVeryHighRiskCount();
         vo.setTotalCount(total);
 
+        log.info("【统计风险等级人数分布完成】总人数：{}，低风险：{}，中风险：{}，高风险：{}，严重风险：{}",
+                total, vo.getLowRiskCount(), vo.getMediumRiskCount(), vo.getHighRiskCount(), vo.getVeryHighRiskCount());
         return vo;
     }
 
@@ -161,69 +176,80 @@ public class RiskIndicatorServiceImpl extends ServiceImpl<RiskIndicatorMapper, R
      */
     @Override
     public RiskTimePeriodCountVO countHighRiskWorkerByTimePeriod(LocalDate statDate) {
-        // 1. 处理日期，不传默认当天
-        if (ObjectUtil.isNull(statDate)) {
-            statDate = LocalDate.now();
-        }
-        Date statDateDate = Date.from(statDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        String statDateStr = DateUtil.format(statDateDate, "yyyy-MM-dd");
-        log.info("开始统计{}各4小时时间段高风险工人数", statDateStr);
+// 1. 处理统计日期（默认当天，格式标准化）
+        LocalDate finalStatDate = ObjectUtil.defaultIfNull(statDate, LocalDate.now());
+        String statDateStr = finalStatDate.toString();
+        log.info("【统计时间段高风险人数】开始执行，统计日期：{}", statDateStr);
 
-        // 2. 调用Mapper（返回List<Map>，包含6个时间段的完整数据）
+        // 2. 查询时间段统计数据
         List<Map<String, Object>> periodList = riskIndicatorMapper.countHighRiskWorkerByTimePeriod(statDateStr);
-        log.info("时间段统计原始结果：{}", periodList);
+        log.info("【统计时间段高风险人数】原始时间段数据：{}", periodList);
 
-        // 3. 构建VO
+        // 3. 构建返回VO
         RiskTimePeriodCountVO resultVO = new RiskTimePeriodCountVO();
         resultVO.setStatDate(statDateStr);
-        List<RiskTimePeriodCountVO.TimePeriodItem> itemList = new ArrayList<>();
+        resultVO.setPeriodItems(buildTimePeriodItems(periodList));
 
-        // 4. 遍历返回的6条数据（顺序固定：0/4/8/12/16/20）
-        for (Map<String, Object> itemMap : periodList) {
-            // 修正1：先转Long再转Integer（避免直接强转）
-            Long periodLong = (Long) itemMap.get("period");
-            Integer period = periodLong.intValue();
-
-            // 修正2：count同样先转Long再转Integer（或直接toString后解析）
-            Long countLong = (Long) itemMap.get("count");
-            Integer count = countLong.intValue();
-
-            RiskTimePeriodCountVO.TimePeriodItem item = getTimePeriodItem(period, count);
-            itemList.add(item);
-        }
-
-        resultVO.setPeriodItems(itemList);
-        log.info("{}时间段高风险工人数统计完成：{}", statDateStr, resultVO);
+        log.info("【统计时间段高风险人数完成】日期：{}，共统计{}个时间段数据", statDateStr, resultVO.getPeriodItems().size());
         return resultVO;
     }
 
-    private static RiskTimePeriodCountVO.@NonNull TimePeriodItem getTimePeriodItem(Integer period, Integer count) {
-        RiskTimePeriodCountVO.TimePeriodItem item = new RiskTimePeriodCountVO.TimePeriodItem();
-        // 根据period匹配时间段描述
-        switch (period) {
-            case 0:
-                item.setPeriodDesc("00:00-04:00");
-                break;
-            case 4:
-                item.setPeriodDesc("04:00-08:00");
-                break;
-            case 8:
-                item.setPeriodDesc("08:00-12:00");
-                break;
-            case 12:
-                item.setPeriodDesc("12:00-16:00");
-                break;
-            case 16:
-                item.setPeriodDesc("16:00-20:00");
-                break;
-            case 20:
-                item.setPeriodDesc("20:00-24:00");
-                break;
-            default:
-                item.setPeriodDesc("未知时间段");
+
+    // ========== 私有工具方法：消除重复代码 ==========
+
+    /**
+     * 单个RiskIndicator转换为VO
+     */
+    private RiskIndicatorVO convertToVO(RiskIndicator riskIndicator) {
+        if (ObjectUtil.isNull(riskIndicator)) {
+            return null;
         }
-        item.setHighRiskCount(count);
-        return item;
+        return BeanUtil.copyProperties(riskIndicator, RiskIndicatorVO.class);
     }
 
+    /**
+     * RiskIndicator集合转换为VO集合
+     */
+    private List<RiskIndicatorVO> convertToVOList(List<RiskIndicator> riskIndicators) {
+        if (ObjectUtil.isEmpty(riskIndicators)) {
+            return Collections.emptyList();
+        }
+        return BeanUtil.copyToList(riskIndicators, RiskIndicatorVO.class);
+    }
+
+    /**
+     * 构建时间段统计Item（抽取重复逻辑）
+     */
+    private List<RiskTimePeriodCountVO.TimePeriodItem> buildTimePeriodItems(List<Map<String, Object>> periodList) {
+        List<RiskTimePeriodCountVO.TimePeriodItem> itemList = new ArrayList<>();
+
+        for (Map<String, Object> itemMap : periodList) {
+            // 安全转换类型（避免空指针/类型转换异常）
+            Integer period = BusinessVerifyUtil.safeLongToInt((Long) itemMap.get("period"), -1);
+            Integer count = BusinessVerifyUtil.safeLongToInt((Long) itemMap.get("count"), 0);
+
+            RiskTimePeriodCountVO.TimePeriodItem item = new RiskTimePeriodCountVO.TimePeriodItem();
+            item.setHighRiskCount(count);
+            item.setPeriodDesc(getPeriodDesc(period));
+
+            itemList.add(item);
+        }
+
+        return itemList;
+    }
+
+    /**
+     * 获取时间段描述（抽取switch逻辑）
+     */
+    private String getPeriodDesc(Integer period) {
+        return switch (period) {
+            case 0 -> "00:00-04:00";
+            case 4 -> "04:00-08:00";
+            case 8 -> "08:00-12:00";
+            case 12 -> "12:00-16:00";
+            case 16 -> "16:00-20:00";
+            case 20 -> "20:00-24:00";
+            default -> "未知时间段";
+        };
+    }
 }

@@ -7,16 +7,16 @@
         <id column="id" property="id"/>
         <result column="area_code" property="areaCode"/>
         <result column="area_name" property="areaName"/>
-        <result column="risk_level" property="riskLevel"/>
+        <result column="risk_level" property="areaRiskLevel"/>
         <result column="description" property="description"/>
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
     </resultMap>
 
     <select id="countWorkAreaByRiskLevel" resultType="java.util.Map">
-        SELECT risk_level, COUNT(*) AS count
+        SELECT area_risk_level, COUNT(*) AS count
         FROM t_work_area
-        GROUP BY risk_level
+        GROUP BY area_risk_level
     </select>
 
 

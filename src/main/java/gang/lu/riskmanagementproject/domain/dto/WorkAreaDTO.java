@@ -1,5 +1,6 @@
 package gang.lu.riskmanagementproject.domain.dto;
 
+import gang.lu.riskmanagementproject.domain.enums.AreaRiskLevel;
 import gang.lu.riskmanagementproject.domain.enums.RiskLevel;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -21,7 +22,7 @@ public class WorkAreaDTO {
     private String areaName;
 
     @ApiModelProperty(value = "区域风险等级")
-    private RiskLevel riskLevel;
+    private AreaRiskLevel areaRiskLevel;
 
     @ApiModelProperty(value = "描述")
     private String description;

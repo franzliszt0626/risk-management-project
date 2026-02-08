@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import gang.lu.riskmanagementproject.domain.dto.WorkerDTO;
 import gang.lu.riskmanagementproject.domain.enums.Status;
+import gang.lu.riskmanagementproject.domain.enums.WorkType;
 import gang.lu.riskmanagementproject.domain.po.Worker;
 import gang.lu.riskmanagementproject.domain.vo.WorkerVO;
 
@@ -83,4 +84,11 @@ public interface WorkerService extends IService<Worker> {
      * @return Page<WorkerVO>
      */
     Page<WorkerVO> getAllWorkers(Integer pageNum, Integer pageSize);
+
+    /**
+     * 按照工作种类查询
+     * @param workType 工种
+     * @return 集合
+     */
+    List<WorkerVO> getWorkersByWorkType(WorkType workType);
 }

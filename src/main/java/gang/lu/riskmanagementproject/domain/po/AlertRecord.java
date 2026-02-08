@@ -3,6 +3,7 @@ package gang.lu.riskmanagementproject.domain.po;
 
 
 import com.baomidou.mybatisplus.annotation.*;
+import gang.lu.riskmanagementproject.domain.enums.AlertLevel;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -27,7 +28,7 @@ public class AlertRecord {
 
     private String alertType;
 
-    private String alertLevel;
+    private AlertLevel alertLevel;
 
     private String message;
 

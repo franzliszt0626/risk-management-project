@@ -24,6 +24,6 @@ public interface WorkAreaMapper extends BaseMapper<WorkArea> {
      * @return Map<风险等级, 子Map(包含risk_level和count)>
      * 指定外层Map的key为risk_level列
      */
-    @MapKey("risk_level")
+    @MapKey("area_risk_level")
     Map<String, Map<String, Object>> countWorkAreaByRiskLevel();
 }
