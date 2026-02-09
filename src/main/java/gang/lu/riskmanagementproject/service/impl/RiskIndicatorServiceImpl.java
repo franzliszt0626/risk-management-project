@@ -1,7 +1,6 @@
 package gang.lu.riskmanagementproject.service.impl;
 
 import cn.hutool.core.util.ObjectUtil;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import gang.lu.riskmanagementproject.annotation.BusinessLog;
@@ -9,16 +8,17 @@ import gang.lu.riskmanagementproject.common.FailureMessages;
 import gang.lu.riskmanagementproject.domain.dto.RiskIndicatorDTO;
 import gang.lu.riskmanagementproject.domain.enums.RiskLevel;
 import gang.lu.riskmanagementproject.domain.po.RiskIndicator;
-import gang.lu.riskmanagementproject.domain.vo.RiskIndicatorVO;
-import gang.lu.riskmanagementproject.domain.vo.RiskLevelCountVO;
-import gang.lu.riskmanagementproject.domain.vo.RiskTimePeriodCountVO;
+import gang.lu.riskmanagementproject.domain.vo.normal.RiskIndicatorVO;
+import gang.lu.riskmanagementproject.domain.vo.statistical.indicator.RiskLevelCountVO;
+import gang.lu.riskmanagementproject.domain.vo.statistical.indicator.RiskTimePeriodCountVO;
 import gang.lu.riskmanagementproject.exception.BizException;
 import gang.lu.riskmanagementproject.mapper.RiskIndicatorMapper;
 import gang.lu.riskmanagementproject.service.RiskIndicatorService;
-import gang.lu.riskmanagementproject.util.BasicUtil;
 import gang.lu.riskmanagementproject.util.ConvertUtil;
 import gang.lu.riskmanagementproject.util.MedicalUtil;
+import gang.lu.riskmanagementproject.util.PageUtil;
 import gang.lu.riskmanagementproject.util.StatisticalUtil;
+import gang.lu.riskmanagementproject.validator.GeneralValidator;
 import gang.lu.riskmanagementproject.validator.RiskValidator;
 import gang.lu.riskmanagementproject.validator.WorkerValidator;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +51,8 @@ public class RiskIndicatorServiceImpl extends ServiceImpl<RiskIndicatorMapper, R
     private final WorkerValidator workerValidator;
 
     private final RiskValidator riskValidator;
+
+    private final GeneralValidator generalValidator;
 
 
     /**
@@ -75,14 +78,9 @@ public class RiskIndicatorServiceImpl extends ServiceImpl<RiskIndicatorMapper, R
 
         // 4. 转换+默认值
         RiskIndicator riskIndicator = ConvertUtil.convert(riskIndicatorDTO, RiskIndicator.class);
-        if (ObjectUtil.isNull(riskIndicator.getRecordTime())) {
-            riskIndicator.setRecordTime(java.time.LocalDateTime.now());
-        }
+        riskIndicator.setRecordTime(ObjectUtil.defaultIfNull(riskIndicator.getRecordTime(), LocalDateTime.now()));
         // 5. 插入
-        int inserted = riskIndicatorMapper.insert(riskIndicator);
-        if (inserted != 1) {
-            throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR, FailureMessages.RISK_CREATE_ERROR);
-        }
+        generalValidator.validateDbOperateResult(riskIndicatorMapper.insert(riskIndicator));
         return ConvertUtil.convert(riskIndicator, RiskIndicatorVO.class);
     }
 
@@ -113,17 +111,19 @@ public class RiskIndicatorServiceImpl extends ServiceImpl<RiskIndicatorMapper, R
     @BusinessLog(value = "查询历史风险指标（工人ID）", recordParams = true)
     public List<RiskIndicatorVO> getRiskIndicatorsByWorkerId(Long workerId, Integer pageNum, Integer pageSize) {
         workerValidator.validateWorkerExist(workerId, GET_HISTORY_RISK_INDICATOR);
-        // 复用通用分页参数
-        Integer[] pageParams = BasicUtil.handleCustomPageParams(pageNum, pageSize, GET_HISTORY_RISK_INDICATOR_BY_WORKER_ID);
-        IPage<RiskIndicator> page = lambdaQuery()
+        // 1. 一键构建分页对象（替代手动参数处理）
+        Page<RiskIndicator> page = PageUtil.buildPage(pageNum, pageSize, GET_HISTORY_RISK_INDICATOR_BY_WORKER_ID);
+
+        // 2. 分页查询
+        page = lambdaQuery()
                 .eq(RiskIndicator::getWorkerId, workerId)
                 .orderByDesc(RiskIndicator::getRecordTime)
-                .page(new Page<>(pageParams[0], pageParams[1]));
+                .page(page);
 
-        if (ObjectUtil.isEmpty(page.getRecords())) {
-            return Collections.emptyList();
-        }
-        return ConvertUtil.convertList(page.getRecords(), RiskIndicatorVO.class);
+        // 3. 结果转换（简化判空逻辑）
+        return ObjectUtil.isEmpty(page.getRecords())
+                ? Collections.emptyList()
+                : ConvertUtil.convertList(page.getRecords(), RiskIndicatorVO.class);
     }
 
     /**

@@ -3,9 +3,9 @@ package gang.lu.riskmanagementproject.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import gang.lu.riskmanagementproject.domain.dto.RiskIndicatorDTO;
 import gang.lu.riskmanagementproject.domain.po.RiskIndicator;
-import gang.lu.riskmanagementproject.domain.vo.RiskIndicatorVO;
-import gang.lu.riskmanagementproject.domain.vo.RiskLevelCountVO;
-import gang.lu.riskmanagementproject.domain.vo.RiskTimePeriodCountVO;
+import gang.lu.riskmanagementproject.domain.vo.normal.RiskIndicatorVO;
+import gang.lu.riskmanagementproject.domain.vo.statistical.indicator.RiskLevelCountVO;
+import gang.lu.riskmanagementproject.domain.vo.statistical.indicator.RiskTimePeriodCountVO;
 
 import java.time.LocalDate;
 import java.util.List;

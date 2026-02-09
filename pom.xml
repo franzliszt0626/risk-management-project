@@ -12,6 +12,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <spring-boot.version>2.7.6</spring-boot.version>
+        <!-- 校验规范版本 -->
+        <validation-api.version>2.0.1.Final</validation-api.version>
+        <hibernate-validator.version>6.2.5.Final</hibernate-validator.version>
     </properties>
     <dependencies>
         <dependency>
@@ -50,7 +53,7 @@
             <version>3.5.3.1</version>
             <scope>provided</scope>
         </dependency>
-        <!-- 模板引擎（推荐 velocity 或 freemarker） -->
+        <!-- 模板引擎 -->
         <dependency>
             <groupId>org.apache.velocity</groupId>
             <artifactId>velocity-engine-core</artifactId>
@@ -70,6 +73,17 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+        <!-- JSR380 校验核心依赖 -->
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>${validation-api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>${hibernate-validator.version}</version>
         </dependency>
     </dependencies>
     <dependencyManagement>

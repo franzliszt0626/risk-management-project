@@ -1,4 +1,4 @@
-package gang.lu.riskmanagementproject.domain.vo;
+package gang.lu.riskmanagementproject.domain.vo.normal;
 
 
 

@@ -19,7 +19,7 @@ public class RiskValidator {
     private final GeneralValidator generalValidator;
 
     /**
-     * 通用风险等级枚举校验（兼容RiskLevel/AreaRiskLevel）
+     * 通用风险等级枚举校验（泛型兼容RiskLevel/AreaRiskLevel）
      */
     @ValidateLog("风险等级枚举非空校验")
     public <E> void validateRiskLevel(E riskLevel, String businessScene) {

@@ -4,10 +4,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import gang.lu.riskmanagementproject.domain.dto.WorkAreaDTO;
 import gang.lu.riskmanagementproject.domain.enums.AreaRiskLevel;
-import gang.lu.riskmanagementproject.domain.enums.RiskLevel;
 import gang.lu.riskmanagementproject.domain.po.WorkArea;
-import gang.lu.riskmanagementproject.domain.vo.WorkAreaRiskCountVO;
-import gang.lu.riskmanagementproject.domain.vo.WorkAreaVO;
+import gang.lu.riskmanagementproject.domain.vo.statistical.area.WorkAreaRiskCountVO;
+import gang.lu.riskmanagementproject.domain.vo.normal.WorkAreaVO;
 
 import java.util.List;
 

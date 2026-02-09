@@ -8,7 +8,7 @@ import gang.lu.riskmanagementproject.common.FailureMessages;
 import gang.lu.riskmanagementproject.domain.dto.AlertRecordDTO;
 import gang.lu.riskmanagementproject.domain.enums.AlertLevel;
 import gang.lu.riskmanagementproject.domain.po.AlertRecord;
-import gang.lu.riskmanagementproject.domain.vo.AlertRecordVO;
+import gang.lu.riskmanagementproject.domain.vo.normal.AlertRecordVO;
 import gang.lu.riskmanagementproject.exception.BizException;
 import gang.lu.riskmanagementproject.mapper.AlertRecordMapper;
 import gang.lu.riskmanagementproject.service.AlertRecordService;
@@ -26,8 +26,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static gang.lu.riskmanagementproject.common.BusinessScene.*;
-import static gang.lu.riskmanagementproject.common.FieldName.ALERT_TYPE;
-import static gang.lu.riskmanagementproject.common.FieldName.HANDLED_BY;
+import static gang.lu.riskmanagementproject.common.FieldName.*;
 
 
 /**
@@ -63,16 +62,11 @@ public class AlertRecordServiceImpl extends ServiceImpl<AlertRecordMapper, Alert
         // 1. 校验工人存在性
         Long workerId = dto.getWorkerId();
         workerValidator.validateWorkerExist(workerId, ADD_ALERT_RECORD);
-
         // 2. 校验预警等级
         alertRecordValidator.validateAlertLevel(dto.getAlertLevel(), ADD_ALERT_RECORD);
-
         // 3. DTO转PO + 插入
         AlertRecord alertRecord = ConvertUtil.convert(dto, AlertRecord.class);
-        int inserted = alertRecordMapper.insert(alertRecord);
-        if (inserted != 1) {
-            throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR, FailureMessages.COMMON_DATABASE_ERROR);
-        }
+        generalValidator.validateDbOperateResult(alertRecordMapper.insert(alertRecord));
         return ConvertUtil.convert(alertRecord, AlertRecordVO.class);
     }
 
@@ -86,10 +80,7 @@ public class AlertRecordServiceImpl extends ServiceImpl<AlertRecordMapper, Alert
     @BusinessLog(value = "删除预警记录", recordParams = true)
     public void deleteAlertRecord(Long id) {
         alertRecordValidator.validateAlertRecordExist(id);
-        int deleted = alertRecordMapper.deleteById(id);
-        if (deleted != 1) {
-            throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR, FailureMessages.COMMON_DATABASE_ERROR);
-        }
+        generalValidator.validateDbOperateResult(alertRecordMapper.deleteById(id));
     }
 
     /**
@@ -104,34 +95,27 @@ public class AlertRecordServiceImpl extends ServiceImpl<AlertRecordMapper, Alert
     @BusinessLog(value = "修改预警记录", recordParams = true)
     public AlertRecordVO updateAlertRecord(Long id, AlertRecordDTO dto) {
         AlertRecord alertRecord = alertRecordValidator.validateAlertRecordExist(id);
-
-        // 校验工人ID
+        // 1、校验工人ID
         Long newWorkerId = dto.getWorkerId();
-        if (ObjectUtil.isNotNull(newWorkerId)) {
-            workerValidator.validateWorkerExist(newWorkerId, UPDATE_ALERT_RECORD);
-        } else {
-            workerValidator.validateWorkerExist(alertRecord.getWorkerId(), UPDATE_ALERT_RECORD);
-        }
-
-        // 校验预警等级（若传入）
+        // 如果前端没传id，则校验旧id，传了就校验新id
+        workerValidator.validateWorkerExist(
+                ObjectUtil.isNotNull(newWorkerId) ? newWorkerId : alertRecord.getWorkerId(),
+                UPDATE_ALERT_RECORD
+        );
+        // 2、校验预警等级（若传入）
         if (ObjectUtil.isNotNull(dto.getAlertLevel())) {
             alertRecordValidator.validateAlertLevel(dto.getAlertLevel(), UPDATE_ALERT_RECORD);
         }
 
-        // DTO转PO（覆盖非空字段）
-        BeanUtil.copyProperties(dto, alertRecord, "id", "createdTime");
-        int updated = alertRecordMapper.updateById(alertRecord);
-        if (updated != 1) {
-            throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR, FailureMessages.COMMON_DATABASE_ERROR);
-        }
-
-        AlertRecord latestRecord = alertRecordMapper.selectById(id);
-        return ConvertUtil.convert(latestRecord, AlertRecordVO.class);
+        // 3、DTO转PO（覆盖非空字段）
+        BeanUtil.copyProperties(dto, alertRecord, ID, CREATE_TIME);
+        generalValidator.validateDbOperateResult(alertRecordMapper.updateById(alertRecord));
+        return ConvertUtil.convert(alertRecordMapper.selectById(id), AlertRecordVO.class);
     }
 
 
     /**
-     * 根据ID查询（查不到抛BizException）
+     * 根据ID查
      *
      * @param id 预警记录id
      * @return VO
@@ -153,7 +137,6 @@ public class AlertRecordServiceImpl extends ServiceImpl<AlertRecordMapper, Alert
     @BusinessLog(value = "查询工人预警记录", recordParams = true)
     public List<AlertRecordVO> getAlertRecordsByWorkerId(Long workerId) {
         workerValidator.validateWorkerExist(workerId, GET_ALERT_RECORD);
-
         List<AlertRecord> alertRecords = alertRecordMapper.selectByWorkerId(workerId);
         if (ObjectUtil.isEmpty(alertRecords)) {
             return Collections.emptyList();
@@ -205,8 +188,9 @@ public class AlertRecordServiceImpl extends ServiceImpl<AlertRecordMapper, Alert
     @Transactional(rollbackFor = Exception.class)
     @BusinessLog(value = "标记预警记录为已处理", recordParams = true)
     public void markAlertRecordAsHandled(Long id, String handledBy) {
-
+        // 1、看记录是否存在
         alertRecordValidator.validateAlertRecordExist(id);
+        // 2、校验处理人是否为空
         generalValidator.validateStringNotBlank(handledBy, HANDLED_BY, HANDLE_ALERT_RECORD);
         int rows = alertRecordMapper.markAsHandled(id, handledBy, LocalDateTime.now());
         if (rows == 0) {

@@ -2,15 +2,16 @@ package gang.lu.riskmanagementproject.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import gang.lu.riskmanagementproject.annotation.BusinessLog;
 import gang.lu.riskmanagementproject.domain.dto.WorkerDTO;
 import gang.lu.riskmanagementproject.domain.enums.Status;
 import gang.lu.riskmanagementproject.domain.enums.WorkType;
 import gang.lu.riskmanagementproject.domain.po.Worker;
-import gang.lu.riskmanagementproject.domain.vo.WorkerStatusCountVO;
-import gang.lu.riskmanagementproject.domain.vo.WorkerTypeCountVO;
-import gang.lu.riskmanagementproject.domain.vo.WorkerVO;
+import gang.lu.riskmanagementproject.domain.query.WorkerQuery;
+import gang.lu.riskmanagementproject.domain.vo.statistical.worker.WorkerStatusCountVO;
+import gang.lu.riskmanagementproject.domain.vo.statistical.worker.WorkerTypeCountVO;
+import gang.lu.riskmanagementproject.domain.vo.normal.WorkerVO;
 
+import java.io.ByteArrayInputStream;
 import java.util.List;
 
 /**
@@ -107,4 +108,19 @@ public interface WorkerService extends IService<Worker> {
      * @return 状态统计结果VO
      */
     WorkerTypeCountVO countWorkerByWorkType();
+
+    /**
+     * 批量删除工人
+     * @param ids id们
+     */
+    void batchDeleteWorkers(List<Long> ids);
+
+
+    /**
+     * 组合条件分页查询工人
+     * @param workerQuery 查询数据传输实体
+     * @return 分页结果
+     */
+    Page<WorkerVO> searchWorkers(WorkerQuery workerQuery);
+
 }

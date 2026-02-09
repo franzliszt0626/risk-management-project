@@ -42,23 +42,19 @@ public class ConvertUtil {
     }
 
     /**
-     * 分页对象转换（MP Page）
+     * 分页对象转换（MP Page）- 简化逻辑，保留所有分页参数
      */
     public static <T, R> Page<R> convertPage(Page<T> sourcePage, Class<R> targetClass) {
-        Page<R> targetPage = new Page<>();
-        BeanUtil.copyProperties(sourcePage, targetPage);
+        Page<R> targetPage = new Page<>(sourcePage.getCurrent(), sourcePage.getSize(), sourcePage.getTotal());
+        targetPage.setPages(sourcePage.getPages());
         targetPage.setRecords(convertList(sourcePage.getRecords(), targetClass));
         return targetPage;
     }
 
     /**
-     * 手动拷贝分页参数（兼容手动设置total/pages的场景）
+     * 兼容旧方法（保持向下兼容）
      */
     public static <T, R> Page<R> convertPageWithManualTotal(Page<T> sourcePage, Class<R> targetClass) {
-        Page<R> targetPage = convertPage(sourcePage, targetClass);
-        // 强制保留手动设置的total和pages
-        targetPage.setTotal(sourcePage.getTotal());
-        targetPage.setPages(sourcePage.getPages());
-        return targetPage;
+        return convertPage(sourcePage, targetClass);
     }
 }

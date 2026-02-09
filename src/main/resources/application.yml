@@ -4,6 +4,10 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: WojiaGuoguo626
+  page:
+    default-num: 1
+    default-size: 10
+    max-size: 50
 logging:
   level:
     com.itheima: debug
@@ -36,3 +40,4 @@ knife4j:
         api-rule: package
         api-rule-resources:
           - gang.lu.riskmanagementproject.controller
+

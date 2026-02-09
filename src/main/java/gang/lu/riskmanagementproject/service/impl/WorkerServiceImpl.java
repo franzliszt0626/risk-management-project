@@ -1,5 +1,6 @@
 package gang.lu.riskmanagementproject.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -11,13 +12,15 @@ import gang.lu.riskmanagementproject.domain.dto.WorkerDTO;
 import gang.lu.riskmanagementproject.domain.enums.Status;
 import gang.lu.riskmanagementproject.domain.enums.WorkType;
 import gang.lu.riskmanagementproject.domain.po.Worker;
-import gang.lu.riskmanagementproject.domain.vo.WorkerStatusCountVO;
-import gang.lu.riskmanagementproject.domain.vo.WorkerTypeCountVO;
-import gang.lu.riskmanagementproject.domain.vo.WorkerVO;
+import gang.lu.riskmanagementproject.domain.query.WorkerQuery;
+import gang.lu.riskmanagementproject.domain.vo.normal.WorkerVO;
+import gang.lu.riskmanagementproject.domain.vo.statistical.worker.WorkerStatusCountVO;
+import gang.lu.riskmanagementproject.domain.vo.statistical.worker.WorkerTypeCountVO;
 import gang.lu.riskmanagementproject.exception.BizException;
 import gang.lu.riskmanagementproject.mapper.WorkerMapper;
 import gang.lu.riskmanagementproject.service.WorkerService;
 import gang.lu.riskmanagementproject.util.ConvertUtil;
+import gang.lu.riskmanagementproject.util.PageUtil;
 import gang.lu.riskmanagementproject.util.StatisticalUtil;
 import gang.lu.riskmanagementproject.validator.GeneralValidator;
 import gang.lu.riskmanagementproject.validator.WorkerValidator;
@@ -27,15 +30,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static gang.lu.riskmanagementproject.common.BusinessScene.*;
 import static gang.lu.riskmanagementproject.common.EnumName.STATUS;
 import static gang.lu.riskmanagementproject.common.EnumName.WORK_TYPE;
 import static gang.lu.riskmanagementproject.common.FieldName.*;
-import static gang.lu.riskmanagementproject.util.BasicUtil.handleCustomPageParams;
 
 /**
  * <p>
@@ -242,18 +243,13 @@ public class WorkerServiceImpl extends ServiceImpl<WorkerMapper, Worker> impleme
     @BusinessLog(value = "分页查询所有工人", recordParams = true)
     public Page<WorkerVO> getAllWorkers(Integer pageNum, Integer pageSize) {
         // 分页参数处理
-        Integer[] pageParams = handleCustomPageParams(pageNum, pageSize, GET_WORKER);
-        int finalPageNum = pageParams[0];
-        int finalPageSize = pageParams[1];
+        Page<Worker> workerPage = PageUtil.buildPage(pageNum, pageSize, GET_WORKER);
         // 分页查询
         LambdaQueryWrapper<Worker> wrapper = new LambdaQueryWrapper<>();
         wrapper.orderByDesc(Worker::getUpdateTime);
-        long total = count(wrapper);
-        Page<Worker> workerPage = new Page<>(finalPageNum, finalPageSize);
+        // 3. 分页查询（MyBatis-Plus自动计算总数，无需手动count）
         workerPage = page(workerPage, wrapper);
-        workerPage.setTotal(total);
-        workerPage.setPages(total > 0 ? (total + finalPageSize - 1) / finalPageSize : 0);
-        // 转换分页VO
+        // 4. 转换VO（无需手动补全total/pages）
         return ConvertUtil.convertPageWithManualTotal(workerPage, WorkerVO.class);
     }
 
@@ -299,6 +295,54 @@ public class WorkerServiceImpl extends ServiceImpl<WorkerMapper, Worker> impleme
     }
 
     /**
+     * 批量删除工人
+     *
+     * @param ids id们
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    @BusinessLog(value = "批量删除工人", recordParams = true)
+    public void batchDeleteWorkers(List<Long> ids) {
+        // 1. 空值校验
+        if (CollUtil.isEmpty(ids)) {
+            throw new BizException(HttpStatus.BAD_REQUEST, FailureMessages.WORKER_DELETE_BATCH_ID_EMPTY);
+        }
+        // 2. 批量存在性校验（1次查询替代N次）
+        List<Worker> existWorkers = workerMapper.selectBatchIds(ids);
+        if (existWorkers.size() != ids.size()) {
+            // 找出不存在的ID
+            Set<Long> existIds = existWorkers.stream().map(Worker::getId).collect(Collectors.toSet());
+            List<Long> notExistIds = ids.stream().filter(id -> !existIds.contains(id)).toList();
+            throw new BizException(HttpStatus.NOT_FOUND,
+                    String.format(FailureMessages.WORKER_NOT_EXIST_BATCH, notExistIds));
+        }
+        // 3. 执行批量删除
+        int deleted = workerMapper.deleteBatchIds(ids);
+        if (deleted != ids.size()) {
+            throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR, FailureMessages.WORKER_DELETE_BATCH_ERROR);
+        }
+    }
+
+    /**
+     * 组合条件分页查询工人
+     *
+     * @param workerQuery 查询数据传输实体
+     * @return 分页结果
+     */
+    @Override
+    @BusinessLog(value = "组合查询工人", recordParams = true)
+    public Page<WorkerVO> searchWorkers(WorkerQuery workerQuery) {
+        // 1. 构建分页对象
+        Page<Worker> workerPage = PageUtil.buildPage(workerQuery.getPageNum(), workerQuery.getPageSize(), GET_WORKER);
+        // 2. 构建组合查询条件（逻辑不变）
+        LambdaQueryWrapper<Worker> wrapper = buildWorkerQueryWrapper(workerQuery);
+        // 3. 分页查询（自动计算总数）
+        workerPage = page(workerPage, wrapper);
+        // 4. 转换VO
+        return ConvertUtil.convertPageWithManualTotal(workerPage, WorkerVO.class);
+    }
+
+    /**
      * 内部复用
      */
     private Worker getWorkerByCodeWithOutVerify(String workerCode) {
@@ -306,5 +350,44 @@ public class WorkerServiceImpl extends ServiceImpl<WorkerMapper, Worker> impleme
             return null;
         }
         return lambdaQuery().eq(Worker::getWorkerCode, workerCode).one();
+    }
+
+    /**
+     * 建立查询条件
+     */
+    private LambdaQueryWrapper<Worker> buildWorkerQueryWrapper(WorkerQuery workerQuery) {
+        LambdaQueryWrapper<Worker> wrapper = new LambdaQueryWrapper<>();
+        // 工号模糊匹配
+        if (StrUtil.isNotBlank(workerQuery.getWorkerCode())) {
+            wrapper.like(Worker::getWorkerCode, workerQuery.getWorkerCode().trim());
+        }
+        // 姓名模糊匹配
+        if (StrUtil.isNotBlank(workerQuery.getName())) {
+            wrapper.like(Worker::getName, workerQuery.getName().trim());
+        }
+        // 岗位模糊匹配
+        if (StrUtil.isNotBlank(workerQuery.getPosition())) {
+            wrapper.like(Worker::getPosition, workerQuery.getPosition().trim());
+        }
+        // 工龄区间
+        if (Objects.nonNull(workerQuery.getMinWorkYears())) {
+            wrapper.ge(Worker::getWorkYears, workerQuery.getMinWorkYears());
+        }
+        if (Objects.nonNull(workerQuery.getMaxWorkYears())) {
+            wrapper.le(Worker::getWorkYears, workerQuery.getMaxWorkYears());
+        }
+        // 工作类型（枚举转换）
+        if (StrUtil.isNotBlank(workerQuery.getWorkTypeValue())) {
+            WorkType workType = WorkType.fromValue(workerQuery.getWorkTypeValue());
+            wrapper.eq(Worker::getWorkType, workType);
+        }
+        // 状态（枚举转换）
+        if (StrUtil.isNotBlank(workerQuery.getStatusValue())) {
+            Status status = Status.fromValue(workerQuery.getStatusValue());
+            wrapper.eq(Worker::getStatus, status);
+        }
+        // 排序
+        wrapper.orderByDesc(Worker::getUpdateTime);
+        return wrapper;
     }
 }

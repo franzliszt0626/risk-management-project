@@ -33,4 +33,5 @@ public class BusinessScene {
     public static final String GET_WORKER_BY_WORKCODE = "根据工号查询工人";
     public static final String GET_WORKER_BY_STATUS = "根据状态查询工人";
     public static final String GET_WORKER_BY_WORKTYPE = "按工种查询工人";
+    public static final String BATCH_DELETE_WORKER = "批量删除工人";
 }

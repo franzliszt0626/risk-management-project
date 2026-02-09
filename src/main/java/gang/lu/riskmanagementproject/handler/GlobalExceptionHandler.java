@@ -17,7 +17,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Franz Liszt
@@ -32,6 +36,20 @@ public class GlobalExceptionHandler {
 
 
     public static final String PROBLEM = "problem: ";
+
+    /**
+     * 处理@Validated（方法参数）的校验异常
+     */
+    @ExceptionHandler(ConstraintViolationException.class)
+    public Result<?> handleConstraintViolationException(ConstraintViolationException e) {
+        // 提取所有校验失败的提示信息，用分号分隔
+        Set<ConstraintViolation<?>> violations = e.getConstraintViolations();
+        String errorMsg = violations.stream()
+                .map(ConstraintViolation::getMessage)
+                .collect(Collectors.joining("；"));
+        log.warn("【Controller层方法参数校验异常】{}", errorMsg, e);
+        return Result.error(HttpStatus.BAD_REQUEST, errorMsg);
+    }
 
     /**
      * 提取字段校验异常的错误信息（复用MethodArgumentNotValidException和BindException的处理逻辑）

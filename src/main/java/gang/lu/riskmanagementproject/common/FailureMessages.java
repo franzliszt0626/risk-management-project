@@ -67,6 +67,14 @@ public class FailureMessages {
      */
     public static final String WORKER_DELETE_ERROR = "【删除工人失败】删除工人信息失败！";
     /**
+     * 批量删除工人失败
+     */
+    public static final String WORKER_DELETE_BATCH_ERROR = "【删除工人失败】批量删除工人失败！";
+    /**
+     * 批量删除的工人不存在
+     */
+    public static final String WORKER_NOT_EXIST_BATCH = "【删除工人失败】批量删除工人失败！不存在的id：%s";
+    /**
      * 更新工人失败
      */
     public static final String WORKER_UPDATE_ERROR = "【更新工人失败】更新工人信息失败！";
@@ -86,6 +94,10 @@ public class FailureMessages {
      * 工种不能为空
      */
     public static final String WORKER_TYPE_EMPTY = "【%s失败】工种不能为空！";
+    /**
+     * 批量删除的id集合为空
+     */
+    public static final String WORKER_DELETE_BATCH_ID_EMPTY = "【删除工人失败】批量删除的工人ID列表不能为空！";
     /**
      * 工人状态不能为空
      */

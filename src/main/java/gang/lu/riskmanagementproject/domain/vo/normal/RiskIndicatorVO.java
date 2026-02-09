@@ -1,4 +1,4 @@
-package gang.lu.riskmanagementproject.domain.vo;
+package gang.lu.riskmanagementproject.domain.vo.normal;
 
 import gang.lu.riskmanagementproject.domain.enums.RiskLevel;
 import io.swagger.annotations.ApiModel;

@@ -36,15 +36,19 @@ public class AlertRecordValidator {
     }
 
     /**
-     * 校验预警记录ID合法性+记录存在性
+     * 校验预警记录ID合法性+记录存在性，类似工人校验
      */
     @ValidateLog("预警记录ID存在性校验")
     public AlertRecord validateAlertRecordExist(Long id) {
+        // 1、先校验id非空非负
         generalValidator.validateId(id, ALERT_RECORD_ID);
         AlertRecord alertRecord = alertRecordMapper.selectById(id);
+        // 2、看记录是否存在
         if (ObjectUtil.isNull(alertRecord)) {
+            // 2.1 不存在抛异常
             throw new BizException(HttpStatus.NOT_FOUND, FailureMessages.ALERT_RECORD_NOT_EXIST);
         }
+        // 2.2 存在直接返回
         return alertRecord;
     }
 

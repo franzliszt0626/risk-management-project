@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import gang.lu.riskmanagementproject.domain.dto.AlertRecordDTO;
 import gang.lu.riskmanagementproject.domain.enums.AlertLevel;
 import gang.lu.riskmanagementproject.domain.po.AlertRecord;
-import gang.lu.riskmanagementproject.domain.vo.AlertRecordVO;
+import gang.lu.riskmanagementproject.domain.vo.normal.AlertRecordVO;
 
 import java.util.List;
 

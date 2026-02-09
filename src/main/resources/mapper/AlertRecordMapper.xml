@@ -39,5 +39,14 @@
         ORDER BY created_time DESC
     </select>
 
+    <!-- 标记为已处理 -->
+    <update id="markAsHandled">
+        UPDATE t_alert_record
+        SET is_handled  = 1,
+            handled_by  = #{handledBy},
+            handle_time = #{handleTime}
+        WHERE id = #{id}
+    </update>
+
 
 </mapper>

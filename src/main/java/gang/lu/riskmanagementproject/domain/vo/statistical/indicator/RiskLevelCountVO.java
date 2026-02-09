@@ -1,4 +1,4 @@
-package gang.lu.riskmanagementproject.domain.vo;
+package gang.lu.riskmanagementproject.domain.vo.statistical.indicator;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

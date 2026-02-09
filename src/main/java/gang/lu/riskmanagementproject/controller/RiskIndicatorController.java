@@ -3,15 +3,21 @@ package gang.lu.riskmanagementproject.controller;
 import cn.hutool.core.util.ObjectUtil;
 import gang.lu.riskmanagementproject.common.Result;
 import gang.lu.riskmanagementproject.domain.dto.RiskIndicatorDTO;
-import gang.lu.riskmanagementproject.domain.vo.RiskIndicatorVO;
-import gang.lu.riskmanagementproject.domain.vo.RiskLevelCountVO;
-import gang.lu.riskmanagementproject.domain.vo.RiskTimePeriodCountVO;
+import gang.lu.riskmanagementproject.domain.vo.normal.RiskIndicatorVO;
+import gang.lu.riskmanagementproject.domain.vo.statistical.indicator.RiskLevelCountVO;
+import gang.lu.riskmanagementproject.domain.vo.statistical.indicator.RiskTimePeriodCountVO;
 import gang.lu.riskmanagementproject.service.RiskIndicatorService;
 import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -28,6 +34,7 @@ import static gang.lu.riskmanagementproject.common.SuccessMessages.*;
 @RequestMapping("/api/risk-indicator")
 @Api(tags = "风险指标管理 API")
 @RequiredArgsConstructor
+@Validated
 public class RiskIndicatorController {
 
     private final RiskIndicatorService riskIndicatorService;
@@ -41,7 +48,7 @@ public class RiskIndicatorController {
     @PostMapping
     @ApiOperation("插入风险指标信息，接受前端调用，接受算法数据")
     @ApiImplicitParam(name = "riskIndicatorDTO", value = "风险指标数据", required = true, dataType = "RiskIndicatorDTO", paramType = "body")
-    public Result<RiskIndicatorVO> addRiskIndicator(@RequestBody RiskIndicatorDTO riskIndicatorDTO) {
+    public Result<RiskIndicatorVO> addRiskIndicator(@Valid @RequestBody RiskIndicatorDTO riskIndicatorDTO) {
         RiskIndicatorVO riskIndicatorVO = riskIndicatorService.addRiskIndicator(riskIndicatorDTO);
         return Result.ok(RISK_INDICATOR_ADD_SUCCESS_MESSAGE, riskIndicatorVO);
     }
@@ -49,7 +56,10 @@ public class RiskIndicatorController {
     @GetMapping("/latest/{workerId}")
     @ApiOperation("根据工人id查询他【最新一次】的风险指标")
     @ApiImplicitParam(name = "workerId", value = "工人ID", required = true, dataType = "Long", paramType = "path")
-    public Result<RiskIndicatorVO> getLatestRiskIndicatorByWorkerId(@PathVariable Long workerId) {
+    public Result<RiskIndicatorVO> getLatestRiskIndicatorByWorkerId(
+            @PathVariable
+            @NotNull(message = "工人ID不能为空")
+            @Positive(message = "工人ID必须为正整数") Long workerId) {
         RiskIndicatorVO vo = riskIndicatorService.getLatestRiskIndicatorByWorkerId(workerId);
         if (ObjectUtil.isNull(vo)) {
             return Result.ok(RISK_INDICATOR_GET_LATEST_SUCCESS_MESSAGE, null);
@@ -65,9 +75,15 @@ public class RiskIndicatorController {
             @ApiImplicitParam(name = "pageSize", value = "每页条数（默认10，最大100）", dataType = "Integer", paramType = "query", example = "10")
     })
     public Result<List<RiskIndicatorVO>> getRiskIndicatorsByWorkerId(
-            @PathVariable Long workerId,
-            @RequestParam(required = false) Integer pageNum,
-            @RequestParam(required = false) Integer pageSize) {
+            @PathVariable
+            @NotNull(message = "工人ID不能为空")
+            @Positive(message = "工人ID必须为正整数") Long workerId,
+            // 分页参数校验范围
+            @RequestParam(required = false)
+            @Min(value = 1, message = "页码不能小于1") Integer pageNum,
+            @RequestParam(required = false)
+            @Min(value = 1, message = "每页条数不能小于1")
+            @Max(value = 100, message = "每页条数不能超过100") Integer pageSize) {
         List<RiskIndicatorVO> voList = riskIndicatorService.getRiskIndicatorsByWorkerId(workerId, pageNum, pageSize);
         return Result.ok(String.format(RISK_INDICATOR_GET_HISTORY_SUCCESS_MESSAGE, voList.size()), voList);
     }

@@ -19,4 +19,6 @@ public class FieldName {
     public static final String WORK_AREA_NAME = "区域名称";
     public static final String WORKER_STATUS = "status";
     public static final String WORKER_TYPE = "work_type";
+    public static final String ID = "id";
+    public static final String CREATE_TIME = "createTime";
 }

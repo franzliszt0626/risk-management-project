@@ -31,18 +31,31 @@ public class WorkerValidator {
 
 
     /**
-     * 校验工人ID合法性+存在性
+     * 统一校验工人ID合法性+存在性
+     *
+     * @param id            工人ID
+     * @param businessScene 业务场景（可为null，null时返回Worker对象）
+     * @return 存在的工人对象（businessScene为null时）
      */
-    @ValidateLog("工人ID合法性校验")
-    public void validateWorkerExist(Long workerId, String businessScene) {
-        generalValidator.validateId(workerId, WORKER_ID);
-        if (ObjectUtil.isNull(workerMapper.selectById(workerId))) {
-            throw new BizException(HttpStatus.NOT_FOUND,
-                    String.format(FailureMessages.WORKER_NOT_EXIST_WITH_PARAM,
-                            businessScene,
-                            workerId)
-            );
+    @ValidateLog("工人ID存在性校验")
+    public Worker validateWorkerExist(Long id, String businessScene) {
+        // 1、id非空非负
+        generalValidator.validateId(id, WORKER_ID);
+        // 2、校验id对应的工人是否存在
+        Worker worker = workerMapper.selectById(id);
+        if (ObjectUtil.isNull(worker)) {
+            // 2.1 不存在的话抛异常
+            String errorMsg = ObjectUtil.isNull(businessScene)
+                    ? FailureMessages.WORKER_NOT_EXIST
+                    : String.format(FailureMessages.WORKER_NOT_EXIST_WITH_PARAM, businessScene, id);
+            throw new BizException(HttpStatus.NOT_FOUND, errorMsg);
         }
+        // 2.2 存在的话直接返回
+        return worker;
+    }
+
+    public Worker validateWorkerExist(Long id) {
+        return validateWorkerExist(id, null);
     }
 
     /**
@@ -65,19 +78,5 @@ public class WorkerValidator {
                             workerCode)
             );
         }
-    }
-
-
-    /**
-     * 核心校验
-     */
-    @ValidateLog("工人记录存在性校验")
-    public Worker validateWorkerExist(Long id) {
-        generalValidator.validateId(id, WORKER_ID);
-        Worker worker = workerMapper.selectById(id);
-        if (ObjectUtil.isNull(worker)) {
-            throw new BizException(HttpStatus.NOT_FOUND, FailureMessages.WORKER_NOT_EXIST);
-        }
-        return worker;
     }
 }

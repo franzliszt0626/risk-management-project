@@ -10,12 +10,13 @@ import gang.lu.riskmanagementproject.common.FailureMessages;
 import gang.lu.riskmanagementproject.domain.dto.WorkAreaDTO;
 import gang.lu.riskmanagementproject.domain.enums.AreaRiskLevel;
 import gang.lu.riskmanagementproject.domain.po.WorkArea;
-import gang.lu.riskmanagementproject.domain.vo.WorkAreaRiskCountVO;
-import gang.lu.riskmanagementproject.domain.vo.WorkAreaVO;
+import gang.lu.riskmanagementproject.domain.vo.normal.WorkAreaVO;
+import gang.lu.riskmanagementproject.domain.vo.statistical.area.WorkAreaRiskCountVO;
 import gang.lu.riskmanagementproject.exception.BizException;
 import gang.lu.riskmanagementproject.mapper.WorkAreaMapper;
 import gang.lu.riskmanagementproject.service.WorkAreaService;
 import gang.lu.riskmanagementproject.util.ConvertUtil;
+import gang.lu.riskmanagementproject.util.PageUtil;
 import gang.lu.riskmanagementproject.util.StatisticalUtil;
 import gang.lu.riskmanagementproject.validator.WorkAreaValidator;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +33,6 @@ import java.util.Map;
 import static gang.lu.riskmanagementproject.common.BusinessScene.*;
 import static gang.lu.riskmanagementproject.common.FieldName.WORK_AREA_CODE;
 import static gang.lu.riskmanagementproject.common.FieldName.WORK_AREA_NAME;
-import static gang.lu.riskmanagementproject.util.BasicUtil.handleCustomPageParams;
 
 /**
  * <p>
@@ -194,30 +194,16 @@ public class WorkAreaServiceImpl extends ServiceImpl<WorkAreaMapper, WorkArea> i
     @Override
     @BusinessLog(value = "多条件分页查询工作区域", recordParams = true)
     public Page<WorkAreaVO> queryWorkAreas(Integer pageNum, Integer pageSize, String areaName, AreaRiskLevel riskLevel) {
-        // 分页参数处理
-        Integer[] pageParams = handleCustomPageParams(pageNum, pageSize, GET_WORK_AREA);
-        ;
-        int finalPageNum = pageParams[0];
-        int finalPageSize = pageParams[1];
+        // 1. 一键构建分页对象（替代手动参数处理）
+        Page<WorkArea> poPage = PageUtil.buildPage(pageNum, pageSize, GET_WORK_AREA);
 
-        // 构建查询条件
-        LambdaQueryWrapper<WorkArea> queryWrapper = new LambdaQueryWrapper<>();
-        if (StrUtil.isNotBlank(areaName)) {
-            queryWrapper.like(WorkArea::getAreaName, areaName.trim());
-        }
-        if (ObjectUtil.isNotNull(riskLevel)) {
-            queryWrapper.eq(WorkArea::getAreaRiskLevel, riskLevel);
-        }
-        queryWrapper.orderByDesc(WorkArea::getUpdateTime);
+        // 2. 构建查询条件（抽取通用逻辑）
+        LambdaQueryWrapper<WorkArea> queryWrapper = buildWorkAreaQueryWrapper(areaName, riskLevel);
 
-        // 分页查询
-        long total = count(queryWrapper);
-        Page<WorkArea> poPage = new Page<>(finalPageNum, finalPageSize);
+        // 3. 分页查询（MyBatis-Plus自动计算总数，无需手动count）
         poPage = page(poPage, queryWrapper);
-        poPage.setTotal(total);
-        poPage.setPages(total > 0 ? (total + finalPageSize - 1) / finalPageSize : 0);
 
-        // 转换分页VO
+        // 4. 转换分页VO
         return ConvertUtil.convertPageWithManualTotal(poPage, WorkAreaVO.class);
     }
 
@@ -253,4 +239,15 @@ public class WorkAreaServiceImpl extends ServiceImpl<WorkAreaMapper, WorkArea> i
         return vo;
     }
 
+    private LambdaQueryWrapper<WorkArea> buildWorkAreaQueryWrapper(String areaName, AreaRiskLevel riskLevel) {
+        LambdaQueryWrapper<WorkArea> queryWrapper = new LambdaQueryWrapper<>();
+        if (StrUtil.isNotBlank(areaName)) {
+            queryWrapper.like(WorkArea::getAreaName, areaName.trim());
+        }
+        if (ObjectUtil.isNotNull(riskLevel)) {
+            queryWrapper.eq(WorkArea::getAreaRiskLevel, riskLevel);
+        }
+        queryWrapper.orderByDesc(WorkArea::getUpdateTime);
+        return queryWrapper;
+    }
 }
