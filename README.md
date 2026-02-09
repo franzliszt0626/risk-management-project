@@ -303,7 +303,6 @@ MIT License
 ## 👨‍💻 作者
 
 **Franz Liszt**  
-📧 邮箱：your-email@example.com  
 💬 反馈：欢迎提交 Issue/PR 优化系统功能
 
 ---
