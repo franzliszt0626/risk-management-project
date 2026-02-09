@@ -68,7 +68,7 @@ public class WorkAreaServiceImpl extends ServiceImpl<WorkAreaMapper, WorkArea> i
         workAreaValidator.validateWorkAreaField(areaName, WORK_AREA_NAME, ADD_WORK_AREA);
         // 2. 编码唯一性
         if (lambdaQuery().eq(WorkArea::getAreaCode, areaCode).exists()) {
-            throw new BizException(HttpStatus.CONFLICT, FailureMessages.WORK_AREA_PARAM_DUPLICATE_CODE);
+            throw new BizException(HttpStatus.CONFLICT, FailureMessages.WORK_AREA_CODE_DUPLICATE);
         }
         // 3. 风险等级默认值
         if (ObjectUtil.isNull(dto.getAreaRiskLevel())) {
@@ -125,7 +125,7 @@ public class WorkAreaServiceImpl extends ServiceImpl<WorkAreaMapper, WorkArea> i
                     .ne(WorkArea::getId, id)
                     .exists();
             if (codeExists) {
-                throw new BizException(HttpStatus.CONFLICT, FailureMessages.WORK_AREA_PARAM_DUPLICATE_CODE);
+                throw new BizException(HttpStatus.CONFLICT, FailureMessages.WORK_AREA_CODE_DUPLICATE);
             }
         }
         // 风险等级默认值

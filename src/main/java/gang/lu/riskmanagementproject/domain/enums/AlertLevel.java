@@ -33,7 +33,7 @@ public enum AlertLevel {
     public static AlertLevel fromValue(String value) {
         // 等级为空
         if (value == null || value.trim().isEmpty()) {
-            throw new IllegalArgumentException(FailureMessages.ALERT_PARAM_EMPTY_LEVEL);
+            throw new IllegalArgumentException(FailureMessages.ALERT_LEVEL_EMPTY);
         }
         String trimValue = value.trim();
         for (AlertLevel level : values()) {
@@ -42,7 +42,7 @@ public enum AlertLevel {
             }
         }
         // 抛出具体的非法参数异常
-        throw new IllegalArgumentException(String.format(FailureMessages.ALERT_PARAM_INVALID_LEVEL, trimValue));
+        throw new IllegalArgumentException(String.format(FailureMessages.ALERT_LEVEL_INVALID, trimValue));
     }
 
     /**

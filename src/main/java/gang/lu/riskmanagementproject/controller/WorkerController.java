@@ -109,7 +109,7 @@ public class WorkerController {
     }
 
     @GetMapping("/position/{position}")
-    @ApiOperation("按岗位名称精确查询工人列表")
+    @ApiOperation("按岗位名称模糊查询工人列表")
     @ApiImplicitParam(name = "position", value = "岗位名称", required = true, dataType = "String", paramType = "path", example = "焊工")
     public Result<List<WorkerVO>> getByPosition(@PathVariable String position) {
         List<WorkerVO> list = workerService.getWorkersByPosition(position);

@@ -40,7 +40,7 @@ public enum WorkType {
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static WorkType fromValue(String value) {
         if (value == null || value.trim().isEmpty()) {
-            throw new IllegalArgumentException(FailureMessages.WORKER_PARAM_EMPTY_TYPE);
+            throw new IllegalArgumentException(FailureMessages.WORKER_TYPE_EMPTY);
         }
         String trimValue = value.trim();
         for (WorkType type : values()) {
@@ -49,7 +49,7 @@ public enum WorkType {
             }
         }
         throw new IllegalArgumentException(
-                String.format(FailureMessages.WORKER_PARAM_INVALID_TYPE, trimValue)
+                String.format(FailureMessages.WORKER_TYPE_INVALID, trimValue)
         );
     }
 }

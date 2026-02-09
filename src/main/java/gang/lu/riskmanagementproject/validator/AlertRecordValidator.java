@@ -43,7 +43,7 @@ public class AlertRecordValidator {
         generalValidator.validateId(id, ALERT_RECORD_ID);
         AlertRecord alertRecord = alertRecordMapper.selectById(id);
         if (ObjectUtil.isNull(alertRecord)) {
-            throw new BizException(HttpStatus.NOT_FOUND, FailureMessages.ALERT_DATA_NOT_FOUND);
+            throw new BizException(HttpStatus.NOT_FOUND, FailureMessages.ALERT_RECORD_NOT_EXIST);
         }
         return alertRecord;
     }

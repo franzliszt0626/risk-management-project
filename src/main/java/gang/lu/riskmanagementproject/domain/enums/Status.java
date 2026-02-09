@@ -37,7 +37,7 @@ public enum Status {
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static Status fromValue(String value) {
         if (value == null || value.trim().isEmpty()) {
-            throw new IllegalArgumentException(FailureMessages.WORKER_PARAM_EMPTY_STATUS);
+            throw new IllegalArgumentException(FailureMessages.WORKER_STATUS_EMPTY);
         }
         String trimValue = value.trim();
         for (Status status : values()) {
@@ -46,7 +46,7 @@ public enum Status {
             }
         }
         throw new IllegalArgumentException(
-                String.format(FailureMessages.WORKER_PARAM_INVALID_STATUS, trimValue)
+                String.format(FailureMessages.WORKER_STATUS_INVALID, trimValue)
         );
     }
 }

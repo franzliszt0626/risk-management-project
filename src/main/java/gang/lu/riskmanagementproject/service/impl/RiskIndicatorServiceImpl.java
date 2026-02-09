@@ -81,7 +81,7 @@ public class RiskIndicatorServiceImpl extends ServiceImpl<RiskIndicatorMapper, R
         // 5. 插入
         int inserted = riskIndicatorMapper.insert(riskIndicator);
         if (inserted != 1) {
-            throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR, FailureMessages.RISK_OPERATE_CREATE_ERROR);
+            throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR, FailureMessages.RISK_CREATE_ERROR);
         }
         return ConvertUtil.convert(riskIndicator, RiskIndicatorVO.class);
     }

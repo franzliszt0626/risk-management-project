@@ -32,6 +32,7 @@ import static gang.lu.riskmanagementproject.common.EnumName.STATUS;
 import static gang.lu.riskmanagementproject.common.EnumName.WORK_TYPE;
 import static gang.lu.riskmanagementproject.common.FieldName.NAME;
 import static gang.lu.riskmanagementproject.common.FieldName.WORKER_CODE;
+import static gang.lu.riskmanagementproject.util.BasicUtil.handleCustomPageParams;
 
 /**
  * <p>
@@ -79,7 +80,7 @@ public class WorkerServiceImpl extends ServiceImpl<WorkerMapper, Worker> impleme
 
         int inserted = workerMapper.insert(worker);
         if (inserted != 1) {
-            throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR, FailureMessages.WORKER_OPERATE_CREATE_ERROR);
+            throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR, FailureMessages.WORKER_CREATE_ERROR);
         }
     }
 
@@ -93,7 +94,7 @@ public class WorkerServiceImpl extends ServiceImpl<WorkerMapper, Worker> impleme
         workerValidator.validateWorkerExist(id);
         int deleted = workerMapper.deleteById(id);
         if (deleted != 1) {
-            throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR, FailureMessages.WORKER_OPERATE_DELETE_ERROR);
+            throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR, FailureMessages.WORKER_DELETE_ERROR);
         }
     }
 
@@ -125,7 +126,7 @@ public class WorkerServiceImpl extends ServiceImpl<WorkerMapper, Worker> impleme
         updated.setUpdateTime(LocalDateTime.now());
         int updatedRows = workerMapper.updateById(updated);
         if (updatedRows != 1) {
-            throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR, FailureMessages.WORKER_OPERATE_UPDATE_ERROR);
+            throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR, FailureMessages.WORKER_UPDATE_ERROR);
         }
 
     }
@@ -149,7 +150,7 @@ public class WorkerServiceImpl extends ServiceImpl<WorkerMapper, Worker> impleme
         generalValidator.validateStringNotBlank(workerCode, WORKER_CODE, GET_WORKER_BY_WORKCODE);
         Worker worker = getWorkerByCodeWithOutVerify(workerCode);
         if (ObjectUtil.isNull(worker)) {
-            throw new BizException(HttpStatus.NOT_FOUND, FailureMessages.WORKER_DATA_NOT_EXIST);
+            throw new BizException(HttpStatus.NOT_FOUND, FailureMessages.WORKER_NOT_EXIST);
         }
         return ConvertUtil.convert(worker, WorkerVO.class);
     }
@@ -222,7 +223,7 @@ public class WorkerServiceImpl extends ServiceImpl<WorkerMapper, Worker> impleme
         }
         String trimedPosition = position.trim();
         List<Worker> workers = lambdaQuery()
-                .eq(Worker::getPosition, trimedPosition)
+                .like(Worker::getPosition, trimedPosition)
                 .orderByDesc(Worker::getUpdateTime)
                 .list();
         if (ObjectUtil.isEmpty(workers)) {
@@ -238,7 +239,7 @@ public class WorkerServiceImpl extends ServiceImpl<WorkerMapper, Worker> impleme
     @BusinessLog(value = "分页查询所有工人", recordParams = true)
     public Page<WorkerVO> getAllWorkers(Integer pageNum, Integer pageSize) {
         // 分页参数处理
-        Integer[] pageParams = workerValidator.handleWorkerPageParams(pageNum, pageSize);
+        Integer[] pageParams = handleCustomPageParams(pageNum, pageSize, GET_WORKER);
         int finalPageNum = pageParams[0];
         int finalPageSize = pageParams[1];
         // 分页查询

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import gang.lu.riskmanagementproject.common.FailureMessages;
 import lombok.Getter;
 
-import static gang.lu.riskmanagementproject.common.FailureMessages.RISK_PARAM_EMPTY_RISK_LEVEL;
+import static gang.lu.riskmanagementproject.common.FailureMessages.RISK_LEVEL_EMPTY;
 
 /**
  * @author Franz Liszt
@@ -36,7 +36,7 @@ public enum RiskLevel {
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static RiskLevel fromValue(String value) {
         if (value == null || value.trim().isEmpty()) {
-            throw new IllegalArgumentException(RISK_PARAM_EMPTY_RISK_LEVEL);
+            throw new IllegalArgumentException(RISK_LEVEL_EMPTY);
         }
         // 忽略大小写（增强兼容性）
         String trimValue = value.trim();
@@ -46,7 +46,7 @@ public enum RiskLevel {
             }
         }
         throw new IllegalArgumentException(
-                String.format(FailureMessages.RISK_PARAM_INVALID_RISK_LEVEL, trimValue)
+                String.format(FailureMessages.RISK_LEVEL_INVALID, trimValue)
         );
     }
 }

@@ -29,7 +29,7 @@ public class MedicalUtil {
      */
     public static void validateHeartRate(Integer heartRate) {
         if (ObjectUtil.isNull(heartRate) || heartRate <= 0) {
-            throw new BizException(RISK_PARAM_INVALID_HEART_RATE);
+            throw new BizException(RISK_HEART_RATE_INVALID);
         }
     }
 
@@ -42,7 +42,7 @@ public class MedicalUtil {
      */
     public static void validateRespiratoryRate(Integer respiratoryRate) {
         if (ObjectUtil.isNull(respiratoryRate) || respiratoryRate <= 0) {
-            throw new BizException(String.format(RISK_PARAM_INVALID_RESPIRATORY_RATE));
+            throw new BizException(String.format(RISK_RESPIRATORY_RATE_INVALID));
         }
     }
 
@@ -56,7 +56,7 @@ public class MedicalUtil {
         if (ObjectUtil.isNull(fatiguePercent)
                 || fatiguePercent < MIN_FATIGUE_PERCENT
                 || fatiguePercent > MAX_FATIGUE_PERCENT) {
-            throw new BizException(RISK_PARAM_INVALID_FATIGUE_PERCENT);
+            throw new BizException(RISK_FATIGUE_PERCENT_INVALID);
         }
     }
 

@@ -44,7 +44,7 @@ public class WorkAreaValidator {
         generalValidator.validateId(id, WORK_AREA_ID);
         WorkArea workArea = workAreaMapper.selectById(id);
         if (ObjectUtil.isNull(workArea)) {
-            throw new BizException(HttpStatus.NOT_FOUND, FailureMessages.WORK_AREA_DATA_NOT_EXIST);
+            throw new BizException(HttpStatus.NOT_FOUND, FailureMessages.WORK_AREA_NOT_EXIST);
         }
         return workArea;
     }

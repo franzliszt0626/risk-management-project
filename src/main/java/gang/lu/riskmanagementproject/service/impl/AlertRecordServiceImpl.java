@@ -210,7 +210,7 @@ public class AlertRecordServiceImpl extends ServiceImpl<AlertRecordMapper, Alert
         generalValidator.validateStringNotBlank(handledBy, HANDLED_BY, HANDLE_ALERT_RECORD);
         int rows = alertRecordMapper.markAsHandled(id, handledBy, LocalDateTime.now());
         if (rows == 0) {
-            throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR, FailureMessages.ALERT_OPERATE_HANDLE_ERROR);
+            throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR, FailureMessages.ALERT_RECORD_HANDLE_ERROR);
         }
     }
 

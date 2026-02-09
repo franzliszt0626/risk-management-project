@@ -3,11 +3,12 @@ package gang.lu.riskmanagementproject.validator;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import gang.lu.riskmanagementproject.annotation.ValidateLog;
-import gang.lu.riskmanagementproject.common.FailureMessages;
 import gang.lu.riskmanagementproject.exception.BizException;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+
+import static gang.lu.riskmanagementproject.common.FailureMessages.COMMON_INVALID_ID_ERROR;
+import static gang.lu.riskmanagementproject.common.FailureMessages.COMMON_PARAM_EMPTY_ERROR;
 
 /**
  * 统一业务校验工具类
@@ -25,7 +26,9 @@ public class GeneralValidator {
     @ValidateLog("ID合法性校验")
     public void validateId(Long id, String idName) {
         if (ObjectUtil.isNull(id) || id <= 0) {
-            throw new BizException(HttpStatus.BAD_REQUEST, FailureMessages.COMMON_INVALID_ID_ERROR);
+            throw new BizException(HttpStatus.BAD_REQUEST,
+                    String.format(COMMON_INVALID_ID_ERROR, idName)
+            );
         }
     }
 
@@ -35,8 +38,8 @@ public class GeneralValidator {
     @ValidateLog("字符串非空校验")
     public void validateStringNotBlank(String value, String fieldName, String businessScene) {
         if (StrUtil.isBlank(value)) {
-            String errorMsg = String.format("【%s失败】%s不能为空", businessScene, fieldName);
-            throw new BizException(HttpStatus.BAD_REQUEST, errorMsg);
+            throw new BizException(HttpStatus.BAD_REQUEST,
+                    String.format(COMMON_PARAM_EMPTY_ERROR, businessScene, fieldName));
         }
     }
 
@@ -46,8 +49,8 @@ public class GeneralValidator {
     @ValidateLog("枚举非空校验")
     public <E> void validateEnumNotNull(E enumValue, String enumName, String businessScene) {
         if (ObjectUtil.isNull(enumValue)) {
-            String errorMsg = String.format("【%s失败】%s不能为空", businessScene, enumName);
-            throw new BizException(HttpStatus.BAD_REQUEST, errorMsg);
+            throw new BizException(HttpStatus.BAD_REQUEST,
+                    String.format(COMMON_PARAM_EMPTY_ERROR, businessScene, enumName));
         }
     }
 

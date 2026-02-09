@@ -11,10 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
-import static gang.lu.riskmanagementproject.common.BusinessScene.GET_WORKER;
 import static gang.lu.riskmanagementproject.common.FieldName.WORKER_CODE;
 import static gang.lu.riskmanagementproject.common.IdName.WORKER_ID;
-import static gang.lu.riskmanagementproject.util.BasicUtil.handleCustomPageParams;
 
 /**
  * @author Franz Liszt
@@ -39,8 +37,11 @@ public class WorkerValidator {
     public void validateWorkerExist(Long workerId, String businessScene) {
         generalValidator.validateId(workerId, WORKER_ID);
         if (ObjectUtil.isNull(workerMapper.selectById(workerId))) {
-            String errorMsg = String.format("【%s失败】工人不存在，ID：%s", businessScene, workerId);
-            throw new BizException(HttpStatus.NOT_FOUND, FailureMessages.WORKER_DATA_NOT_EXIST);
+            throw new BizException(HttpStatus.NOT_FOUND,
+                    String.format(FailureMessages.WORKER_NOT_EXIST_WITH_PARAM,
+                            businessScene,
+                            workerId)
+            );
         }
     }
 
@@ -58,17 +59,12 @@ public class WorkerValidator {
                         .ne(ObjectUtil.isNotNull(excludeId), Worker::getId, excludeId)
         ));
         if (exists) {
-            String errorMsg = String.format("【%s失败】工号重复：%s", businessScene, workerCode);
-            throw new BizException(HttpStatus.CONFLICT, FailureMessages.WORKER_PARAM_DUPLICATE_CODE);
+            throw new BizException(HttpStatus.CONFLICT,
+                    String.format(FailureMessages.WORKER_CODE_DUPLICATE,
+                            businessScene,
+                            workerCode)
+            );
         }
-    }
-
-    /**
-     * 工人分页参数处理（默认20条/页，最大50）
-     */
-    @ValidateLog("工人分页参数处理")
-    public Integer[] handleWorkerPageParams(Integer pageNum, Integer pageSize) {
-        return handleCustomPageParams(pageNum, pageSize, GET_WORKER);
     }
 
 
@@ -80,7 +76,7 @@ public class WorkerValidator {
         generalValidator.validateId(id, WORKER_ID);
         Worker worker = workerMapper.selectById(id);
         if (ObjectUtil.isNull(worker)) {
-            throw new BizException(HttpStatus.NOT_FOUND, FailureMessages.WORKER_DATA_NOT_EXIST);
+            throw new BizException(HttpStatus.NOT_FOUND, FailureMessages.WORKER_NOT_EXIST);
         }
         return worker;
     }
