@@ -20,16 +20,22 @@ import java.time.LocalDateTime;
 public class RiskIndicatorVO {
     @ApiModelProperty("工人id")
     private Long workerId;
+
     @ApiModelProperty("工人心率")
     private Integer heartRate;
+
     @ApiModelProperty("工人呼吸率")
     private Integer respiratoryRate;
+
     @ApiModelProperty("工人综合疲劳指数")
     private Double fatiguePercent;
-    @ApiModelProperty("工人的风险等级")
+
+    @ApiModelProperty(value = "工人的风险等级", allowableValues = "低风险、中风险、高风险、严重风险")
     private RiskLevel riskLevel;
+
     @ApiModelProperty("是否标注为紧急")
     private Boolean alertFlag;
+
     @ApiModelProperty("本次记录的时间")
     private LocalDateTime recordTime;
 }

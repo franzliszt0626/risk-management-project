@@ -7,6 +7,10 @@ package gang.lu.riskmanagementproject.common;
  * @description 操作成功的信息
  */
 public class SuccessMessages {
+
+    private SuccessMessages() {
+    }
+
     /**
      * 预警记录相关成功信息
      */

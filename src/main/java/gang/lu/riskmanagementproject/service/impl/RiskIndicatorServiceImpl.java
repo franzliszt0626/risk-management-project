@@ -4,6 +4,7 @@ import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import gang.lu.riskmanagementproject.annotation.BusinessLog;
 import gang.lu.riskmanagementproject.common.FailureMessages;
 import gang.lu.riskmanagementproject.domain.dto.RiskIndicatorDTO;
 import gang.lu.riskmanagementproject.domain.enums.RiskLevel;
@@ -14,22 +15,23 @@ import gang.lu.riskmanagementproject.domain.vo.RiskTimePeriodCountVO;
 import gang.lu.riskmanagementproject.exception.BizException;
 import gang.lu.riskmanagementproject.mapper.RiskIndicatorMapper;
 import gang.lu.riskmanagementproject.service.RiskIndicatorService;
-import gang.lu.riskmanagementproject.util.BusinessVerifyUtil;
+import gang.lu.riskmanagementproject.util.BasicUtil;
 import gang.lu.riskmanagementproject.util.ConvertUtil;
-import gang.lu.riskmanagementproject.util.ParameterVerifyUtil;
+import gang.lu.riskmanagementproject.util.MedicalUtil;
+import gang.lu.riskmanagementproject.validator.RiskValidator;
+import gang.lu.riskmanagementproject.validator.WorkerValidator;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import static gang.lu.riskmanagementproject.common.BusinessScene.*;
+import static gang.lu.riskmanagementproject.util.BasicUtil.buildTimePeriodItems;
 
 /**
  * <p>
@@ -41,10 +43,13 @@ import static gang.lu.riskmanagementproject.common.BusinessScene.*;
  */
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class RiskIndicatorServiceImpl extends ServiceImpl<RiskIndicatorMapper, RiskIndicator> implements RiskIndicatorService {
 
     private final RiskIndicatorMapper riskIndicatorMapper;
+
+    private final WorkerValidator workerValidator;
+
+    private final RiskValidator riskValidator;
 
 
     /**
@@ -54,34 +59,30 @@ public class RiskIndicatorServiceImpl extends ServiceImpl<RiskIndicatorMapper, R
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @BusinessLog(value = "新增风险指标", recordParams = true)
     public RiskIndicatorVO addRiskIndicator(RiskIndicatorDTO riskIndicatorDTO) {
         // 1. 校验工人存在性
         Long workerId = riskIndicatorDTO.getWorkerId();
-        BusinessVerifyUtil.validateWorkerExist(workerId, ADD_RISK_INDICATOR);
+        workerValidator.validateWorkerExist(workerId, ADD_RISK_INDICATOR);
 
         // 2. 参数校验
-        ParameterVerifyUtil.validateHeartRate(riskIndicatorDTO.getHeartRate());
-        ParameterVerifyUtil.validateRespiratoryRate(riskIndicatorDTO.getRespiratoryRate());
-        ParameterVerifyUtil.validateFatiguePercent(riskIndicatorDTO.getFatiguePercent());
+        MedicalUtil.validateHeartRate(riskIndicatorDTO.getHeartRate());
+        MedicalUtil.validateRespiratoryRate(riskIndicatorDTO.getRespiratoryRate());
+        MedicalUtil.validateFatiguePercent(riskIndicatorDTO.getFatiguePercent());
 
         // 3. 风险等级校验
-        BusinessVerifyUtil.validateRiskLevel(riskIndicatorDTO.getRiskLevel(), ADD_RISK_INDICATOR);
+        riskValidator.validateRiskLevel(riskIndicatorDTO.getRiskLevel(), ADD_RISK_INDICATOR);
 
         // 4. 转换+默认值
         RiskIndicator riskIndicator = ConvertUtil.convert(riskIndicatorDTO, RiskIndicator.class);
         if (ObjectUtil.isNull(riskIndicator.getRecordTime())) {
             riskIndicator.setRecordTime(java.time.LocalDateTime.now());
-            log.info("【新增风险指标】工人ID：{}，自动填充记录时间", workerId);
         }
-
         // 5. 插入
         int inserted = riskIndicatorMapper.insert(riskIndicator);
         if (inserted != 1) {
-            log.error("【新增风险指标失败】数据库插入异常，工人ID：{}", workerId);
             throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR, FailureMessages.RISK_OPERATE_CREATE_ERROR);
         }
-
-        log.info("【新增风险指标成功】工人ID：{}，风险等级：{}", workerId, riskIndicator.getRiskLevel().getValue());
         return ConvertUtil.convert(riskIndicator, RiskIndicatorVO.class);
     }
 
@@ -92,18 +93,14 @@ public class RiskIndicatorServiceImpl extends ServiceImpl<RiskIndicatorMapper, R
      * @return RiskIndicatorVO
      */
     @Override
+    @BusinessLog(value = "查询最新风险指标（工人ID）", recordParams = true)
     public RiskIndicatorVO getLatestRiskIndicatorByWorkerId(Long workerId) {
-        BusinessVerifyUtil.validateWorkerExist(workerId, GET_LATEST_RISK_INDICATOR);
-
+        workerValidator.validateWorkerExist(workerId, GET_LATEST_RISK_INDICATOR);
         RiskIndicator latest = riskIndicatorMapper.selectLatestByWorkerId(workerId);
         if (ObjectUtil.isNull(latest)) {
-            log.info("【查询最新风险指标】工人ID：{} 暂无记录", workerId);
             return null;
         }
-
-        RiskIndicatorVO vo = ConvertUtil.convert(latest, RiskIndicatorVO.class);
-        log.info("【查询最新风险指标成功】工人ID：{}", workerId);
-        return vo;
+        return ConvertUtil.convert(latest, RiskIndicatorVO.class);
     }
 
     /**
@@ -113,24 +110,20 @@ public class RiskIndicatorServiceImpl extends ServiceImpl<RiskIndicatorMapper, R
      * @return 风险信息集合
      */
     @Override
+    @BusinessLog(value = "查询历史风险指标（工人ID）", recordParams = true)
     public List<RiskIndicatorVO> getRiskIndicatorsByWorkerId(Long workerId, Integer pageNum, Integer pageSize) {
-        BusinessVerifyUtil.validateWorkerExist(workerId, GET_HISTORY_RISK_INDICATOR);
-
+        workerValidator.validateWorkerExist(workerId, GET_HISTORY_RISK_INDICATOR);
         // 复用通用分页参数
-        Integer[] pageParams = BusinessVerifyUtil.handleCommonPageParams(pageNum, pageSize);
+        Integer[] pageParams = BasicUtil.handleCustomPageParams(pageNum, pageSize, GET_HISTORY_RISK_INDICATOR_BY_WORKER_ID);
         IPage<RiskIndicator> page = lambdaQuery()
                 .eq(RiskIndicator::getWorkerId, workerId)
                 .orderByDesc(RiskIndicator::getRecordTime)
                 .page(new Page<>(pageParams[0], pageParams[1]));
 
         if (ObjectUtil.isEmpty(page.getRecords())) {
-            log.info("【查询历史风险指标】工人ID：{} 暂无记录", workerId);
             return Collections.emptyList();
         }
-
-        List<RiskIndicatorVO> voList = ConvertUtil.convertList(page.getRecords(), RiskIndicatorVO.class);
-        log.info("【查询历史风险指标成功】工人ID：{}，本页{}条", workerId, voList.size());
-        return voList;
+        return ConvertUtil.convertList(page.getRecords(), RiskIndicatorVO.class);
     }
 
     /**
@@ -139,18 +132,16 @@ public class RiskIndicatorServiceImpl extends ServiceImpl<RiskIndicatorMapper, R
      * @return 各种风险的人数信息集合
      */
     @Override
+    @BusinessLog(value = "统计风险等级人数分布", recordParams = false)
     public RiskLevelCountVO countDistinctWorkerByRiskLevel() {
-        log.info("【统计风险等级人数分布】开始执行");
         Map<String, Map<String, Object>> riskCountMap = riskIndicatorMapper.countDistinctWorkerByRiskLevel();
 
         RiskLevelCountVO vo = new RiskLevelCountVO();
-        vo.setLowRiskCount(BusinessVerifyUtil.getCountFromMap(riskCountMap, RiskLevel.LOW_RISK.getValue()));
-        vo.setMediumRiskCount(BusinessVerifyUtil.getCountFromMap(riskCountMap, RiskLevel.MEDIUM_RISK.getValue()));
-        vo.setHighRiskCount(BusinessVerifyUtil.getCountFromMap(riskCountMap, RiskLevel.HIGH_RISK.getValue()));
-        vo.setVeryHighRiskCount(BusinessVerifyUtil.getCountFromMap(riskCountMap, RiskLevel.VERY_HIGH_RISK.getValue()));
+        vo.setLowRiskCount(BasicUtil.getCountFromMap(riskCountMap, RiskLevel.LOW_RISK.getValue()));
+        vo.setMediumRiskCount(BasicUtil.getCountFromMap(riskCountMap, RiskLevel.MEDIUM_RISK.getValue()));
+        vo.setHighRiskCount(BasicUtil.getCountFromMap(riskCountMap, RiskLevel.HIGH_RISK.getValue()));
+        vo.setVeryHighRiskCount(BasicUtil.getCountFromMap(riskCountMap, RiskLevel.VERY_HIGH_RISK.getValue()));
         vo.setTotalCount(vo.getLowRiskCount() + vo.getMediumRiskCount() + vo.getHighRiskCount() + vo.getVeryHighRiskCount());
-
-        log.info("【统计风险等级人数分布完成】总人数：{}", vo.getTotalCount());
         return vo;
     }
 
@@ -161,37 +152,15 @@ public class RiskIndicatorServiceImpl extends ServiceImpl<RiskIndicatorMapper, R
      * @return 时间段统计结果
      */
     @Override
+    @BusinessLog(value = "统计时间段高风险人数", recordParams = true)
     public RiskTimePeriodCountVO countHighRiskWorkerByTimePeriod(LocalDate statDate) {
         LocalDate finalStatDate = ObjectUtil.defaultIfNull(statDate, LocalDate.now());
         String statDateStr = finalStatDate.toString();
-        log.info("【统计时间段高风险人数】开始执行，日期：{}", statDateStr);
-
         List<Map<String, Object>> periodList = riskIndicatorMapper.countHighRiskWorkerByTimePeriod(statDateStr);
         RiskTimePeriodCountVO resultVO = new RiskTimePeriodCountVO();
         resultVO.setStatDate(statDateStr);
         resultVO.setPeriodItems(buildTimePeriodItems(periodList));
-
-        log.info("【统计时间段高风险人数完成】日期：{}，共{}个时间段", statDateStr, resultVO.getPeriodItems().size());
         return resultVO;
     }
 
-
-    // ========== 私有工具方法：消除重复代码 ==========
-
-    /**
-     * 构建时间段统计Item
-     */
-    private List<RiskTimePeriodCountVO.TimePeriodItem> buildTimePeriodItems(List<Map<String, Object>> periodList) {
-        List<RiskTimePeriodCountVO.TimePeriodItem> itemList = new ArrayList<>();
-        for (Map<String, Object> itemMap : periodList) {
-            Integer period = BusinessVerifyUtil.safeLongToInt((Long) itemMap.get("period"), -1);
-            Integer count = BusinessVerifyUtil.safeLongToInt((Long) itemMap.get("count"), 0);
-
-            RiskTimePeriodCountVO.TimePeriodItem item = new RiskTimePeriodCountVO.TimePeriodItem();
-            item.setHighRiskCount(count);
-            item.setPeriodDesc(BusinessVerifyUtil.getPeriodDesc(period));
-            itemList.add(item);
-        }
-        return itemList;
-    }
 }

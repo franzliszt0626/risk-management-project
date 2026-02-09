@@ -3,6 +3,7 @@ package gang.lu.riskmanagementproject.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import gang.lu.riskmanagementproject.annotation.BusinessLog;
 import gang.lu.riskmanagementproject.common.FailureMessages;
 import gang.lu.riskmanagementproject.domain.dto.AlertRecordDTO;
 import gang.lu.riskmanagementproject.domain.enums.AlertLevel;
@@ -11,10 +12,11 @@ import gang.lu.riskmanagementproject.domain.vo.AlertRecordVO;
 import gang.lu.riskmanagementproject.exception.BizException;
 import gang.lu.riskmanagementproject.mapper.AlertRecordMapper;
 import gang.lu.riskmanagementproject.service.AlertRecordService;
-import gang.lu.riskmanagementproject.util.BusinessVerifyUtil;
 import gang.lu.riskmanagementproject.util.ConvertUtil;
+import gang.lu.riskmanagementproject.validator.AlertRecordValidator;
+import gang.lu.riskmanagementproject.validator.GeneralValidator;
+import gang.lu.riskmanagementproject.validator.WorkerValidator;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +26,8 @@ import java.util.Collections;
 import java.util.List;
 
 import static gang.lu.riskmanagementproject.common.BusinessScene.*;
-import static gang.lu.riskmanagementproject.common.IdName.ALERT_RECORD_ID;
+import static gang.lu.riskmanagementproject.common.FieldName.ALERT_TYPE;
+import static gang.lu.riskmanagementproject.common.FieldName.HANDLED_BY;
 
 
 /**
@@ -37,10 +40,15 @@ import static gang.lu.riskmanagementproject.common.IdName.ALERT_RECORD_ID;
  */
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class AlertRecordServiceImpl extends ServiceImpl<AlertRecordMapper, AlertRecord> implements AlertRecordService {
 
     private final AlertRecordMapper alertRecordMapper;
+
+    private final WorkerValidator workerValidator;
+
+    private final AlertRecordValidator alertRecordValidator;
+
+    private final GeneralValidator generalValidator;
 
     /**
      * 新增一条预警记录
@@ -50,24 +58,21 @@ public class AlertRecordServiceImpl extends ServiceImpl<AlertRecordMapper, Alert
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @BusinessLog(value = "新增预警记录", recordParams = true)
     public AlertRecordVO addAlertRecord(AlertRecordDTO dto) {
-// 1. 校验工人存在性
+        // 1. 校验工人存在性
         Long workerId = dto.getWorkerId();
-        BusinessVerifyUtil.validateWorkerExist(workerId, ADD_ALERT_RECORD);
+        workerValidator.validateWorkerExist(workerId, ADD_ALERT_RECORD);
 
         // 2. 校验预警等级
-        BusinessVerifyUtil.validateAlertLevel(dto.getAlertLevel(), ADD_ALERT_RECORD);
+        alertRecordValidator.validateAlertLevel(dto.getAlertLevel(), ADD_ALERT_RECORD);
 
         // 3. DTO转PO + 插入
         AlertRecord alertRecord = ConvertUtil.convert(dto, AlertRecord.class);
         int inserted = alertRecordMapper.insert(alertRecord);
         if (inserted != 1) {
-            log.error("【新增预警记录失败】数据库插入异常，工人ID：{}", workerId);
             throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR, FailureMessages.COMMON_DATABASE_ERROR);
         }
-
-        log.info("【新增预警记录成功】预警记录ID：{}，工人ID：{}，预警等级：{}",
-                alertRecord.getId(), workerId, alertRecord.getAlertLevel().getValue());
         return ConvertUtil.convert(alertRecord, AlertRecordVO.class);
     }
 
@@ -78,14 +83,13 @@ public class AlertRecordServiceImpl extends ServiceImpl<AlertRecordMapper, Alert
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @BusinessLog(value = "删除预警记录", recordParams = true)
     public void deleteAlertRecord(Long id) {
-        AlertRecord alertRecord = validateAlertRecordExist(id);
+        alertRecordValidator.validateAlertRecordExist(id);
         int deleted = alertRecordMapper.deleteById(id);
         if (deleted != 1) {
-            log.error("【删除预警记录失败】数据库删除异常，预警记录ID：{}", id);
             throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR, FailureMessages.COMMON_DATABASE_ERROR);
         }
-        log.info("【删除预警记录成功】预警记录ID：{}", id);
     }
 
     /**
@@ -97,31 +101,30 @@ public class AlertRecordServiceImpl extends ServiceImpl<AlertRecordMapper, Alert
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @BusinessLog(value = "修改预警记录", recordParams = true)
     public AlertRecordVO updateAlertRecord(Long id, AlertRecordDTO dto) {
-        AlertRecord alertRecord = validateAlertRecordExist(id);
+        AlertRecord alertRecord = alertRecordValidator.validateAlertRecordExist(id);
 
         // 校验工人ID
         Long newWorkerId = dto.getWorkerId();
         if (ObjectUtil.isNotNull(newWorkerId)) {
-            BusinessVerifyUtil.validateWorkerExist(newWorkerId, UPDATE_ALERT_RECORD);
+            workerValidator.validateWorkerExist(newWorkerId, UPDATE_ALERT_RECORD);
         } else {
-            BusinessVerifyUtil.validateWorkerExist(alertRecord.getWorkerId(), UPDATE_ALERT_RECORD);
+            workerValidator.validateWorkerExist(alertRecord.getWorkerId(), UPDATE_ALERT_RECORD);
         }
 
         // 校验预警等级（若传入）
         if (ObjectUtil.isNotNull(dto.getAlertLevel())) {
-            BusinessVerifyUtil.validateAlertLevel(dto.getAlertLevel(), UPDATE_ALERT_RECORD);
+            alertRecordValidator.validateAlertLevel(dto.getAlertLevel(), UPDATE_ALERT_RECORD);
         }
 
         // DTO转PO（覆盖非空字段）
         BeanUtil.copyProperties(dto, alertRecord, "id", "createdTime");
         int updated = alertRecordMapper.updateById(alertRecord);
         if (updated != 1) {
-            log.error("【修改预警记录失败】数据库更新异常，预警记录ID：{}", id);
             throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR, FailureMessages.COMMON_DATABASE_ERROR);
         }
 
-        log.info("【修改预警记录成功】预警记录ID：{}", id);
         AlertRecord latestRecord = alertRecordMapper.selectById(id);
         return ConvertUtil.convert(latestRecord, AlertRecordVO.class);
     }
@@ -134,9 +137,9 @@ public class AlertRecordServiceImpl extends ServiceImpl<AlertRecordMapper, Alert
      * @return VO
      */
     @Override
+    @BusinessLog(value = "查询预警记录（ID）", recordParams = true)
     public AlertRecordVO getAlertRecordById(Long id) {
-        AlertRecord alertRecord = validateAlertRecordExist(id);
-        log.info("【查询预警记录成功】预警记录ID：{}", id);
+        AlertRecord alertRecord = alertRecordValidator.validateAlertRecordExist(id);
         return ConvertUtil.convert(alertRecord, AlertRecordVO.class);
     }
 
@@ -147,18 +150,15 @@ public class AlertRecordServiceImpl extends ServiceImpl<AlertRecordMapper, Alert
      * @return 集合
      */
     @Override
+    @BusinessLog(value = "查询工人预警记录", recordParams = true)
     public List<AlertRecordVO> getAlertRecordsByWorkerId(Long workerId) {
-        BusinessVerifyUtil.validateWorkerExist(workerId, GET_ALERT_RECORD);
+        workerValidator.validateWorkerExist(workerId, GET_ALERT_RECORD);
 
         List<AlertRecord> alertRecords = alertRecordMapper.selectByWorkerId(workerId);
         if (ObjectUtil.isEmpty(alertRecords)) {
-            log.info("【查询工人预警记录】工人ID：{} 暂无预警记录", workerId);
             return Collections.emptyList();
         }
-
-        List<AlertRecordVO> voList = ConvertUtil.convertList(alertRecords, AlertRecordVO.class);
-        log.info("【查询工人预警记录成功】工人ID：{}，共{}条预警记录", workerId, voList.size());
-        return voList;
+        return ConvertUtil.convertList(alertRecords, AlertRecordVO.class);
     }
 
     /**
@@ -168,18 +168,14 @@ public class AlertRecordServiceImpl extends ServiceImpl<AlertRecordMapper, Alert
      * @return 结果集合
      */
     @Override
+    @BusinessLog(value = "查询预警记录（级别）", recordParams = true)
     public List<AlertRecordVO> getAlertRecordsByAlertLevel(AlertLevel alertLevel) {
-        BusinessVerifyUtil.validateAlertLevel(alertLevel, GET_ALERT_RECORD);
-
+        alertRecordValidator.validateAlertLevel(alertLevel, GET_ALERT_RECORD);
         List<AlertRecord> alertRecords = alertRecordMapper.selectByAlertLevel(alertLevel.getValue());
         if (ObjectUtil.isEmpty(alertRecords)) {
-            log.info("【查询预警记录】预警级别：{} 暂无预警记录", alertLevel.getValue());
             return Collections.emptyList();
         }
-
-        List<AlertRecordVO> voList = ConvertUtil.convertList(alertRecords, AlertRecordVO.class);
-        log.info("【查询预警记录成功】预警级别：{}，共{}条预警记录", alertLevel.getValue(), voList.size());
-        return voList;
+        return ConvertUtil.convertList(alertRecords, AlertRecordVO.class);
     }
 
     /**
@@ -189,18 +185,14 @@ public class AlertRecordServiceImpl extends ServiceImpl<AlertRecordMapper, Alert
      * @return 结果集合
      */
     @Override
+    @BusinessLog(value = "查询预警记录（类型模糊）", recordParams = true)
     public List<AlertRecordVO> getAlertRecordsByAlertTypeLike(String alertType) {
-        BusinessVerifyUtil.validateStringNotBlank(alertType, "预警类型", GET_ALERT_RECORD);
-
+        generalValidator.validateStringNotBlank(alertType, ALERT_TYPE, GET_ALERT_RECORD);
         List<AlertRecord> alertRecords = alertRecordMapper.selectByAlertTypeLike(alertType);
         if (ObjectUtil.isEmpty(alertRecords)) {
-            log.info("【查询预警记录】预警类型（模糊）：{} 暂无预警记录", alertType);
             return Collections.emptyList();
         }
-
-        List<AlertRecordVO> voList = ConvertUtil.convertList(alertRecords, AlertRecordVO.class);
-        log.info("【查询预警记录成功】预警类型（模糊）：{}，共{}条预警记录", alertType, voList.size());
-        return voList;
+        return ConvertUtil.convertList(alertRecords, AlertRecordVO.class);
     }
 
     /**
@@ -211,31 +203,15 @@ public class AlertRecordServiceImpl extends ServiceImpl<AlertRecordMapper, Alert
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @BusinessLog(value = "标记预警记录为已处理", recordParams = true)
     public void markAlertRecordAsHandled(Long id, String handledBy) {
 
-        validateAlertRecordExist(id);
-        BusinessVerifyUtil.validateStringNotBlank(handledBy, "处理人", "标记预警记录已处理");
-
+        alertRecordValidator.validateAlertRecordExist(id);
+        generalValidator.validateStringNotBlank(handledBy, HANDLED_BY, HANDLE_ALERT_RECORD);
         int rows = alertRecordMapper.markAsHandled(id, handledBy, LocalDateTime.now());
         if (rows == 0) {
-            log.error("【标记预警记录已处理失败】数据库更新异常，预警记录ID：{}", id);
             throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR, FailureMessages.ALERT_OPERATE_HANDLE_ERROR);
         }
-
-        log.info("【标记预警记录已处理成功】预警记录ID：{}，处理人：{}", id, handledBy);
     }
 
-    /**
-     * 校验预警记录ID合法性+记录存在性
-     */
-// 仅保留核心校验逻辑，删除冗余的枚举校验
-    private AlertRecord validateAlertRecordExist(Long id) {
-        BusinessVerifyUtil.validateId(id, ALERT_RECORD_ID);
-        AlertRecord alertRecord = alertRecordMapper.selectById(id);
-        if (ObjectUtil.isNull(alertRecord)) {
-            log.warn("【预警记录操作失败】预警记录不存在，ID：{}", id);
-            throw new BizException(HttpStatus.NOT_FOUND, FailureMessages.ALERT_DATA_NOT_FOUND);
-        }
-        return alertRecord;
-    }
 }

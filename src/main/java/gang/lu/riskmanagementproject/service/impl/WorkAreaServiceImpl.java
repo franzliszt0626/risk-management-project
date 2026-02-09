@@ -5,6 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import gang.lu.riskmanagementproject.annotation.BusinessLog;
 import gang.lu.riskmanagementproject.common.FailureMessages;
 import gang.lu.riskmanagementproject.domain.dto.WorkAreaDTO;
 import gang.lu.riskmanagementproject.domain.enums.AreaRiskLevel;
@@ -14,8 +15,9 @@ import gang.lu.riskmanagementproject.domain.vo.WorkAreaVO;
 import gang.lu.riskmanagementproject.exception.BizException;
 import gang.lu.riskmanagementproject.mapper.WorkAreaMapper;
 import gang.lu.riskmanagementproject.service.WorkAreaService;
-import gang.lu.riskmanagementproject.util.BusinessVerifyUtil;
+import gang.lu.riskmanagementproject.util.BasicUtil;
 import gang.lu.riskmanagementproject.util.ConvertUtil;
+import gang.lu.riskmanagementproject.validator.WorkAreaValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -27,9 +29,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static gang.lu.riskmanagementproject.common.BusinessScene.ADD_WORK_AREA;
-import static gang.lu.riskmanagementproject.common.BusinessScene.GET_WORK_AREA_BY_CODE;
-import static gang.lu.riskmanagementproject.common.IdName.WORK_AREA_ID;
+import static gang.lu.riskmanagementproject.common.BusinessScene.*;
+import static gang.lu.riskmanagementproject.common.FieldName.WORK_AREA_CODE;
+import static gang.lu.riskmanagementproject.common.FieldName.WORK_AREA_NAME;
+import static gang.lu.riskmanagementproject.util.BasicUtil.handleCustomPageParams;
 
 /**
  * <p>
@@ -46,6 +49,8 @@ public class WorkAreaServiceImpl extends ServiceImpl<WorkAreaMapper, WorkArea> i
 
     private final WorkAreaMapper workAreaMapper;
 
+    private final WorkAreaValidator workAreaValidator;
+
     /**
      * 新增工作区域
      *
@@ -54,25 +59,21 @@ public class WorkAreaServiceImpl extends ServiceImpl<WorkAreaMapper, WorkArea> i
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @BusinessLog(value = "新增工作区域", recordParams = true)
     public boolean addWorkArea(WorkAreaDTO dto) {
-// 1. 通用校验
+        // 1. 通用校验
         String areaCode = dto.getAreaCode();
         String areaName = dto.getAreaName();
-        BusinessVerifyUtil.validateWorkAreaField(areaCode, "区域编码", ADD_WORK_AREA);
-        BusinessVerifyUtil.validateWorkAreaField(areaName, "区域名称", ADD_WORK_AREA);
-
+        workAreaValidator.validateWorkAreaField(areaCode, WORK_AREA_CODE, ADD_WORK_AREA);
+        workAreaValidator.validateWorkAreaField(areaName, WORK_AREA_NAME, ADD_WORK_AREA);
         // 2. 编码唯一性
         if (lambdaQuery().eq(WorkArea::getAreaCode, areaCode).exists()) {
-            log.warn("【新增工作区域失败】编码重复：{}", areaCode);
             throw new BizException(HttpStatus.CONFLICT, FailureMessages.WORK_AREA_PARAM_DUPLICATE_CODE);
         }
-
         // 3. 风险等级默认值
         if (ObjectUtil.isNull(dto.getAreaRiskLevel())) {
             dto.setAreaRiskLevel(AreaRiskLevel.LOW_RISK);
-            log.info("【新增工作区域】默认风险等级：低风险，编码：{}", areaCode);
         }
-
         // 4. 转换+保存
         WorkArea workArea = ConvertUtil.convert(dto, WorkArea.class);
         workArea.setCreateTime(LocalDateTime.now());
@@ -80,11 +81,8 @@ public class WorkAreaServiceImpl extends ServiceImpl<WorkAreaMapper, WorkArea> i
 
         boolean saveSuccess = save(workArea);
         if (!saveSuccess) {
-            log.error("【新增工作区域失败】数据库异常，编码：{}", areaCode);
             throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR, FailureMessages.COMMON_DATABASE_ERROR);
         }
-
-        log.info("【新增工作区域成功】编码：{}，名称：{}", areaCode, areaName);
         return true;
     }
 
@@ -96,14 +94,13 @@ public class WorkAreaServiceImpl extends ServiceImpl<WorkAreaMapper, WorkArea> i
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @BusinessLog(value = "删除工作区域", recordParams = true)
     public boolean deleteWorkArea(Long id) {
-        WorkArea existArea = validateWorkAreaExist(id);
+        workAreaValidator.validateWorkAreaExist(id);
         boolean deleteSuccess = removeById(id);
         if (!deleteSuccess) {
-            log.error("【删除工作区域失败】数据库异常，ID：{}", id);
             throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR, FailureMessages.COMMON_DATABASE_ERROR);
         }
-        log.info("【删除工作区域成功】ID：{}，编码：{}", id, existArea.getAreaCode());
         return true;
     }
 
@@ -116,8 +113,9 @@ public class WorkAreaServiceImpl extends ServiceImpl<WorkAreaMapper, WorkArea> i
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @BusinessLog(value = "修改工作区域", recordParams = true)
     public boolean updateWorkArea(Long id, WorkAreaDTO dto) {
-        WorkArea existArea = validateWorkAreaExist(id);
+        WorkArea existArea = workAreaValidator.validateWorkAreaExist(id);
 
         // 编码唯一性校验
         String newAreaCode = dto.getAreaCode();
@@ -127,7 +125,6 @@ public class WorkAreaServiceImpl extends ServiceImpl<WorkAreaMapper, WorkArea> i
                     .ne(WorkArea::getId, id)
                     .exists();
             if (codeExists) {
-                log.warn("【修改工作区域失败】编码重复：{}", newAreaCode);
                 throw new BizException(HttpStatus.CONFLICT, FailureMessages.WORK_AREA_PARAM_DUPLICATE_CODE);
             }
         }
@@ -144,11 +141,8 @@ public class WorkAreaServiceImpl extends ServiceImpl<WorkAreaMapper, WorkArea> i
 
         boolean updateSuccess = updateById(updateArea);
         if (!updateSuccess) {
-            log.error("【修改工作区域失败】数据库异常，ID：{}", id);
             throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR, FailureMessages.COMMON_DATABASE_ERROR);
         }
-
-        log.info("【修改工作区域成功】ID：{}，编码：{}", id, existArea.getAreaCode());
         return true;
     }
 
@@ -162,9 +156,9 @@ public class WorkAreaServiceImpl extends ServiceImpl<WorkAreaMapper, WorkArea> i
      *
      */
     @Override
+    @BusinessLog(value = "查询工作区域（ID）", recordParams = true)
     public WorkAreaVO getWorkAreaById(Long id) {
-        WorkArea workArea = validateWorkAreaExist(id);
-        log.info("【查询工作区域成功】ID：{}，编码：{}", id, workArea.getAreaCode());
+        WorkArea workArea = workAreaValidator.validateWorkAreaExist(id);
         return ConvertUtil.convert(workArea, WorkAreaVO.class);
     }
 
@@ -175,22 +169,17 @@ public class WorkAreaServiceImpl extends ServiceImpl<WorkAreaMapper, WorkArea> i
      * @return 展示
      */
     @Override
+    @BusinessLog(value = "按编码查询工作区域", recordParams = true)
     public List<WorkAreaVO> getWorkAreaByCode(String areaCode) {
-        BusinessVerifyUtil.validateWorkAreaField(areaCode, "区域编码", GET_WORK_AREA_BY_CODE);
-
+        workAreaValidator.validateWorkAreaField(areaCode, WORK_AREA_CODE, GET_WORK_AREA_BY_CODE);
         List<WorkArea> workAreas = lambdaQuery()
                 .like(WorkArea::getAreaCode, areaCode)
                 .orderByDesc(WorkArea::getUpdateTime)
                 .list();
-
         if (ObjectUtil.isEmpty(workAreas)) {
-            log.info("【按编码查询工作区域】编码：{} 暂无记录", areaCode);
             return Collections.emptyList();
         }
-
-        List<WorkAreaVO> voList = ConvertUtil.convertList(workAreas, WorkAreaVO.class);
-        log.info("【按编码查询工作区域成功】编码：{}，共{}条", areaCode, voList.size());
-        return voList;
+        return ConvertUtil.convertList(workAreas, WorkAreaVO.class);
     }
 
     /**
@@ -203,9 +192,11 @@ public class WorkAreaServiceImpl extends ServiceImpl<WorkAreaMapper, WorkArea> i
      * @return 分页结果
      */
     @Override
+    @BusinessLog(value = "多条件分页查询工作区域", recordParams = true)
     public Page<WorkAreaVO> queryWorkAreas(Integer pageNum, Integer pageSize, String areaName, AreaRiskLevel riskLevel) {
         // 分页参数处理
-        Integer[] pageParams = BusinessVerifyUtil.handleWorkAreaPageParams(pageNum, pageSize);
+        Integer[] pageParams = handleCustomPageParams(pageNum, pageSize, GET_WORK_AREA);
+        ;
         int finalPageNum = pageParams[0];
         int finalPageSize = pageParams[1];
 
@@ -227,9 +218,7 @@ public class WorkAreaServiceImpl extends ServiceImpl<WorkAreaMapper, WorkArea> i
         poPage.setPages(total > 0 ? (total + finalPageSize - 1) / finalPageSize : 0);
 
         // 转换分页VO
-        Page<WorkAreaVO> voPage = ConvertUtil.convertPageWithManualTotal(poPage, WorkAreaVO.class);
-        log.info("【多条件分页查询工作区域】名称={}，风险等级={}，总条数={}", areaName, riskLevel, total);
-        return voPage;
+        return ConvertUtil.convertPageWithManualTotal(poPage, WorkAreaVO.class);
     }
 
     /**
@@ -240,6 +229,7 @@ public class WorkAreaServiceImpl extends ServiceImpl<WorkAreaMapper, WorkArea> i
      * @return 分页后的所有工作区域VO列表
      */
     @Override
+    @BusinessLog(value = "分页查询所有工作区域", recordParams = true)
     public Page<WorkAreaVO> getAllWorkAreas(Integer pageNum, Integer pageSize) {
         // 复用多条件查询逻辑（无筛选条件）
         return queryWorkAreas(pageNum, pageSize, null, null);
@@ -251,32 +241,16 @@ public class WorkAreaServiceImpl extends ServiceImpl<WorkAreaMapper, WorkArea> i
      * @return 风险等级划分的统计数据
      */
     @Override
+    @BusinessLog(value = "统计工作区域风险等级数量", recordParams = false)
     public WorkAreaRiskCountVO countWorkAreaByRiskLevel() {
-        log.info("【统计工作区域风险等级数量】开始执行");
         Map<String, Map<String, Object>> riskCountMap = workAreaMapper.countWorkAreaByRiskLevel();
 
         WorkAreaRiskCountVO vo = new WorkAreaRiskCountVO();
-        vo.setLowRiskCount(BusinessVerifyUtil.getCountFromMap(riskCountMap, AreaRiskLevel.LOW_RISK.getValue()));
-        vo.setMediumRiskCount(BusinessVerifyUtil.getCountFromMap(riskCountMap, AreaRiskLevel.MEDIUM_RISK.getValue()));
-        vo.setHighRiskCount(BusinessVerifyUtil.getCountFromMap(riskCountMap, AreaRiskLevel.HIGH_RISK.getValue()));
+        vo.setLowRiskCount(BasicUtil.getCountFromMap(riskCountMap, AreaRiskLevel.LOW_RISK.getValue()));
+        vo.setMediumRiskCount(BasicUtil.getCountFromMap(riskCountMap, AreaRiskLevel.MEDIUM_RISK.getValue()));
+        vo.setHighRiskCount(BasicUtil.getCountFromMap(riskCountMap, AreaRiskLevel.HIGH_RISK.getValue()));
         vo.setTotalCount(vo.getLowRiskCount() + vo.getMediumRiskCount() + vo.getHighRiskCount());
-
-        log.info("【统计工作区域风险等级数量完成】总数量：{}", vo.getTotalCount());
         return vo;
     }
 
-    // ========== 私有工具方法 ==========
-
-    /**
-     * 校验工作区域ID合法性+记录存在性（封装重复逻辑）
-     */
-    private WorkArea validateWorkAreaExist(Long id) {
-        BusinessVerifyUtil.validateId(id, WORK_AREA_ID);
-        WorkArea workArea = getById(id);
-        if (ObjectUtil.isNull(workArea)) {
-            log.warn("【工作区域操作失败】记录不存在，ID：{}", id);
-            throw new BizException(HttpStatus.NOT_FOUND, FailureMessages.WORK_AREA_DATA_NOT_EXIST);
-        }
-        return workArea;
-    }
 }

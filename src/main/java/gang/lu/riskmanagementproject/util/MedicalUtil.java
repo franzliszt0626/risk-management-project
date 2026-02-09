@@ -11,8 +11,9 @@ import static gang.lu.riskmanagementproject.common.FailureMessages.*;
  * @date 2026/2/1 13:05
  * @description 参数校验工具
  */
-public class ParameterVerifyUtil {
+public class MedicalUtil {
 
+    private MedicalUtil() {}
 
     /**
      * 疲劳率常量
