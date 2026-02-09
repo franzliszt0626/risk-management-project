@@ -5,9 +5,14 @@ import gang.lu.riskmanagementproject.common.Result;
 import gang.lu.riskmanagementproject.domain.dto.WorkerDTO;
 import gang.lu.riskmanagementproject.domain.enums.Status;
 import gang.lu.riskmanagementproject.domain.enums.WorkType;
+import gang.lu.riskmanagementproject.domain.vo.WorkerStatusCountVO;
+import gang.lu.riskmanagementproject.domain.vo.WorkerTypeCountVO;
 import gang.lu.riskmanagementproject.domain.vo.WorkerVO;
 import gang.lu.riskmanagementproject.service.WorkerService;
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -124,4 +129,20 @@ public class WorkerController {
         List<WorkerVO> list = workerService.getWorkersByWorkType(workType);
         return Result.ok(String.format(WORKER_GET_COUNT_BY_WORKTYPE_SUCCESS_MESSAGE, workTypeValue, list.size()), list);
     }
+
+    @GetMapping("/status/count")
+    @ApiOperation("按状态统计工人数量（状态：正常/异常/离线）")
+    public Result<WorkerStatusCountVO> countWorkerByStatus() {
+        WorkerStatusCountVO countVO = workerService.countWorkerByStatus();
+        return Result.ok(WORKER_STATISTIC_COUNT_BY_STATUS_SUCCESS_MESSAGE, countVO);
+    }
+
+    @GetMapping("/work-type/count")
+    @ApiOperation("按工种统计工人数量（工种：高空作业/受限空间/设备操作/正常作业）")
+    public Result<WorkerTypeCountVO> countWorkerByWorkType() {
+        WorkerTypeCountVO countVO = workerService.countWorkerByWorkType();
+        return Result.ok(WORKER_STATISTIC_COUNT_BY_WORKTYPE_SUCCESS_MESSAGE, countVO);
+    }
+
+
 }

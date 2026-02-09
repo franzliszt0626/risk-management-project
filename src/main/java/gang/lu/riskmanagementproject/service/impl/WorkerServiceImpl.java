@@ -11,11 +11,14 @@ import gang.lu.riskmanagementproject.domain.dto.WorkerDTO;
 import gang.lu.riskmanagementproject.domain.enums.Status;
 import gang.lu.riskmanagementproject.domain.enums.WorkType;
 import gang.lu.riskmanagementproject.domain.po.Worker;
+import gang.lu.riskmanagementproject.domain.vo.WorkerStatusCountVO;
+import gang.lu.riskmanagementproject.domain.vo.WorkerTypeCountVO;
 import gang.lu.riskmanagementproject.domain.vo.WorkerVO;
 import gang.lu.riskmanagementproject.exception.BizException;
 import gang.lu.riskmanagementproject.mapper.WorkerMapper;
 import gang.lu.riskmanagementproject.service.WorkerService;
 import gang.lu.riskmanagementproject.util.ConvertUtil;
+import gang.lu.riskmanagementproject.util.StatisticalUtil;
 import gang.lu.riskmanagementproject.validator.GeneralValidator;
 import gang.lu.riskmanagementproject.validator.WorkerValidator;
 import lombok.RequiredArgsConstructor;
@@ -26,12 +29,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static gang.lu.riskmanagementproject.common.BusinessScene.*;
 import static gang.lu.riskmanagementproject.common.EnumName.STATUS;
 import static gang.lu.riskmanagementproject.common.EnumName.WORK_TYPE;
-import static gang.lu.riskmanagementproject.common.FieldName.NAME;
-import static gang.lu.riskmanagementproject.common.FieldName.WORKER_CODE;
+import static gang.lu.riskmanagementproject.common.FieldName.*;
 import static gang.lu.riskmanagementproject.util.BasicUtil.handleCustomPageParams;
 
 /**
@@ -251,10 +254,49 @@ public class WorkerServiceImpl extends ServiceImpl<WorkerMapper, Worker> impleme
         workerPage.setTotal(total);
         workerPage.setPages(total > 0 ? (total + finalPageSize - 1) / finalPageSize : 0);
         // 转换分页VO
-        Page<WorkerVO> voPage = ConvertUtil.convertPageWithManualTotal(workerPage, WorkerVO.class);
-        return voPage;
+        return ConvertUtil.convertPageWithManualTotal(workerPage, WorkerVO.class);
     }
 
+    /**
+     * 按工人状态统计数量
+     *
+     * @return 状态统计结果VO
+     */
+    @Override
+    @BusinessLog(value = "统计工人状态数量", recordParams = false)
+    public WorkerStatusCountVO countWorkerByStatus() {
+        // 调用Mapper获取按状态分组的统计结果（现在是List<Map>）
+        List<Map<String, Object>> statusCountList = baseMapper.countWorkerByStatus();
+        // 封装VO对象（使用新增的工具方法）
+        WorkerStatusCountVO vo = new WorkerStatusCountVO();
+        vo.setNormalCount(StatisticalUtil.getCountFromList(statusCountList, WORKER_STATUS, Status.NORMAL.getValue()));
+        vo.setAbnormalCount(StatisticalUtil.getCountFromList(statusCountList, WORKER_STATUS, Status.ABNORMAL.getValue()));
+        vo.setOfflineCount(StatisticalUtil.getCountFromList(statusCountList, WORKER_STATUS, Status.OFFLINE.getValue()));
+        // 计算总数量
+        vo.setTotalCount(vo.getNormalCount() + vo.getAbnormalCount() + vo.getOfflineCount());
+        return vo;
+    }
+
+    /**
+     * 按工人种类统计数量
+     *
+     * @return 状态统计结果VO
+     */
+    @BusinessLog(value = "统计工人种类数量", recordParams = false)
+    @Override
+    public WorkerTypeCountVO countWorkerByWorkType() {
+        // 调用Mapper获取按状态分组的统计结果（现在是List<Map>）
+        List<Map<String, Object>> workTypeCountList = baseMapper.countWorkerByWorkType();
+        // 封装VO对象（使用新增的工具方法）
+        WorkerTypeCountVO vo = new WorkerTypeCountVO();
+        vo.setHighAltitudeCount(StatisticalUtil.getCountFromList(workTypeCountList, WORKER_TYPE, WorkType.HIGH_ALTITUDE.getValue()));
+        vo.setConfinedSpaceCount(StatisticalUtil.getCountFromList(workTypeCountList, WORKER_TYPE, WorkType.CONFINED_SPACE.getValue()));
+        vo.setEquipmentOperationCount(StatisticalUtil.getCountFromList(workTypeCountList, WORKER_TYPE, WorkType.EQUIPMENT_OPERATION.getValue()));
+        vo.setNormalWorkCount(StatisticalUtil.getCountFromList(workTypeCountList, WORKER_TYPE, WorkType.NORMAL_WORK.getValue()));
+        // 计算总数量
+        vo.setTotalCount(vo.getHighAltitudeCount() + vo.getConfinedSpaceCount() + vo.getEquipmentOperationCount() + vo.getNormalWorkCount());
+        return vo;
+    }
 
     /**
      * 内部复用

@@ -15,8 +15,8 @@ import gang.lu.riskmanagementproject.domain.vo.WorkAreaVO;
 import gang.lu.riskmanagementproject.exception.BizException;
 import gang.lu.riskmanagementproject.mapper.WorkAreaMapper;
 import gang.lu.riskmanagementproject.service.WorkAreaService;
-import gang.lu.riskmanagementproject.util.BasicUtil;
 import gang.lu.riskmanagementproject.util.ConvertUtil;
+import gang.lu.riskmanagementproject.util.StatisticalUtil;
 import gang.lu.riskmanagementproject.validator.WorkAreaValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -246,9 +246,9 @@ public class WorkAreaServiceImpl extends ServiceImpl<WorkAreaMapper, WorkArea> i
         Map<String, Map<String, Object>> riskCountMap = workAreaMapper.countWorkAreaByRiskLevel();
 
         WorkAreaRiskCountVO vo = new WorkAreaRiskCountVO();
-        vo.setLowRiskCount(BasicUtil.getCountFromMap(riskCountMap, AreaRiskLevel.LOW_RISK.getValue()));
-        vo.setMediumRiskCount(BasicUtil.getCountFromMap(riskCountMap, AreaRiskLevel.MEDIUM_RISK.getValue()));
-        vo.setHighRiskCount(BasicUtil.getCountFromMap(riskCountMap, AreaRiskLevel.HIGH_RISK.getValue()));
+        vo.setLowRiskCount(StatisticalUtil.getCountFromMap(riskCountMap, AreaRiskLevel.LOW_RISK.getValue()));
+        vo.setMediumRiskCount(StatisticalUtil.getCountFromMap(riskCountMap, AreaRiskLevel.MEDIUM_RISK.getValue()));
+        vo.setHighRiskCount(StatisticalUtil.getCountFromMap(riskCountMap, AreaRiskLevel.HIGH_RISK.getValue()));
         vo.setTotalCount(vo.getLowRiskCount() + vo.getMediumRiskCount() + vo.getHighRiskCount());
         return vo;
     }

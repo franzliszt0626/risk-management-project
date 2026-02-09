@@ -17,4 +17,6 @@ public class FieldName {
     public static final String WORKER_CODE = "工号";
     public static final String WORK_AREA_CODE = "区域编码";
     public static final String WORK_AREA_NAME = "区域名称";
+    public static final String WORKER_STATUS = "status";
+    public static final String WORKER_TYPE = "work_type";
 }

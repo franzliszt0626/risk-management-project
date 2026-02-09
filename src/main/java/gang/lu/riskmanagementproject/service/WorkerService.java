@@ -2,10 +2,13 @@ package gang.lu.riskmanagementproject.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import gang.lu.riskmanagementproject.annotation.BusinessLog;
 import gang.lu.riskmanagementproject.domain.dto.WorkerDTO;
 import gang.lu.riskmanagementproject.domain.enums.Status;
 import gang.lu.riskmanagementproject.domain.enums.WorkType;
 import gang.lu.riskmanagementproject.domain.po.Worker;
+import gang.lu.riskmanagementproject.domain.vo.WorkerStatusCountVO;
+import gang.lu.riskmanagementproject.domain.vo.WorkerTypeCountVO;
 import gang.lu.riskmanagementproject.domain.vo.WorkerVO;
 
 import java.util.List;
@@ -91,4 +94,17 @@ public interface WorkerService extends IService<Worker> {
      * @return 集合
      */
     List<WorkerVO> getWorkersByWorkType(WorkType workType);
+
+    /**
+     * 按工人状态统计数量
+     * @return 状态统计结果VO
+     */
+    WorkerStatusCountVO countWorkerByStatus();
+
+
+    /**
+     * 按工人工种统计数量
+     * @return 状态统计结果VO
+     */
+    WorkerTypeCountVO countWorkerByWorkType();
 }

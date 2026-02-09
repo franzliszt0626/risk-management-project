@@ -18,6 +18,7 @@ import gang.lu.riskmanagementproject.service.RiskIndicatorService;
 import gang.lu.riskmanagementproject.util.BasicUtil;
 import gang.lu.riskmanagementproject.util.ConvertUtil;
 import gang.lu.riskmanagementproject.util.MedicalUtil;
+import gang.lu.riskmanagementproject.util.StatisticalUtil;
 import gang.lu.riskmanagementproject.validator.RiskValidator;
 import gang.lu.riskmanagementproject.validator.WorkerValidator;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 
 import static gang.lu.riskmanagementproject.common.BusinessScene.*;
-import static gang.lu.riskmanagementproject.util.BasicUtil.buildTimePeriodItems;
 
 /**
  * <p>
@@ -137,10 +137,10 @@ public class RiskIndicatorServiceImpl extends ServiceImpl<RiskIndicatorMapper, R
         Map<String, Map<String, Object>> riskCountMap = riskIndicatorMapper.countDistinctWorkerByRiskLevel();
 
         RiskLevelCountVO vo = new RiskLevelCountVO();
-        vo.setLowRiskCount(BasicUtil.getCountFromMap(riskCountMap, RiskLevel.LOW_RISK.getValue()));
-        vo.setMediumRiskCount(BasicUtil.getCountFromMap(riskCountMap, RiskLevel.MEDIUM_RISK.getValue()));
-        vo.setHighRiskCount(BasicUtil.getCountFromMap(riskCountMap, RiskLevel.HIGH_RISK.getValue()));
-        vo.setVeryHighRiskCount(BasicUtil.getCountFromMap(riskCountMap, RiskLevel.VERY_HIGH_RISK.getValue()));
+        vo.setLowRiskCount(StatisticalUtil.getCountFromMap(riskCountMap, RiskLevel.LOW_RISK.getValue()));
+        vo.setMediumRiskCount(StatisticalUtil.getCountFromMap(riskCountMap, RiskLevel.MEDIUM_RISK.getValue()));
+        vo.setHighRiskCount(StatisticalUtil.getCountFromMap(riskCountMap, RiskLevel.HIGH_RISK.getValue()));
+        vo.setVeryHighRiskCount(StatisticalUtil.getCountFromMap(riskCountMap, RiskLevel.VERY_HIGH_RISK.getValue()));
         vo.setTotalCount(vo.getLowRiskCount() + vo.getMediumRiskCount() + vo.getHighRiskCount() + vo.getVeryHighRiskCount());
         return vo;
     }
@@ -159,7 +159,7 @@ public class RiskIndicatorServiceImpl extends ServiceImpl<RiskIndicatorMapper, R
         List<Map<String, Object>> periodList = riskIndicatorMapper.countHighRiskWorkerByTimePeriod(statDateStr);
         RiskTimePeriodCountVO resultVO = new RiskTimePeriodCountVO();
         resultVO.setStatDate(statDateStr);
-        resultVO.setPeriodItems(buildTimePeriodItems(periodList));
+        resultVO.setPeriodItems(StatisticalUtil.buildTimePeriodItems(periodList));
         return resultVO;
     }
 
