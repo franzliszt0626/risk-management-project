@@ -1,16 +1,15 @@
 package gang.lu.riskmanagementproject.validator;
 
-import cn.hutool.core.util.EnumUtil;
 import cn.hutool.core.util.StrUtil;
 import gang.lu.riskmanagementproject.annotation.ValidEnum;
+import gang.lu.riskmanagementproject.domain.enums.ValueEnum;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static gang.lu.riskmanagementproject.common.BusinessConstants.VALUE;
+import java.util.stream.Stream;
 
 /**
  * @author Franz Liszt
@@ -21,13 +20,16 @@ import static gang.lu.riskmanagementproject.common.BusinessConstants.VALUE;
 public class EnumValidator implements ConstraintValidator<ValidEnum, String> {
     private String bizName;
     private List<String> enumValues;
+    private boolean allowBlank;
 
     @Override
     public void initialize(ValidEnum constraintAnnotation) {
         Class<? extends Enum<?>> enumClass = constraintAnnotation.enumClass();
         this.bizName = constraintAnnotation.bizName();
-        this.enumValues = EnumUtil.getFieldValues(enumClass, VALUE).stream()
-                .map(String::valueOf)
+        this.allowBlank = constraintAnnotation.allowBlank();
+// 通用获取ValueEnum的value值，替代硬编码的EnumUtil
+        this.enumValues = Stream.of(enumClass.getEnumConstants())
+                .map(enumConstant -> ((ValueEnum<?>) enumConstant).getValue().toString())
                 .collect(Collectors.toList());
     }
 
@@ -35,15 +37,15 @@ public class EnumValidator implements ConstraintValidator<ValidEnum, String> {
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
         if (StrUtil.isBlank(value)) {
-            return true;
+            return allowBlank;
         }
         String trimValue = value.trim();
         boolean isValid = enumValues.contains(trimValue);
         if (!isValid) {
-            // 替换占位符，返回友好提示
             String message = context.getDefaultConstraintMessageTemplate()
                     .replace("{bizName}", bizName)
-                    .replace("{enumValues}", StringUtils.join(enumValues, "、"));
+                    .replace("{enumValues}", StringUtils.join(enumValues, "、"))
+                    .replace("{currentValue}", trimValue);
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(message).addConstraintViolation();
         }

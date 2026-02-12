@@ -28,8 +28,9 @@ public @interface ValidEnum {
      */
     String bizName() default "枚举值";
 
+    boolean allowBlank() default true;
 
-    String message() default "无效的{bizName}！允许值为：{enumValues}";
+    String message() default "无效的{bizName}（当前值：{currentValue}）！允许值为：{enumValues}";
 
     Class<?>[] groups() default {};
 

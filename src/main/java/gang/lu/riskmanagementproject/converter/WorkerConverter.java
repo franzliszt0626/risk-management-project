@@ -6,6 +6,7 @@ import gang.lu.riskmanagementproject.domain.enums.ValueEnum;
 import gang.lu.riskmanagementproject.domain.enums.WorkType;
 import gang.lu.riskmanagementproject.domain.po.Worker;
 import gang.lu.riskmanagementproject.domain.vo.normal.WorkerVO;
+import gang.lu.riskmanagementproject.util.EnumMappingHelper;
 import org.mapstruct.Mapper;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
@@ -19,7 +20,8 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
         componentModel = "spring", // 生成Spring Bean
-        unmappedTargetPolicy = ReportingPolicy.IGNORE
+        unmappedTargetPolicy = ReportingPolicy.IGNORE,
+        uses = EnumMappingHelper.class
 )
 public interface WorkerConverter extends PageConverter<Worker, WorkerDTO, WorkerVO> {
 

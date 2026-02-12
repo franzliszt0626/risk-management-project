@@ -5,6 +5,7 @@ import gang.lu.riskmanagementproject.domain.enums.RiskLevel;
 import gang.lu.riskmanagementproject.domain.enums.ValueEnum;
 import gang.lu.riskmanagementproject.domain.po.RiskIndicator;
 import gang.lu.riskmanagementproject.domain.vo.normal.RiskIndicatorVO;
+import gang.lu.riskmanagementproject.util.EnumMappingHelper;
 import org.mapstruct.Mapper;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
@@ -18,7 +19,9 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
         componentModel = "spring",
-        unmappedTargetPolicy = ReportingPolicy.IGNORE
+        unmappedTargetPolicy = ReportingPolicy.IGNORE,
+        uses = EnumMappingHelper.class
+
 )
 public interface RiskIndicatorConverter extends PageConverter<RiskIndicator, RiskIndicatorDTO, RiskIndicatorVO> {
 

@@ -3,8 +3,8 @@ package gang.lu.riskmanagementproject.config;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
-import gang.lu.riskmanagementproject.domain.enums.*;
-import gang.lu.riskmanagementproject.domain.enums.serializer.ValueEnumDeserializerFactory;
+import gang.lu.riskmanagementproject.domain.enums.ValueEnum;
+import gang.lu.riskmanagementproject.domain.enums.serializer.ValueEnumDeserializer;
 import gang.lu.riskmanagementproject.domain.enums.serializer.ValueEnumSerializer;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
@@ -37,18 +37,9 @@ public class JacksonConfig {
 
             // 2. 枚举序列化/反序列化（全局配置）
             SimpleModule enumModule = new SimpleModule();
-            // 注册各个枚举的序列化器
-            enumModule.addSerializer(AlertLevel.class, new ValueEnumSerializer());
-            enumModule.addSerializer(AreaRiskLevel.class, new ValueEnumSerializer());
-            enumModule.addSerializer(RiskLevel.class, new ValueEnumSerializer());
-            enumModule.addSerializer(Status.class, new ValueEnumSerializer());
-            enumModule.addSerializer(WorkType.class, new ValueEnumSerializer());
+            builder.serializerByType(ValueEnum.class, new ValueEnumSerializer());
             // 注册各个枚举的反序列化器
-            enumModule.addDeserializer(AlertLevel.class, ValueEnumDeserializerFactory.getDeserializer(AlertLevel.class));
-            enumModule.addDeserializer(AreaRiskLevel.class, ValueEnumDeserializerFactory.getDeserializer(AreaRiskLevel.class));
-            enumModule.addDeserializer(RiskLevel.class, ValueEnumDeserializerFactory.getDeserializer(RiskLevel.class));
-            enumModule.addDeserializer(Status.class, ValueEnumDeserializerFactory.getDeserializer(Status.class));
-            enumModule.addDeserializer(WorkType.class, ValueEnumDeserializerFactory.getDeserializer(WorkType.class));
+            builder.deserializerByType(ValueEnum.class, new ValueEnumDeserializer());
             builder.modules(enumModule);
         };
     }

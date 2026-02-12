@@ -10,7 +10,6 @@ import gang.lu.riskmanagementproject.common.BusinessConstants;
 import gang.lu.riskmanagementproject.converter.AlertRecordConverter;
 import gang.lu.riskmanagementproject.domain.dto.AlertRecordDTO;
 import gang.lu.riskmanagementproject.domain.dto.query.AlertRecordQueryDTO;
-import gang.lu.riskmanagementproject.domain.enums.AlertLevel;
 import gang.lu.riskmanagementproject.domain.po.AlertRecord;
 import gang.lu.riskmanagementproject.domain.vo.normal.AlertRecordVO;
 import gang.lu.riskmanagementproject.domain.vo.normal.PageVO;
@@ -120,7 +119,7 @@ public class AlertRecordServiceImpl extends ServiceImpl<AlertRecordMapper, Alert
         // 4. 数据库操作
         generalValidator.validateDbOperateResult(alertRecordMapper.updateById(alertRecord));
         // 5. 返回VO
-        return alertRecordConverter.poToVo(alertRecordMapper.selectById(id));
+        return alertRecordConverter.poToVo(alertRecord);
     }
 
 
@@ -160,54 +159,35 @@ public class AlertRecordServiceImpl extends ServiceImpl<AlertRecordMapper, Alert
 
     private LambdaQueryWrapper<AlertRecord> buildAlertRecordQueryWrapper(AlertRecordQueryDTO queryDTO) {
         LambdaQueryWrapper<AlertRecord> wrapper = new LambdaQueryWrapper<>();
-
-        // 2. 工人ID精确匹配
+        // 简化枚举转换逻辑（依赖Converter的异常兜底）
+        if (StrUtil.isNotBlank(queryDTO.getAlertLevelValue())) {
+            wrapper.eq(AlertRecord::getAlertLevel, alertRecordConverter.stringToAlertLevel(queryDTO.getAlertLevelValue()));
+        }
         if (queryDTO.getWorkerId() != null) {
             wrapper.eq(AlertRecord::getWorkerId, queryDTO.getWorkerId());
         }
-
-        // 3. 预警类型模糊匹配
         if (StrUtil.isNotBlank(queryDTO.getAlertType())) {
             wrapper.like(AlertRecord::getAlertType, queryDTO.getAlertType().trim());
         }
-
-        // 4. 预警级别（直接用DTO的String值，MapStruct已自动转换，此处无需手动转枚举）
-        if (StrUtil.isNotBlank(queryDTO.getAlertLevelValue())) {
-            // 注意：如果AlertRecord的alertLevel字段是AlertLevel枚举类型，MapStruct已自动转换，此处直接传String会报错
-            // 修正：通过MapStruct的转换方法自动转枚举，业务层无需关心
-            AlertLevel alertLevel = alertRecordConverter.stringToAlertLevel(queryDTO.getAlertLevelValue());
-            wrapper.eq(AlertRecord::getAlertLevel, alertLevel);
-        }
-
-        // 5. 是否已处理
         if (queryDTO.getIsHandled() != null) {
             wrapper.eq(AlertRecord::getIsHandled, queryDTO.getIsHandled());
         }
-
-        // 6. 处理人模糊匹配
         if (StrUtil.isNotBlank(queryDTO.getHandledBy())) {
             wrapper.like(AlertRecord::getHandledBy, queryDTO.getHandledBy().trim());
         }
-
-        // 7. 创建时间区间
         if (queryDTO.getCreatedStartTime() != null) {
             wrapper.ge(AlertRecord::getCreatedTime, queryDTO.getCreatedStartTime());
         }
         if (queryDTO.getCreatedEndTime() != null) {
             wrapper.le(AlertRecord::getCreatedTime, queryDTO.getCreatedEndTime());
         }
-
-        // 8. 处理时间区间
         if (queryDTO.getHandleStartTime() != null) {
             wrapper.ge(AlertRecord::getHandleTime, queryDTO.getHandleStartTime());
         }
         if (queryDTO.getHandleEndTime() != null) {
             wrapper.le(AlertRecord::getHandleTime, queryDTO.getHandleEndTime());
         }
-
-        // 9. 排序（默认按创建时间降序，最新的预警在前）
         wrapper.orderByDesc(AlertRecord::getCreatedTime);
-
         return wrapper;
     }
 

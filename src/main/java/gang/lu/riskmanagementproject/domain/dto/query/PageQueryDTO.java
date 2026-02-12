@@ -65,33 +65,5 @@ public class PageQueryDTO {
         dto.setCustomMaxPageSize(customMaxPageSize);
         return dto;
     }
-
-    /**
-     * 工作区域分页规则
-     */
-    public static PageQueryDTO workAreaPage() {
-        return buildCustom(DEFAULT_PAGE_NUM, DEFAULT_PAGE_SIZE, DEFAULT_MAX_PAGE_SIZE);
-    }
-
-    /**
-     * 工人分页规则
-     */
-    public static PageQueryDTO workerPage() {
-        return buildCustom(DEFAULT_PAGE_NUM, DEFAULT_PAGE_SIZE, DEFAULT_MAX_PAGE_SIZE);
-    }
-
-    /**
-     * 风险指标分页规则
-     */
-    public static PageQueryDTO riskIndicatorPage() {
-        return buildCustom(DEFAULT_PAGE_NUM, DEFAULT_PAGE_SIZE, DEFAULT_MAX_PAGE_SIZE);
-    }
-
-    /**
-     * 预警记录分页规则
-     */
-    public static PageQueryDTO alertRecordPage() {
-        return buildCustom(DEFAULT_PAGE_NUM, DEFAULT_PAGE_SIZE, DEFAULT_MAX_PAGE_SIZE);
-    }
 }
 

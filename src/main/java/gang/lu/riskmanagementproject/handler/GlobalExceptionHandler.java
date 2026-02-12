@@ -90,6 +90,16 @@ public class GlobalExceptionHandler {
         return Result.error(e.getStatus(), e.getMessage());
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public Result<?> handleIllegalArgumentException(IllegalArgumentException e) {
+        log.warn("【参数不合法】{}", e.getMessage(), e);
+        // 优先判断是否是枚举转换异常
+        if (e.getMessage().contains("不合法") && e.getMessage().contains("允许值")) {
+            return Result.error(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+        return Result.error(HttpStatus.BAD_REQUEST, "参数不合法：" + e.getMessage());
+    }
+
     // ======================== 数据库相关异常 ========================
 
     /**

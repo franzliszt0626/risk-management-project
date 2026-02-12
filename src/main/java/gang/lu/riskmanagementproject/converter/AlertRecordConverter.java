@@ -5,6 +5,7 @@ import gang.lu.riskmanagementproject.domain.enums.AlertLevel;
 import gang.lu.riskmanagementproject.domain.enums.ValueEnum;
 import gang.lu.riskmanagementproject.domain.po.AlertRecord;
 import gang.lu.riskmanagementproject.domain.vo.normal.AlertRecordVO;
+import gang.lu.riskmanagementproject.util.EnumMappingHelper;
 import org.mapstruct.Mapper;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
@@ -18,12 +19,14 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
         componentModel = "spring",
-        unmappedTargetPolicy = ReportingPolicy.IGNORE
+        unmappedTargetPolicy = ReportingPolicy.IGNORE,
+        uses = EnumMappingHelper.class
 )
 public interface AlertRecordConverter extends PageConverter<AlertRecord, AlertRecordDTO, AlertRecordVO> {
 
     /**
      * String转AlertLevel（MapStruct自动调用）
+     *
      * @param value 前端传来的字符串
      * @return 序列化的枚举值
      */
@@ -34,6 +37,7 @@ public interface AlertRecordConverter extends PageConverter<AlertRecord, AlertRe
 
     /**
      * String转AlertLevel（MapStruct自动调用）
+     *
      * @param alertLevel 风险等级
      * @return 字符串
      */
