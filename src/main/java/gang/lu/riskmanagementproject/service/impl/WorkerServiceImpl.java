@@ -64,7 +64,7 @@ public class WorkerServiceImpl extends ServiceImpl<WorkerMapper, Worker> impleme
      * @return 分页结果
      */
     @Override
-    @BusinessLog(value = "组合查询工人", recordParams = true)
+    @BusinessLog(value = GET_WORKER_BY_MULTIPLY_CONDITION, recordParams = true, logLevel = BusinessLog.LogLevel.INFO)
     public PageVO<WorkerVO> searchWorkers(WorkerQueryDTO workerQueryDTO) {
         // 1. 构建分页对象（直接传入继承了PageQueryDTO的workerQueryDTO）
         Page<Worker> poPage = PageHelper.buildPage(workerQueryDTO, GET_WORKER);
@@ -82,7 +82,7 @@ public class WorkerServiceImpl extends ServiceImpl<WorkerMapper, Worker> impleme
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @BusinessLog(value = "创建工人", recordParams = true)
+    @BusinessLog(value = ADD_WORKER, recordParams = true, logLevel = BusinessLog.LogLevel.INFO)
     public void createWorker(WorkerDTO dto) {
         // 1. 校验
         String workerCode = dto.getWorkerCode();
@@ -91,7 +91,8 @@ public class WorkerServiceImpl extends ServiceImpl<WorkerMapper, Worker> impleme
         generalValidator.validateStringNotBlank(name, BusinessConstants.NAME, BusinessConstants.ADD_WORKER);
         // 2. 工号唯一性校验
         if (lambdaQuery().eq(Worker::getWorkerCode, workerCode).exists()) {
-            throw new BizException(HttpStatus.CONFLICT, WORKER_CODE_DUPLICATE);
+            throw new BizException(HttpStatus.CONFLICT,
+                    String.format(WORKER_CODE_DUPLICATE, ADD_WORKER, workerCode));
         }
         // 4. DTO→PO转换 + 设置时间字段
         Worker worker = workerConverter.dtoToPo(dto);
@@ -107,7 +108,7 @@ public class WorkerServiceImpl extends ServiceImpl<WorkerMapper, Worker> impleme
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @BusinessLog(value = "删除工人", recordParams = true)
+    @BusinessLog(value = DELETE_WORKER, recordParams = true, logLevel = BusinessLog.LogLevel.WARN)
     public void deleteWorker(Long id) {
         generalValidator.validateIdExist(id, workerMapper, WORKER_NOT_EXIST);
         int deleted = workerMapper.deleteById(id);
@@ -119,7 +120,7 @@ public class WorkerServiceImpl extends ServiceImpl<WorkerMapper, Worker> impleme
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @BusinessLog(value = "更新工人", recordParams = true)
+    @BusinessLog(value = UPDATE_WORKER, recordParams = true, logLevel = BusinessLog.LogLevel.INFO)
     public void updateWorker(Long id, WorkerDTO dto) {
         // 1. 校验工人存在性
         Worker existing = generalValidator.validateIdExist(id, workerMapper, WORKER_NOT_EXIST);
@@ -131,7 +132,8 @@ public class WorkerServiceImpl extends ServiceImpl<WorkerMapper, Worker> impleme
                     .ne(Worker::getId, id)
                     .exists();
             if (codeExists) {
-                throw new BizException(HttpStatus.CONFLICT, WORKER_CODE_DUPLICATE);
+                throw new BizException(HttpStatus.CONFLICT,
+                        String.format(WORKER_CODE_DUPLICATE, UPDATE_WORKER, newWorkerCode));
             }
         }
         // 4. 用DTO更新PO（空值不覆盖）
@@ -150,7 +152,7 @@ public class WorkerServiceImpl extends ServiceImpl<WorkerMapper, Worker> impleme
      * 根据ID查询工人
      */
     @Override
-    @BusinessLog(value = "查询工人（ID）", recordParams = true)
+    @BusinessLog(value = GET_WORKER_BY_ID, recordParams = true, logLevel = BusinessLog.LogLevel.INFO)
     public WorkerVO getWorkerById(Long id) {
         Worker worker = generalValidator.validateIdExist(id, workerMapper, WORKER_NOT_EXIST);
         return workerConverter.poToVo(worker);
@@ -160,7 +162,7 @@ public class WorkerServiceImpl extends ServiceImpl<WorkerMapper, Worker> impleme
      * 根据工号查询工人
      */
     @Override
-    @BusinessLog(value = "查询工人（工号）", recordParams = true)
+    @BusinessLog(value = GET_WORKER_BY_WORKCODE, recordParams = true, logLevel = BusinessLog.LogLevel.INFO)
     public WorkerVO getWorkerByCode(String workerCode) {
         // 1. 通用非空校验
         generalValidator.validateStringNotBlank(workerCode, BusinessConstants.WORKER_CODE, BusinessConstants.GET_WORKER_BY_WORKCODE);
@@ -180,7 +182,7 @@ public class WorkerServiceImpl extends ServiceImpl<WorkerMapper, Worker> impleme
      * @return 状态统计结果VO
      */
     @Override
-    @BusinessLog(value = "统计工人状态数量", recordParams = false)
+    @BusinessLog(value = GET_WORKER_DISTRIBUTION_BY_STATUS, recordParams = false, logLevel = BusinessLog.LogLevel.INFO)
     public WorkerStatusCountVO countWorkerByStatus() {
         // 调用Mapper获取按状态分组的统计结果（现在是List<Map>）
         List<Map<String, Object>> statusCountList = baseMapper.countWorkerByStatus();
@@ -199,7 +201,7 @@ public class WorkerServiceImpl extends ServiceImpl<WorkerMapper, Worker> impleme
      *
      * @return 状态统计结果VO
      */
-    @BusinessLog(value = "统计工人种类数量", recordParams = false)
+    @BusinessLog(value = GET_WORKER_DISTRIBUTION_BY_WORKTYPE, recordParams = false, logLevel = BusinessLog.LogLevel.INFO)
     @Override
     public WorkerTypeCountVO countWorkerByWorkType() {
         // 调用Mapper获取按状态分组的统计结果（现在是List<Map>）
@@ -222,7 +224,7 @@ public class WorkerServiceImpl extends ServiceImpl<WorkerMapper, Worker> impleme
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @BusinessLog(value = "批量删除工人", recordParams = true)
+    @BusinessLog(value = BATCH_DELETE_WORKER, recordParams = true, logLevel = BusinessLog.LogLevel.ERROR)
     public void batchDeleteWorkers(List<Long> ids) {
         // 1. 空值校验
         if (CollUtil.isEmpty(ids)) {

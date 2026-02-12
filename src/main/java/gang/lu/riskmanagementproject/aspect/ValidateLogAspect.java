@@ -36,35 +36,58 @@ public class ValidateLogAspect {
      */
     @Around("validateLogPointcut()")
     public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
-        // 1. 获取方法元数据
+// 1. 获取方法元数据
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
         ValidateLog validateLog = method.getAnnotation(ValidateLog.class);
         String validateName = validateLog.value();
         String methodFullName = String.format("%s.%s", joinPoint.getTarget().getClass().getName(), method.getName());
+        ValidateLog.LogLevel logLevel = validateLog.logLevel();
 
-        // 2. 记录校验开始日志（可选，也可只记录失败日志）
-        log.debug("【{}开始】方法：{}", validateName, methodFullName);
+        // 2. 记录校验开始日志
+        logByLevel(logLevel, String.format("【校验操作：%s】开始执行 | 方法：%s", validateName, methodFullName));
+
+        // 3. 记录入参（按需开启）
         if (validateLog.recordParams()) {
             String paramsStr = Arrays.stream(joinPoint.getArgs())
-                    .map(JSONUtil::toJsonStr)
+                    .map(arg -> arg == null ? "null" : JSONUtil.toJsonStr(arg))
                     .reduce((a, b) -> a + ", " + b)
                     .orElse("无参数");
-            log.debug("【{}入参】{}", validateName, paramsStr);
+            logByLevel(logLevel, String.format("【校验操作：%s】入参：%s", validateName, paramsStr));
         }
 
         try {
-            // 3. 执行校验方法
+            // 4. 执行校验方法
             Object result = joinPoint.proceed();
 
-            // 4. 校验成功日志（debug级别，避免日志冗余）
-            log.debug("【{}成功】方法：{}", validateName, methodFullName);
+            // 5. 校验成功日志
+            logByLevel(logLevel, String.format("【校验操作：%s】执行成功 | 方法：%s", validateName, methodFullName));
             return result;
         } catch (Exception e) {
-            // 5. 校验失败日志（warn级别，重点关注）
-            log.warn("【{}失败】方法：{}，异常信息：{}", validateName, methodFullName, e.getMessage());
+            // 6. 校验失败日志（强制WARN级别）
+            log.warn("【校验操作：{}】执行失败 | 方法：{} | 异常类型：{} | 异常信息：{}", validateName, methodFullName, e.getClass().getSimpleName(), e.getMessage());
             // 异常继续抛出，让全局异常处理器处理
             throw e;
+        }
+    }
+
+    /**
+     * 根据指定日志级别输出日志
+     */
+    private void logByLevel(ValidateLog.LogLevel level, String message) {
+        switch (level) {
+            case INFO:
+                log.info(message);
+                break;
+            case WARN:
+                log.warn(message);
+                break;
+            case ERROR:
+                log.error(message);
+                break;
+            case DEBUG:
+            default:
+                log.debug(message);
         }
     }
 }

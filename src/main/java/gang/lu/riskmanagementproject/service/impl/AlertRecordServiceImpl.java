@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
-import static gang.lu.riskmanagementproject.common.BusinessConstants.GET_ALERT_RECORD;
+import static gang.lu.riskmanagementproject.common.BusinessConstants.*;
 import static gang.lu.riskmanagementproject.common.FailedMessages.*;
 
 
@@ -51,7 +51,7 @@ public class AlertRecordServiceImpl extends ServiceImpl<AlertRecordMapper, Alert
 
 
     @Override
-    @BusinessLog(value = "多条件查询预警记录", recordParams = true)
+    @BusinessLog(value = GET_ALERT_RECORD_BY_MULTIPLY_CONDITION, recordParams = true, logLevel = BusinessLog.LogLevel.INFO)
     public PageVO<AlertRecordVO> searchAlertRecords(AlertRecordQueryDTO queryDTO) {
         // 1. 构建分页对象
         Page<AlertRecord> poPage = PageHelper.buildPage(queryDTO, GET_ALERT_RECORD);
@@ -75,7 +75,7 @@ public class AlertRecordServiceImpl extends ServiceImpl<AlertRecordMapper, Alert
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @BusinessLog(value = "新增预警记录", recordParams = true)
+    @BusinessLog(value = ADD_ALERT_RECORD, recordParams = true, logLevel = BusinessLog.LogLevel.INFO)
     public AlertRecordVO addAlertRecord(AlertRecordDTO dto) {
         // 1. 校验工人存在性（id由controller校验）
         generalValidator.validateIdExist(dto.getWorkerId(), workerMapper, WORKER_NOT_EXIST);
@@ -92,7 +92,7 @@ public class AlertRecordServiceImpl extends ServiceImpl<AlertRecordMapper, Alert
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @BusinessLog(value = "删除预警记录", recordParams = true)
+    @BusinessLog(value = DELETE_ALERT_RECORD, recordParams = true, logLevel = BusinessLog.LogLevel.WARN)
     public void deleteAlertRecord(Long id) {
         generalValidator.validateIdExist(id, alertRecordMapper, ALERT_RECORD_NOT_EXIST);
         generalValidator.validateDbOperateResult(alertRecordMapper.deleteById(id));
@@ -107,7 +107,7 @@ public class AlertRecordServiceImpl extends ServiceImpl<AlertRecordMapper, Alert
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @BusinessLog(value = "修改预警记录", recordParams = true)
+    @BusinessLog(value = UPDATE_ALERT_RECORD, recordParams = true, logLevel = BusinessLog.LogLevel.INFO)
     public AlertRecordVO updateAlertRecord(Long id, AlertRecordDTO dto) {
         // 1. 校验预警记录存在性
         AlertRecord alertRecord = generalValidator.validateIdExist(id, alertRecordMapper, ALERT_RECORD_NOT_EXIST);
@@ -132,7 +132,7 @@ public class AlertRecordServiceImpl extends ServiceImpl<AlertRecordMapper, Alert
      * @return VO
      */
     @Override
-    @BusinessLog(value = "查询预警记录（ID）", recordParams = true)
+    @BusinessLog(value = GET_ALERT_RECORD, recordParams = true, logLevel = BusinessLog.LogLevel.INFO)
     public AlertRecordVO getAlertRecordById(Long id) {
         AlertRecord alertRecord = generalValidator.validateIdExist(id, alertRecordMapper, ALERT_RECORD_NOT_EXIST);
         return alertRecordConverter.poToVo(alertRecord);
@@ -146,7 +146,7 @@ public class AlertRecordServiceImpl extends ServiceImpl<AlertRecordMapper, Alert
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @BusinessLog(value = "标记预警记录为已处理", recordParams = true)
+    @BusinessLog(value = HANDLE_ALERT_RECORD, recordParams = true, logLevel = BusinessLog.LogLevel.WARN)
     public void markAlertRecordAsHandled(Long id, String handledBy) {
         // 1. 校验预警记录存在性
         generalValidator.validateIdExist(id, alertRecordMapper, ALERT_RECORD_NOT_EXIST);

@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static gang.lu.riskmanagementproject.common.BusinessConstants.*;
 import static gang.lu.riskmanagementproject.common.FailedMessages.*;
 
 
@@ -31,7 +32,7 @@ public class GeneralValidator {
     /**
      * 字符串非空校验
      */
-    @ValidateLog("字符串非空校验")
+    @ValidateLog(value = VALIDATE_STRING_NO_EMPTY, logLevel = ValidateLog.LogLevel.DEBUG)
     public void validateStringNotBlank(String value, String fieldName, String businessScene) {
         if (StrUtil.isBlank(value)) {
             throw new BizException(HttpStatus.BAD_REQUEST,
@@ -42,7 +43,7 @@ public class GeneralValidator {
     /**
      * 枚举非空校验
      */
-    @ValidateLog("枚举非空校验")
+    @ValidateLog(value = VALIDATE_ENUM_NO_EMPTY, logLevel = ValidateLog.LogLevel.DEBUG)
     public <E> void validateEnumNotNull(E enumValue, String enumName, String businessScene) {
         if (ObjectUtil.isNull(enumValue)) {
             throw new BizException(HttpStatus.BAD_REQUEST,
@@ -62,15 +63,16 @@ public class GeneralValidator {
     /**
      * 通用批量ID存在性校验（抽取共性，所有业务复用）
      */
-    @ValidateLog("批量ID存在性校验")
+    @ValidateLog(value = VALIDATE_BATCH_ID_EXIST, logLevel = ValidateLog.LogLevel.WARN)
     public <T> void validateBatchIdsExist(List<Long> ids, BaseMapper<T> mapper, String notExistMsg) {
         if (CollUtil.isEmpty(ids)) {
-            throw new BizException(HttpStatus.BAD_REQUEST, COMMON_PARAM_EMPTY_ERROR);
+            throw new BizException(HttpStatus.BAD_REQUEST,
+                    String.format(COMMON_PARAM_EMPTY_ERROR, BATCH_OPERATE, ID_LIST));
         }
         List<T> existList = mapper.selectBatchIds(ids);
         if (existList.size() != ids.size()) {
             Set<Long> existIds = existList.stream()
-                    .map(item -> (Long) ReflectUtil.getFieldValue(item, "id"))
+                    .map(item -> (Long) ReflectUtil.getFieldValue(item, ID))
                     .collect(Collectors.toSet());
             List<Long> notExistIds = ids.stream().filter(id -> !existIds.contains(id)).toList();
             throw new BizException(HttpStatus.NOT_FOUND, String.format(notExistMsg, notExistIds));
@@ -80,7 +82,7 @@ public class GeneralValidator {
     /**
      * 通用单ID存在性校验（仅校验数据是否存在，格式校验已由@ValidId完成）
      */
-    @ValidateLog("单ID存在性校验")
+    @ValidateLog(value = VALIDATE_SINGLE_ID_EXIST, logLevel = ValidateLog.LogLevel.DEBUG)
     public <T> T validateIdExist(Long id, BaseMapper<T> mapper, String notExistMsg) {
         T entity = mapper.selectById(id);
         if (ObjectUtil.isNull(entity)) {

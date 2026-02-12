@@ -10,15 +10,18 @@ public interface BusinessConstants {
     // ======================== 通用字段常量 ========================
     @SuppressWarnings("AlibabaCommentsMustBeJavadocFormat")
     String ID = "id";
+    String ID_LIST = "ID列表";
     String VALUE = "value";
     String CREATE_TIME = "createTime";
     String UPDATE_TIME = "updateTime";
+    String BATCH_OPERATE = "批量操作";
 
     // ======================== 预警记录相关常量 ========================
     @SuppressWarnings("AlibabaCommentsMustBeJavadocFormat")
     String ADD_ALERT_RECORD = "新增预警记录";
     String UPDATE_ALERT_RECORD = "修改预警记录";
     String GET_ALERT_RECORD = "查询工人预警记录";
+    String GET_ALERT_RECORD_BY_MULTIPLY_CONDITION = "多条件查询预警记录";
     String HANDLE_ALERT_RECORD = "标记预警记录已处理";
     String DELETE_ALERT_RECORD = "删除预警记录";
 
@@ -31,9 +34,12 @@ public interface BusinessConstants {
     @SuppressWarnings("AlibabaCommentsMustBeJavadocFormat")
     String ADD_RISK_INDICATOR = "新增风险指标";
     String GET_LATEST_RISK_INDICATOR = "查询最新风险指标";
+    String GET_RISK_INDICATOR_BY_MULTIPLY_CONDITION = "多条件查询风险指标";
     String GET_HISTORY_RISK_INDICATOR = "查询历史风险指标";
     String GET_RISK_INDICATOR = "查询风险指标";
     String GET_HISTORY_RISK_INDICATOR_BY_WORKER_ID = "根据工人id查询历史风险指标";
+    String GET_RISK_LEVEL_DISTRIBUTION = "统计风险等级人数分布";
+    String GET_HIGH_RISK_DISTRIBUTION_IN_PERIOD = "统计时间段高风险人数";
 
     String RISK_LEVEL = "工人风险等级";
     String HEART_RATE = "心率";
@@ -46,9 +52,10 @@ public interface BusinessConstants {
     String UPDATE_WORK_AREA = "修改工作区域";
     String DELETE_WORK_AREA = "删除工作区域";
     String GET_WORK_AREA = "查询工作区域";
+    String GET_WORK_AREA_BY_MULTIPLY_CONDITION = "多条件查询工作区域";
     String GET_WORK_AREA_BY_CODE = "按编码查询工作区域";
     String GET_WORK_AREA_BY_ID = "按ID查询工作区域";
-
+    String GET_WORK_AREA_DISTRIBUTION_BY_RISK_LEVEL = "统计工作区域风险等级数量";
     String WORK_AREA_ID = "工作区域ID";
     String AREA_RISK_LEVEL = "区域风险等级";
     String WORK_AREA_CODE = "区域编码";
@@ -59,9 +66,13 @@ public interface BusinessConstants {
     String ADD_WORKER = "创建工人";
     String UPDATE_WORKER = "更新工人";
     String GET_WORKER = "查询工人";
+    String GET_WORKER_BY_MULTIPLY_CONDITION = "多条件查询工人";
     String DELETE_WORKER = "删除工人";
     String BATCH_DELETE_WORKER = "批量删除工人";
     String GET_WORKER_BY_WORKCODE = "根据工号查询工人";
+    String GET_WORKER_BY_ID = "根据id查询工人";
+    String GET_WORKER_DISTRIBUTION_BY_STATUS = "统计工人状态分布";
+    String GET_WORKER_DISTRIBUTION_BY_WORKTYPE = "统计工人工种分布";
     String GET_WORKER_BY_STATUS = "根据状态查询工人";
     String GET_WORKER_BY_WORKTYPE = "按工种查询工人";
 
@@ -72,5 +83,10 @@ public interface BusinessConstants {
     String NAME = "工人姓名";
     String WORKER_STATUS = "status";
     String WORKER_TYPE = "work_type";
+
+    String VALIDATE_STRING_NO_EMPTY = "字符串非空校验";
+    String VALIDATE_ENUM_NO_EMPTY = "枚举非空校验";
+    String VALIDATE_BATCH_ID_EXIST = "批量ID存在性校验";
+    String VALIDATE_SINGLE_ID_EXIST = "单ID存在性校验";
 }
 

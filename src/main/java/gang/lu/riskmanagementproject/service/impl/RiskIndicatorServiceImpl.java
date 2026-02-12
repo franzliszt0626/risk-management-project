@@ -32,7 +32,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-import static gang.lu.riskmanagementproject.common.BusinessConstants.GET_RISK_INDICATOR;
+import static gang.lu.riskmanagementproject.common.BusinessConstants.*;
 import static gang.lu.riskmanagementproject.common.FailedMessages.WORKER_NOT_EXIST;
 
 /**
@@ -60,7 +60,7 @@ public class RiskIndicatorServiceImpl extends ServiceImpl<RiskIndicatorMapper, R
      * @return 风险信息集合
      */
     @Override
-    @BusinessLog(value = "多条件查询风险指标", recordParams = true)
+    @BusinessLog(value = GET_RISK_INDICATOR_BY_MULTIPLY_CONDITION, recordParams = true, logLevel = BusinessLog.LogLevel.INFO)
     public PageVO<RiskIndicatorVO> searchRiskIndicators(RiskIndicatorQueryDTO queryDTO) {
         // 1. 校验工人存在性（仅当传了workerId时）
         if (queryDTO.getWorkerId() != null) {
@@ -85,7 +85,7 @@ public class RiskIndicatorServiceImpl extends ServiceImpl<RiskIndicatorMapper, R
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @BusinessLog(value = "新增风险指标", recordParams = true)
+    @BusinessLog(value = ADD_RISK_INDICATOR, recordParams = true, logLevel = BusinessLog.LogLevel.INFO)
     public RiskIndicatorVO addRiskIndicator(RiskIndicatorDTO riskIndicatorDTO) {
         // 1. 校验工人存在性（ID格式已由@ValidId校验）
         generalValidator.validateIdExist(riskIndicatorDTO.getWorkerId(), workerMapper, WORKER_NOT_EXIST);
@@ -109,7 +109,7 @@ public class RiskIndicatorServiceImpl extends ServiceImpl<RiskIndicatorMapper, R
      * @return RiskIndicatorVO
      */
     @Override
-    @BusinessLog(value = "查询最新风险指标（工人ID）", recordParams = true)
+    @BusinessLog(value = GET_LATEST_RISK_INDICATOR, recordParams = true, logLevel = BusinessLog.LogLevel.INFO)
     public RiskIndicatorVO getLatestRiskIndicatorByWorkerId(Long workerId) {
         // 校验工人存在性
         generalValidator.validateIdExist(workerId, workerMapper, WORKER_NOT_EXIST);
@@ -125,7 +125,7 @@ public class RiskIndicatorServiceImpl extends ServiceImpl<RiskIndicatorMapper, R
      * @return 各种风险的人数信息集合
      */
     @Override
-    @BusinessLog(value = "统计风险等级人数分布", recordParams = false)
+    @BusinessLog(value = GET_RISK_LEVEL_DISTRIBUTION, recordParams = false, logLevel = BusinessLog.LogLevel.INFO)
     public RiskLevelCountVO countDistinctWorkerByRiskLevel() {
         Map<String, Map<String, Object>> riskCountMap = riskIndicatorMapper.countDistinctWorkerByRiskLevel();
         RiskLevelCountVO vo = new RiskLevelCountVO();
@@ -144,7 +144,7 @@ public class RiskIndicatorServiceImpl extends ServiceImpl<RiskIndicatorMapper, R
      * @return 时间段统计结果
      */
     @Override
-    @BusinessLog(value = "统计时间段高风险人数", recordParams = true)
+    @BusinessLog(value = GET_HIGH_RISK_DISTRIBUTION_IN_PERIOD, recordParams = true, logLevel = BusinessLog.LogLevel.INFO)
     public RiskTimePeriodCountVO countHighRiskWorkerByTimePeriod(LocalDate statDate) {
         LocalDate finalStatDate = ObjectUtil.defaultIfNull(statDate, LocalDate.now());
         String statDateStr = finalStatDate.toString();

@@ -33,7 +33,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static gang.lu.riskmanagementproject.common.BusinessConstants.GET_WORK_AREA;
+import static gang.lu.riskmanagementproject.common.BusinessConstants.*;
 import static gang.lu.riskmanagementproject.common.FailedMessages.WORK_AREA_CODE_DUPLICATE;
 import static gang.lu.riskmanagementproject.common.FailedMessages.WORK_AREA_NOT_EXIST;
 
@@ -62,16 +62,17 @@ public class WorkAreaServiceImpl extends ServiceImpl<WorkAreaMapper, WorkArea> i
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @BusinessLog(value = "新增工作区域", recordParams = true)
+    @BusinessLog(value = ADD_WORK_AREA, recordParams = true, logLevel = BusinessLog.LogLevel.INFO)
     public boolean addWorkArea(WorkAreaDTO dto) {
         // 1. 通用校验
         String areaCode = dto.getAreaCode();
         String areaName = dto.getAreaName();
-        generalValidator.validateStringNotBlank(areaCode, BusinessConstants.WORK_AREA_CODE, BusinessConstants.ADD_WORK_AREA);
-        generalValidator.validateStringNotBlank(areaName, BusinessConstants.WORK_AREA_NAME, BusinessConstants.ADD_WORK_AREA);
+        generalValidator.validateStringNotBlank(areaCode, BusinessConstants.WORK_AREA_CODE, ADD_WORK_AREA);
+        generalValidator.validateStringNotBlank(areaName, BusinessConstants.WORK_AREA_NAME, ADD_WORK_AREA);
         // 2. 编码唯一性校验
         if (lambdaQuery().eq(WorkArea::getAreaCode, areaCode).exists()) {
-            throw new BizException(HttpStatus.CONFLICT, WORK_AREA_CODE_DUPLICATE);
+            throw new BizException(HttpStatus.CONFLICT,
+                    String.format(WORK_AREA_CODE_DUPLICATE, ADD_WORK_AREA));
         }
         // 4. 转换+保存
         WorkArea workArea = workAreaConverter.dtoToPo(dto);
@@ -91,7 +92,7 @@ public class WorkAreaServiceImpl extends ServiceImpl<WorkAreaMapper, WorkArea> i
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @BusinessLog(value = "删除工作区域", recordParams = true)
+    @BusinessLog(value = DELETE_WORK_AREA, recordParams = true, logLevel = BusinessLog.LogLevel.WARN)
     public boolean deleteWorkArea(Long id) {
         generalValidator.validateIdExist(id, workAreaMapper, WORK_AREA_NOT_EXIST);
         boolean deleteSuccess = removeById(id);
@@ -108,7 +109,7 @@ public class WorkAreaServiceImpl extends ServiceImpl<WorkAreaMapper, WorkArea> i
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @BusinessLog(value = "修改工作区域", recordParams = true)
+    @BusinessLog(value = UPDATE_WORK_AREA, recordParams = true, logLevel = BusinessLog.LogLevel.INFO)
     public boolean updateWorkArea(Long id, WorkAreaDTO dto) {
         // 1. 校验工作区域存在性
         WorkArea existArea = generalValidator.validateIdExist(id, workAreaMapper, WORK_AREA_NOT_EXIST);
@@ -120,7 +121,8 @@ public class WorkAreaServiceImpl extends ServiceImpl<WorkAreaMapper, WorkArea> i
                     .ne(WorkArea::getId, id)
                     .exists();
             if (codeExists) {
-                throw new BizException(HttpStatus.CONFLICT, WORK_AREA_CODE_DUPLICATE);
+                throw new BizException(HttpStatus.CONFLICT,
+                        String.format(WORK_AREA_CODE_DUPLICATE, UPDATE_WORK_AREA));
             }
         }
         // 4. 用DTO更新PO（空值不覆盖）
@@ -145,7 +147,7 @@ public class WorkAreaServiceImpl extends ServiceImpl<WorkAreaMapper, WorkArea> i
      *
      */
     @Override
-    @BusinessLog(value = "查询工作区域（ID）", recordParams = true)
+    @BusinessLog(value = GET_WORK_AREA_BY_ID, recordParams = true, logLevel = BusinessLog.LogLevel.INFO)
     public WorkAreaVO getWorkAreaById(Long id) {
         // 1. 校验工作区域存在性
         WorkArea workArea = generalValidator.validateIdExist(id, workAreaMapper, WORK_AREA_NOT_EXIST);
@@ -160,7 +162,7 @@ public class WorkAreaServiceImpl extends ServiceImpl<WorkAreaMapper, WorkArea> i
      * @return 展示
      */
     @Override
-    @BusinessLog(value = "按编码查询工作区域", recordParams = true)
+    @BusinessLog(value = GET_WORK_AREA_BY_CODE, recordParams = true, logLevel = BusinessLog.LogLevel.INFO)
     public List<WorkAreaVO> getWorkAreaByCode(String areaCode) {
         // 1. 字段非空校验
         generalValidator.validateStringNotBlank(areaCode, BusinessConstants.WORK_AREA_CODE, BusinessConstants.GET_WORK_AREA_BY_CODE);
@@ -182,7 +184,7 @@ public class WorkAreaServiceImpl extends ServiceImpl<WorkAreaMapper, WorkArea> i
      * @return 分页结果
      */
     @Override
-    @BusinessLog(value = "多条件查询工作区域", recordParams = true)
+    @BusinessLog(value = GET_WORK_AREA_BY_MULTIPLY_CONDITION, recordParams = true, logLevel = BusinessLog.LogLevel.INFO)
     public PageVO<WorkAreaVO> searchWorkAreas(WorkAreaQueryDTO queryDTO) {
         // 1. 构建分页对象
         Page<WorkArea> poPage = PageHelper.buildPage(queryDTO, GET_WORK_AREA);
@@ -200,7 +202,7 @@ public class WorkAreaServiceImpl extends ServiceImpl<WorkAreaMapper, WorkArea> i
      * @return 风险等级划分的统计数据
      */
     @Override
-    @BusinessLog(value = "统计工作区域风险等级数量", recordParams = false)
+    @BusinessLog(value = GET_WORK_AREA_DISTRIBUTION_BY_RISK_LEVEL, recordParams = false, logLevel = BusinessLog.LogLevel.INFO)
     public WorkAreaRiskCountVO countWorkAreaByRiskLevel() {
         Map<String, Map<String, Object>> riskCountMap = workAreaMapper.countWorkAreaByRiskLevel();
 

@@ -21,4 +21,19 @@ public @interface ValidateLog {
      * 是否记录入参（默认true）
      */
     boolean recordParams() default true;
+
+    /**
+     * 日志级别（默认DEBUG）
+     */
+    LogLevel logLevel() default LogLevel.DEBUG;
+
+    /**
+     * 日志级别枚举
+     */
+    enum LogLevel {
+        /**
+         * 日志级别枚举
+         */
+        DEBUG, INFO, WARN, ERROR
+    }
 }
