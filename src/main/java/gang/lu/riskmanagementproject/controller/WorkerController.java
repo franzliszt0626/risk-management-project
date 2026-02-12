@@ -10,7 +10,7 @@ import gang.lu.riskmanagementproject.domain.vo.normal.WorkerVO;
 import gang.lu.riskmanagementproject.domain.vo.statistical.worker.WorkerStatusCountVO;
 import gang.lu.riskmanagementproject.domain.vo.statistical.worker.WorkerTypeCountVO;
 import gang.lu.riskmanagementproject.service.WorkerService;
-import gang.lu.riskmanagementproject.util.PageHelper;
+import gang.lu.riskmanagementproject.helper.PageHelper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;

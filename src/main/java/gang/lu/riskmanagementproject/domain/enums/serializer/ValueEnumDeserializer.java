@@ -27,7 +27,7 @@ public class ValueEnumDeserializer extends JsonDeserializer<ValueEnum<?>> {
             return null;
         }
 
-        // 1. 安全获取目标枚举类型（核心：消除未检查转换警告）
+        // 1. 安全获取目标枚举类型
         JavaType targetType = ctxt.getContextualType();
         Class<?> rawClass = targetType.getRawClass();
 
@@ -37,6 +37,7 @@ public class ValueEnumDeserializer extends JsonDeserializer<ValueEnum<?>> {
         }
 
         // 3. 安全转换为枚举类
+        @SuppressWarnings("unchecked")
         Class<? extends Enum<?>> enumClass = (Class<? extends Enum<?>>) rawClass;
         ValueEnum<?> result = null;
 

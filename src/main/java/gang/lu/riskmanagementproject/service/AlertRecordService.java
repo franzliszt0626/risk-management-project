@@ -3,12 +3,9 @@ package gang.lu.riskmanagementproject.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import gang.lu.riskmanagementproject.domain.dto.AlertRecordDTO;
 import gang.lu.riskmanagementproject.domain.dto.query.AlertRecordQueryDTO;
-import gang.lu.riskmanagementproject.domain.enums.AlertLevel;
 import gang.lu.riskmanagementproject.domain.po.AlertRecord;
 import gang.lu.riskmanagementproject.domain.vo.normal.AlertRecordVO;
 import gang.lu.riskmanagementproject.domain.vo.normal.PageVO;
-
-import java.util.List;
 
 /**
  * <p>

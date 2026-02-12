@@ -18,7 +18,8 @@ import gang.lu.riskmanagementproject.domain.vo.statistical.area.WorkAreaRiskCoun
 import gang.lu.riskmanagementproject.exception.BizException;
 import gang.lu.riskmanagementproject.mapper.WorkAreaMapper;
 import gang.lu.riskmanagementproject.service.WorkAreaService;
-import gang.lu.riskmanagementproject.util.PageHelper;
+import gang.lu.riskmanagementproject.helper.PageHelper;
+import gang.lu.riskmanagementproject.util.EnumConvertUtil;
 import gang.lu.riskmanagementproject.util.StatisticalUtil;
 import gang.lu.riskmanagementproject.validator.GeneralValidator;
 import lombok.RequiredArgsConstructor;
@@ -226,7 +227,7 @@ public class WorkAreaServiceImpl extends ServiceImpl<WorkAreaMapper, WorkArea> i
 
         // 4. 风险等级（String转枚举）
         if (StrUtil.isNotBlank(queryDTO.getAreaRiskLevelValue())) {
-            AreaRiskLevel riskLevel = workAreaConverter.stringToAreaAlertLevel(queryDTO.getAreaRiskLevelValue());
+            AreaRiskLevel riskLevel = EnumConvertUtil.toEnum(queryDTO.getAreaRiskLevelValue(), AreaRiskLevel.class);
             wrapper.eq(WorkArea::getAreaRiskLevel, riskLevel);
         }
 

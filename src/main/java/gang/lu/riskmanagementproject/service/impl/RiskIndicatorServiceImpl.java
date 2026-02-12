@@ -18,8 +18,9 @@ import gang.lu.riskmanagementproject.domain.vo.statistical.indicator.RiskTimePer
 import gang.lu.riskmanagementproject.mapper.RiskIndicatorMapper;
 import gang.lu.riskmanagementproject.mapper.WorkerMapper;
 import gang.lu.riskmanagementproject.service.RiskIndicatorService;
+import gang.lu.riskmanagementproject.util.EnumConvertUtil;
 import gang.lu.riskmanagementproject.util.MedicalUtil;
-import gang.lu.riskmanagementproject.util.PageHelper;
+import gang.lu.riskmanagementproject.helper.PageHelper;
 import gang.lu.riskmanagementproject.util.StatisticalUtil;
 import gang.lu.riskmanagementproject.validator.GeneralValidator;
 import lombok.RequiredArgsConstructor;
@@ -164,7 +165,7 @@ public class RiskIndicatorServiceImpl extends ServiceImpl<RiskIndicatorMapper, R
 
         // 2. 风险等级（枚举转换）
         if (StrUtil.isNotBlank(queryDTO.getRiskLevelValue())) {
-            RiskLevel riskLevel = riskIndicatorConverter.stringToRiskLevel(queryDTO.getRiskLevelValue());
+            RiskLevel riskLevel = EnumConvertUtil.toEnum(queryDTO.getRiskLevelValue(), RiskLevel.class);
             wrapper.eq(RiskIndicator::getRiskLevel, riskLevel);
         }
 

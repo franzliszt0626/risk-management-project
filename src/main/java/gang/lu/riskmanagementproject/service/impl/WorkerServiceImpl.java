@@ -21,7 +21,8 @@ import gang.lu.riskmanagementproject.domain.vo.statistical.worker.WorkerTypeCoun
 import gang.lu.riskmanagementproject.exception.BizException;
 import gang.lu.riskmanagementproject.mapper.WorkerMapper;
 import gang.lu.riskmanagementproject.service.WorkerService;
-import gang.lu.riskmanagementproject.util.PageHelper;
+import gang.lu.riskmanagementproject.helper.PageHelper;
+import gang.lu.riskmanagementproject.util.EnumConvertUtil;
 import gang.lu.riskmanagementproject.util.StatisticalUtil;
 import gang.lu.riskmanagementproject.validator.GeneralValidator;
 import lombok.RequiredArgsConstructor;
@@ -282,13 +283,13 @@ public class WorkerServiceImpl extends ServiceImpl<WorkerMapper, Worker> impleme
 
         // 5. 工种筛选（原getWorkersByWorkType逻辑）
         if (StrUtil.isNotBlank(workerQueryDTO.getWorkTypeValue())) {
-            WorkType workType = workerConverter.stringToWorkType(workerQueryDTO.getWorkTypeValue());
+            WorkType workType = EnumConvertUtil.toEnum(workerQueryDTO.getWorkTypeValue(), WorkType.class);
             wrapper.eq(Worker::getWorkType, workType);
         }
 
         // 6. 状态筛选（原getWorkersByStatus逻辑）
         if (StrUtil.isNotBlank(workerQueryDTO.getStatusValue())) {
-            Status status = workerConverter.stringToStatus(workerQueryDTO.getStatusValue());
+            Status status = EnumConvertUtil.toEnum(workerQueryDTO.getStatusValue(), Status.class);
             wrapper.eq(Worker::getStatus, status);
         }
 

@@ -1,4 +1,4 @@
-package gang.lu.riskmanagementproject.util;
+package gang.lu.riskmanagementproject.helper;
 
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -26,9 +26,9 @@ public final class PageHelper {
      */
     public static Integer[] handlePageParams(PageQueryDTO pageQuery, String businessScene) {
         // 1. 获取规则（优先业务自定义，无则用全局默认）
-        int defaultPageNum = ObjectUtil.defaultIfNull(pageQuery.getCustomDefaultPageNum(), PageQueryDTO.DEFAULT_PAGE_NUM);
-        int defaultPageSize = ObjectUtil.defaultIfNull(pageQuery.getCustomDefaultPageSize(), PageQueryDTO.DEFAULT_PAGE_SIZE);
-        int maxPageSize = ObjectUtil.defaultIfNull(pageQuery.getCustomMaxPageSize(), PageQueryDTO.DEFAULT_MAX_PAGE_SIZE);
+        int defaultPageNum = PageQueryDTO.DEFAULT_PAGE_NUM;
+        int defaultPageSize = PageQueryDTO.DEFAULT_PAGE_SIZE;
+        int maxPageSize = PageQueryDTO.DEFAULT_MAX_PAGE_SIZE;
         // 2. 处理参数（空值用默认，超出范围则修正）
         int pageNum = ObjectUtil.defaultIfNull(pageQuery.getPageNum(), defaultPageNum);
         int pageSize = ObjectUtil.defaultIfNull(pageQuery.getPageSize(), defaultPageSize);
@@ -58,10 +58,7 @@ public final class PageHelper {
      * @param queryDTO 查询dto
      */
     public static <T extends PageQueryDTO> void bindGlobalDefaultRule(T queryDTO) {
-        queryDTO.setCustomDefaultPageNum(PageQueryDTO.DEFAULT_PAGE_NUM)
-                .setCustomDefaultPageSize(PageQueryDTO.DEFAULT_PAGE_SIZE)
-                .setCustomMaxPageSize(PageQueryDTO.DEFAULT_MAX_PAGE_SIZE)
-                .setPageNum(ObjectUtil.defaultIfNull(queryDTO.getPageNum(), PageQueryDTO.DEFAULT_PAGE_NUM))
+        queryDTO.setPageNum(ObjectUtil.defaultIfNull(queryDTO.getPageNum(), PageQueryDTO.DEFAULT_PAGE_NUM))
                 .setPageSize(ObjectUtil.defaultIfNull(queryDTO.getPageSize(), PageQueryDTO.DEFAULT_PAGE_SIZE));
     }
 }

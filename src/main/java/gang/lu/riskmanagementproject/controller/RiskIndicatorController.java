@@ -10,7 +10,7 @@ import gang.lu.riskmanagementproject.domain.vo.normal.RiskIndicatorVO;
 import gang.lu.riskmanagementproject.domain.vo.statistical.indicator.RiskLevelCountVO;
 import gang.lu.riskmanagementproject.domain.vo.statistical.indicator.RiskTimePeriodCountVO;
 import gang.lu.riskmanagementproject.service.RiskIndicatorService;
-import gang.lu.riskmanagementproject.util.PageHelper;
+import gang.lu.riskmanagementproject.helper.PageHelper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;

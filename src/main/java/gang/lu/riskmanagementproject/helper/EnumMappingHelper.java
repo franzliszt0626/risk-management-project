@@ -1,4 +1,4 @@
-package gang.lu.riskmanagementproject.util;
+package gang.lu.riskmanagementproject.helper;
 
 import gang.lu.riskmanagementproject.domain.enums.ValueEnum;
 

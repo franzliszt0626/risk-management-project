@@ -10,6 +10,7 @@ import gang.lu.riskmanagementproject.common.BusinessConstants;
 import gang.lu.riskmanagementproject.converter.AlertRecordConverter;
 import gang.lu.riskmanagementproject.domain.dto.AlertRecordDTO;
 import gang.lu.riskmanagementproject.domain.dto.query.AlertRecordQueryDTO;
+import gang.lu.riskmanagementproject.domain.enums.AlertLevel;
 import gang.lu.riskmanagementproject.domain.po.AlertRecord;
 import gang.lu.riskmanagementproject.domain.vo.normal.AlertRecordVO;
 import gang.lu.riskmanagementproject.domain.vo.normal.PageVO;
@@ -17,7 +18,8 @@ import gang.lu.riskmanagementproject.exception.BizException;
 import gang.lu.riskmanagementproject.mapper.AlertRecordMapper;
 import gang.lu.riskmanagementproject.mapper.WorkerMapper;
 import gang.lu.riskmanagementproject.service.AlertRecordService;
-import gang.lu.riskmanagementproject.util.PageHelper;
+import gang.lu.riskmanagementproject.helper.PageHelper;
+import gang.lu.riskmanagementproject.util.EnumConvertUtil;
 import gang.lu.riskmanagementproject.validator.GeneralValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -159,9 +161,9 @@ public class AlertRecordServiceImpl extends ServiceImpl<AlertRecordMapper, Alert
 
     private LambdaQueryWrapper<AlertRecord> buildAlertRecordQueryWrapper(AlertRecordQueryDTO queryDTO) {
         LambdaQueryWrapper<AlertRecord> wrapper = new LambdaQueryWrapper<>();
-        // 简化枚举转换逻辑（依赖Converter的异常兜底）
         if (StrUtil.isNotBlank(queryDTO.getAlertLevelValue())) {
-            wrapper.eq(AlertRecord::getAlertLevel, alertRecordConverter.stringToAlertLevel(queryDTO.getAlertLevelValue()));
+            AlertLevel alertLevel = EnumConvertUtil.toEnum(queryDTO.getAlertLevelValue(), AlertLevel.class);
+            wrapper.eq(AlertRecord::getAlertLevel, alertLevel);
         }
         if (queryDTO.getWorkerId() != null) {
             wrapper.eq(AlertRecord::getWorkerId, queryDTO.getWorkerId());
