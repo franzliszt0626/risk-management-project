@@ -1,25 +1,27 @@
 package gang.lu.riskmanagementproject.controller;
 
-import cn.hutool.core.util.ObjectUtil;
+import gang.lu.riskmanagementproject.annotation.ValidId;
+import gang.lu.riskmanagementproject.common.BusinessConstants;
 import gang.lu.riskmanagementproject.common.Result;
 import gang.lu.riskmanagementproject.domain.dto.RiskIndicatorDTO;
+import gang.lu.riskmanagementproject.domain.dto.query.RiskIndicatorQueryDTO;
+import gang.lu.riskmanagementproject.domain.vo.normal.PageVO;
 import gang.lu.riskmanagementproject.domain.vo.normal.RiskIndicatorVO;
 import gang.lu.riskmanagementproject.domain.vo.statistical.indicator.RiskLevelCountVO;
 import gang.lu.riskmanagementproject.domain.vo.statistical.indicator.RiskTimePeriodCountVO;
 import gang.lu.riskmanagementproject.service.RiskIndicatorService;
-import io.swagger.annotations.*;
+import gang.lu.riskmanagementproject.util.PageHelper;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
 import java.time.LocalDate;
-import java.util.List;
 
 import static gang.lu.riskmanagementproject.common.SuccessMessages.*;
 
@@ -39,6 +41,17 @@ public class RiskIndicatorController {
 
     private final RiskIndicatorService riskIndicatorService;
 
+
+    @PostMapping("/search")
+    @ApiOperation("多条件组合分页查询风险指标（支持工人ID/风险等级/时间区间等筛选）")
+    @ApiImplicitParam(name = "queryDTO", value = "风险指标查询条件（含分页）", required = true, dataType = "RiskIndicatorQueryDTO", paramType = "body")
+    public Result<PageVO<RiskIndicatorVO>> searchRiskIndicators(@Valid @RequestBody RiskIndicatorQueryDTO queryDTO) {
+        PageHelper.bindGlobalDefaultRule(queryDTO);
+        PageVO<RiskIndicatorVO> pageVO = riskIndicatorService.searchRiskIndicators(queryDTO);
+        return Result.ok(String.format(RISK_INDICATOR_GET_HISTORY_SUCCESS, pageVO.getTotal()), pageVO);
+    }
+
+
     /**
      * 这个接口用于前端接受算法返回的参数后，调用本接口插入风险指标数据
      *
@@ -50,7 +63,7 @@ public class RiskIndicatorController {
     @ApiImplicitParam(name = "riskIndicatorDTO", value = "风险指标数据", required = true, dataType = "RiskIndicatorDTO", paramType = "body")
     public Result<RiskIndicatorVO> addRiskIndicator(@Valid @RequestBody RiskIndicatorDTO riskIndicatorDTO) {
         RiskIndicatorVO riskIndicatorVO = riskIndicatorService.addRiskIndicator(riskIndicatorDTO);
-        return Result.ok(RISK_INDICATOR_ADD_SUCCESS_MESSAGE, riskIndicatorVO);
+        return Result.ok(RISK_INDICATOR_ADD_SUCCESS, riskIndicatorVO);
     }
 
     @GetMapping("/latest/{workerId}")
@@ -58,34 +71,9 @@ public class RiskIndicatorController {
     @ApiImplicitParam(name = "workerId", value = "工人ID", required = true, dataType = "Long", paramType = "path")
     public Result<RiskIndicatorVO> getLatestRiskIndicatorByWorkerId(
             @PathVariable
-            @NotNull(message = "工人ID不能为空")
-            @Positive(message = "工人ID必须为正整数") Long workerId) {
+            @ValidId(bizName = BusinessConstants.WORKER_ID) Long workerId) {
         RiskIndicatorVO vo = riskIndicatorService.getLatestRiskIndicatorByWorkerId(workerId);
-        if (ObjectUtil.isNull(vo)) {
-            return Result.ok(RISK_INDICATOR_GET_LATEST_SUCCESS_MESSAGE, null);
-        }
-        return Result.ok(RISK_INDICATOR_GET_LATEST_SUCCESS_MESSAGE, vo);
-    }
-
-    @GetMapping("/worker/{workerId}/history")
-    @ApiOperation("根据工人ID查询历史风险指标（分页）")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "workerId", value = "工人ID", required = true, dataType = "Long", paramType = "path"),
-            @ApiImplicitParam(name = "pageNum", value = "页码（默认1）", dataType = "Integer", paramType = "query", example = "1"),
-            @ApiImplicitParam(name = "pageSize", value = "每页条数（默认10，最大100）", dataType = "Integer", paramType = "query", example = "10")
-    })
-    public Result<List<RiskIndicatorVO>> getRiskIndicatorsByWorkerId(
-            @PathVariable
-            @NotNull(message = "工人ID不能为空")
-            @Positive(message = "工人ID必须为正整数") Long workerId,
-            // 分页参数校验范围
-            @RequestParam(required = false)
-            @Min(value = 1, message = "页码不能小于1") Integer pageNum,
-            @RequestParam(required = false)
-            @Min(value = 1, message = "每页条数不能小于1")
-            @Max(value = 100, message = "每页条数不能超过100") Integer pageSize) {
-        List<RiskIndicatorVO> voList = riskIndicatorService.getRiskIndicatorsByWorkerId(workerId, pageNum, pageSize);
-        return Result.ok(String.format(RISK_INDICATOR_GET_HISTORY_SUCCESS_MESSAGE, voList.size()), voList);
+        return Result.ok(RISK_INDICATOR_GET_LATEST_SUCCESS, vo);
     }
 
     /**
@@ -95,7 +83,7 @@ public class RiskIndicatorController {
     @ApiOperation("统计不重复工人的风险等级人数分布")
     public Result<RiskLevelCountVO> countDistinctWorkerByRiskLevel() {
         RiskLevelCountVO countVO = riskIndicatorService.countDistinctWorkerByRiskLevel();
-        return Result.ok(RISK_INDICATOR_STATISTIC_RISK_LEVEL_COUNT_SUCCESS_MESSAGE, countVO);
+        return Result.ok(RISK_INDICATOR_STATISTIC_RISK_LEVEL_COUNT_SUCCESS, countVO);
     }
 
     /**
@@ -109,7 +97,7 @@ public class RiskIndicatorController {
             @ApiParam(value = "统计日期（yyyy-MM-dd），默认当天", example = "2026-02-01")
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate statDate) {
         RiskTimePeriodCountVO countVO = riskIndicatorService.countHighRiskWorkerByTimePeriod(statDate);
-        return Result.ok(RISK_INDICATOR_STATISTIC_HIGH_RISK_COUNT_SUCCESS_MESSAGE, countVO);
+        return Result.ok(RISK_INDICATOR_STATISTIC_HIGH_RISK_COUNT_SUCCESS, countVO);
     }
 
 }

@@ -1,7 +1,6 @@
 package gang.lu.riskmanagementproject.handler;
 
 import cn.hutool.core.util.StrUtil;
-import gang.lu.riskmanagementproject.common.FailureMessages;
 import gang.lu.riskmanagementproject.common.Result;
 import gang.lu.riskmanagementproject.exception.BizException;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +21,8 @@ import javax.validation.ConstraintViolationException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static gang.lu.riskmanagementproject.common.FailedMessages.*;
 
 /**
  * @author Franz Liszt
@@ -52,16 +53,17 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 提取字段校验异常的错误信息（复用MethodArgumentNotValidException和BindException的处理逻辑）
+     * 提取字段校验异常的错误信息（优化：移除冗余前缀，只保留字段+自定义提示）
      */
-    private String extractFieldErrorMsg(List<FieldError> fieldErrors, String prefix) {
+    private String extractFieldErrorMsg(List<FieldError> fieldErrors) {
         if (fieldErrors == null || fieldErrors.isEmpty()) {
-            return prefix;
+            return COMMON_PARAM_VERIFY_ERROR;
         }
-        StringBuilder sb = new StringBuilder(prefix).append("：");
+        StringBuilder sb = new StringBuilder("【参数校验失败】");
         for (int i = 0; i < fieldErrors.size(); i++) {
             FieldError error = fieldErrors.get(i);
-            sb.append(error.getField()).append("：").append(error.getDefaultMessage());
+            // 只拼接：字段名 + 自定义提示信息（去掉前缀）
+            sb.append(error.getDefaultMessage());
             if (i < fieldErrors.size() - 1) {
                 sb.append("；");
             }
@@ -114,7 +116,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataAccessException.class)
     public Result<?> handleDataAccessException(DataAccessException e) {
         log.error("【数据库通用异常】{}", e.getMessage(), e);
-        return Result.error(HttpStatus.INTERNAL_SERVER_ERROR, FailureMessages.COMMON_DATABASE_ERROR);
+        return Result.error(HttpStatus.INTERNAL_SERVER_ERROR, COMMON_DATABASE_ERROR);
     }
 
     // ======================== 参数校验/绑定相关异常 ========================
@@ -124,7 +126,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public Result<?> handleValidationException(MethodArgumentNotValidException e) {
-        String errorMsg = extractFieldErrorMsg(e.getBindingResult().getFieldErrors(), FailureMessages.COMMON_PARAM_VERIFY_ERROR);
+        String errorMsg = extractFieldErrorMsg(e.getBindingResult().getFieldErrors());
         log.warn("【请求体参数校验异常】{}", errorMsg, e);
         return Result.error(HttpStatus.BAD_REQUEST, errorMsg);
     }
@@ -134,7 +136,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(BindException.class)
     public Result<?> handleBindException(BindException e) {
-        String errorMsg = extractFieldErrorMsg(e.getBindingResult().getFieldErrors(), FailureMessages.COMMON_BIND_PARAM_ERROR);
+        String errorMsg = extractFieldErrorMsg(e.getBindingResult().getFieldErrors());
         log.warn("【参数绑定异常】{}", errorMsg, e);
         return Result.error(HttpStatus.BAD_REQUEST, errorMsg);
     }
@@ -160,7 +162,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public Result<?> handleJsonParseError(HttpMessageNotReadableException e) {
-        String message = FailureMessages.COMMON_JSON_PARSE_ERROR;
+        String message = COMMON_JSON_PARSE_ERROR;
         Throwable rootCause = getRootCause(e);
 
         // 枚举解析异常
@@ -187,7 +189,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NullPointerException.class)
     public Result<?> handleNullPointerException(NullPointerException e) {
         log.error("【空指针异常】{}", e.getMessage(), e);
-        return Result.error(HttpStatus.INTERNAL_SERVER_ERROR, FailureMessages.COMMON_NULL_POINTER_ERROR);
+        return Result.error(HttpStatus.INTERNAL_SERVER_ERROR, COMMON_NULL_POINTER_ERROR);
     }
 
     /**
@@ -196,7 +198,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public Result<?> handleRuntimeException(RuntimeException e) {
         log.error("【运行时异常】{}", e.getMessage(), e);
-        String message = String.format(FailureMessages.COMMON_RUNTIME_ERROR, e.getMessage());
+        String message = String.format(COMMON_RUNTIME_ERROR, e.getMessage());
         return Result.error(HttpStatus.INTERNAL_SERVER_ERROR, message);
     }
 
@@ -205,6 +207,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public Result<?> handleUnexpectedException(Exception e) {
         log.error("【系统未知异常】{}", e.getMessage(), e);
-        return Result.error(HttpStatus.INTERNAL_SERVER_ERROR, FailureMessages.COMMON_SYSTEM_ERROR);
+        return Result.error(HttpStatus.INTERNAL_SERVER_ERROR, COMMON_SYSTEM_ERROR);
     }
 }

@@ -1,17 +1,14 @@
 package gang.lu.riskmanagementproject.service;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import gang.lu.riskmanagementproject.domain.dto.WorkerDTO;
-import gang.lu.riskmanagementproject.domain.enums.Status;
-import gang.lu.riskmanagementproject.domain.enums.WorkType;
+import gang.lu.riskmanagementproject.domain.dto.query.WorkerQueryDTO;
 import gang.lu.riskmanagementproject.domain.po.Worker;
-import gang.lu.riskmanagementproject.domain.query.WorkerQuery;
+import gang.lu.riskmanagementproject.domain.vo.normal.PageVO;
+import gang.lu.riskmanagementproject.domain.vo.normal.WorkerVO;
 import gang.lu.riskmanagementproject.domain.vo.statistical.worker.WorkerStatusCountVO;
 import gang.lu.riskmanagementproject.domain.vo.statistical.worker.WorkerTypeCountVO;
-import gang.lu.riskmanagementproject.domain.vo.normal.WorkerVO;
 
-import java.io.ByteArrayInputStream;
 import java.util.List;
 
 /**
@@ -23,6 +20,13 @@ import java.util.List;
  * @since 2026-01-31
  */
 public interface WorkerService extends IService<Worker> {
+
+    /**
+     * 组合条件分页查询工人
+     * @param workerQueryDTO 查询数据传输实体（继承PageQueryDTO）
+     * @return 分页结果VO
+     */
+    PageVO<WorkerVO> searchWorkers(WorkerQueryDTO workerQueryDTO);
 
     /**
      * 创建工人
@@ -60,41 +64,7 @@ public interface WorkerService extends IService<Worker> {
      */
     WorkerVO getWorkerByCode(String workerCode);
 
-    /**
-     * 按姓名模糊查询
-     * @param name 姓名
-     * @return List<WorkerVO>
-     */
-    List<WorkerVO> searchWorkersByName(String name);
 
-    /**
-     * 按状态查询
-     * @param status 工人状态
-     * @return List<WorkerVO>
-     */
-    List<WorkerVO> getWorkersByStatus(Status status);
-
-    /**
-     * 按岗位查询
-     * @param position 岗位
-     * @return List<WorkerVO>
-     */
-    List<WorkerVO> getWorkersByPosition(String position);
-
-    /**
-     * 分页得到所有工人信息
-     * @param pageNum 页码
-     * @param pageSize 每页条数
-     * @return Page<WorkerVO>
-     */
-    Page<WorkerVO> getAllWorkers(Integer pageNum, Integer pageSize);
-
-    /**
-     * 按照工作种类查询
-     * @param workType 工种
-     * @return 集合
-     */
-    List<WorkerVO> getWorkersByWorkType(WorkType workType);
 
     /**
      * 按工人状态统计数量
@@ -116,11 +86,5 @@ public interface WorkerService extends IService<Worker> {
     void batchDeleteWorkers(List<Long> ids);
 
 
-    /**
-     * 组合条件分页查询工人
-     * @param workerQuery 查询数据传输实体
-     * @return 分页结果
-     */
-    Page<WorkerVO> searchWorkers(WorkerQuery workerQuery);
 
 }

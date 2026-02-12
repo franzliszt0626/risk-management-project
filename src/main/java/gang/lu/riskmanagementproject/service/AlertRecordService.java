@@ -2,9 +2,11 @@ package gang.lu.riskmanagementproject.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import gang.lu.riskmanagementproject.domain.dto.AlertRecordDTO;
+import gang.lu.riskmanagementproject.domain.dto.query.AlertRecordQueryDTO;
 import gang.lu.riskmanagementproject.domain.enums.AlertLevel;
 import gang.lu.riskmanagementproject.domain.po.AlertRecord;
 import gang.lu.riskmanagementproject.domain.vo.normal.AlertRecordVO;
+import gang.lu.riskmanagementproject.domain.vo.normal.PageVO;
 
 import java.util.List;
 
@@ -46,26 +48,14 @@ public interface AlertRecordService extends IService<AlertRecord> {
      */
     AlertRecordVO getAlertRecordById(Long id);
 
-    /**
-     * 根据工人ID查询（查不到返回空）
-     * @param workerId 工人id
-     * @return 集合
-     */
-    List<AlertRecordVO> getAlertRecordsByWorkerId(Long workerId);
 
     /**
-     * 根据预警级别查询
-     * @param alertLevel 级别
-     * @return 结果集合
+     * 多条件组合分页查询预警记录
+     * @param queryDTO 查询条件（含分页+多维度筛选）
+     * @return 分页结果VO
      */
-    List<AlertRecordVO> getAlertRecordsByAlertLevel(AlertLevel alertLevel);
+    PageVO<AlertRecordVO> searchAlertRecords(AlertRecordQueryDTO queryDTO);
 
-    /**
-     * 根据预警类型模糊查询
-     * @param alertType 类型
-     * @return 结果集合
-     */
-    List<AlertRecordVO> getAlertRecordsByAlertTypeLike(String alertType);
 
     /**
      * 标记预警记录为已处理

@@ -1,4 +1,5 @@
-package gang.lu.riskmanagementproject.domain.dto;
+package gang.lu.riskmanagementproject.domain.dto.query;
+
 
 import gang.lu.riskmanagementproject.annotation.ValidEnum;
 import gang.lu.riskmanagementproject.common.BusinessConstants;
@@ -6,35 +7,34 @@ import gang.lu.riskmanagementproject.domain.enums.AreaRiskLevel;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.hibernate.validator.constraints.Length;
-
-import javax.validation.constraints.NotBlank;
 
 
 /**
  * @author Franz Liszt
  * @version 1.0
- * @date 2026-02-09 20:55:18
- * @description 工作区域数据传输实体
+ * @date 2026/2/12 14:47
+ * @description 工作区域组合查询DTO（含分页参数）
  */
 @Data
-@ApiModel(description = "工作区域 - 传输对象")
-public class WorkAreaDTO {
-    @ApiModelProperty(value = "区域编码", required = true, example = "AREA_001")
-    @NotBlank(message = "区域编码不能为空")
+@EqualsAndHashCode(callSuper = true)
+@ApiModel(description = "工作区域组合查询DTO（含分页参数）")
+public class WorkAreaQueryDTO extends PageQueryDTO {
+
+    @ApiModelProperty(value = "区域编码（模糊查询）", example = "AREA_001")
     @Length(max = 20, message = "区域编码长度不能超过20个字符")
     private String areaCode;
 
-    @ApiModelProperty(value = "区域名称", required = true, example = "高空作业平台A")
-    @NotBlank(message = "区域名称不能为空")
+    @ApiModelProperty(value = "区域名称（模糊查询）", example = "高空作业")
     @Length(max = 100, message = "区域名称长度不能超过100个字符")
     private String areaName;
 
-    @ApiModelProperty(value = "区域风险等级", example = "低风险")
+    @ApiModelProperty(value = "区域风险等级（低风险/中风险/高风险）", example = "低风险")
     @ValidEnum(enumClass = AreaRiskLevel.class, bizName = BusinessConstants.AREA_RISK_LEVEL)
     private String areaRiskLevelValue;
 
-    @ApiModelProperty(value = "描述", example = "高空作业平台A区，注意防坠落")
+    @ApiModelProperty(value = "描述（模糊查询）", example = "防坠落")
     @Length(max = 200, message = "描述长度不能超过200个字符")
     private String description;
 }

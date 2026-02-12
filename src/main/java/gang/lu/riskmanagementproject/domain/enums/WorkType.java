@@ -1,8 +1,6 @@
 package gang.lu.riskmanagementproject.domain.enums;
 
 import com.baomidou.mybatisplus.annotation.EnumValue;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import gang.lu.riskmanagementproject.common.FailureMessages;
 import lombok.Getter;
 
 /**
@@ -12,7 +10,7 @@ import lombok.Getter;
  * @description 工人的工作种类，前端需要提供下拉菜单，不可让用户自己输入
  */
 @Getter
-public enum WorkType {
+public enum WorkType implements ValueEnum<String> {
 
     /*
      * 工人工作类型枚举
@@ -32,24 +30,5 @@ public enum WorkType {
 
     WorkType(String value) {
         this.value = value;
-    }
-
-    /**
-     * 工具方法：字符串转 WorkType 枚举
-     */
-    @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static WorkType fromValue(String value) {
-        if (value == null || value.trim().isEmpty()) {
-            throw new IllegalArgumentException(FailureMessages.WORKER_TYPE_EMPTY);
-        }
-        String trimValue = value.trim();
-        for (WorkType type : values()) {
-            if (type.value.equals(trimValue)) {
-                return type;
-            }
-        }
-        throw new IllegalArgumentException(
-                String.format(FailureMessages.WORKER_TYPE_INVALID, trimValue)
-        );
     }
 }

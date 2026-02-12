@@ -18,11 +18,14 @@ import java.util.stream.Collectors;
 @Slf4j
 public class StatisticalUtil {
 
+    private static final String COUNT = "count";
+    public static final String PERIOD = "period";
+
     private StatisticalUtil() {
     }
 
     /**
-     * 从双层Map中安全获取count值（修复强转+简化）
+     * 从双层Map中安全获取count值
      */
     public static Integer getCountFromMap(Map<String, Map<String, Object>> dataMap, String key) {
         if (ObjectUtil.isEmpty(dataMap) || !dataMap.containsKey(key)) {
@@ -50,10 +53,10 @@ public class StatisticalUtil {
      * 通用count值提取（解决强转问题，统一处理Number类型）
      */
     private static Integer getCountFromSingleMap(Map<String, Object> map) {
-        if (ObjectUtil.isEmpty(map) || !map.containsKey("count")) {
+        if (ObjectUtil.isEmpty(map) || !map.containsKey(COUNT)) {
             return 0;
         }
-        Object countObj = map.get("count");
+        Object countObj = map.get(COUNT);
         if (countObj == null) {
             return 0;
         }
@@ -80,8 +83,8 @@ public class StatisticalUtil {
         }
         return periodList.stream()
                 .map(itemMap -> {
-                    Integer period = BasicUtil.safeLongToInt((Long) itemMap.get("period"), -1);
-                    Integer count = BasicUtil.safeLongToInt((Long) itemMap.get("count"), 0);
+                    Integer period = BasicUtil.safeLongToInt((Long) itemMap.get(PERIOD), -1);
+                    Integer count = BasicUtil.safeLongToInt((Long) itemMap.get(COUNT), 0);
 
                     RiskTimePeriodCountVO.TimePeriodItem item = new RiskTimePeriodCountVO.TimePeriodItem();
                     item.setHighRiskCount(count);

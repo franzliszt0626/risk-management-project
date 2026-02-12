@@ -1,38 +1,38 @@
 package gang.lu.riskmanagementproject.service.impl;
 
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import gang.lu.riskmanagementproject.annotation.BusinessLog;
-import gang.lu.riskmanagementproject.common.FailureMessages;
+import gang.lu.riskmanagementproject.converter.RiskIndicatorConverter;
 import gang.lu.riskmanagementproject.domain.dto.RiskIndicatorDTO;
+import gang.lu.riskmanagementproject.domain.dto.query.RiskIndicatorQueryDTO;
 import gang.lu.riskmanagementproject.domain.enums.RiskLevel;
 import gang.lu.riskmanagementproject.domain.po.RiskIndicator;
+import gang.lu.riskmanagementproject.domain.vo.normal.PageVO;
 import gang.lu.riskmanagementproject.domain.vo.normal.RiskIndicatorVO;
 import gang.lu.riskmanagementproject.domain.vo.statistical.indicator.RiskLevelCountVO;
 import gang.lu.riskmanagementproject.domain.vo.statistical.indicator.RiskTimePeriodCountVO;
-import gang.lu.riskmanagementproject.exception.BizException;
 import gang.lu.riskmanagementproject.mapper.RiskIndicatorMapper;
+import gang.lu.riskmanagementproject.mapper.WorkerMapper;
 import gang.lu.riskmanagementproject.service.RiskIndicatorService;
-import gang.lu.riskmanagementproject.util.ConvertUtil;
 import gang.lu.riskmanagementproject.util.MedicalUtil;
-import gang.lu.riskmanagementproject.util.PageUtil;
+import gang.lu.riskmanagementproject.util.PageHelper;
 import gang.lu.riskmanagementproject.util.StatisticalUtil;
 import gang.lu.riskmanagementproject.validator.GeneralValidator;
-import gang.lu.riskmanagementproject.validator.RiskValidator;
-import gang.lu.riskmanagementproject.validator.WorkerValidator;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static gang.lu.riskmanagementproject.common.BusinessScene.*;
+import static gang.lu.riskmanagementproject.common.BusinessConstants.GET_RISK_INDICATOR;
+import static gang.lu.riskmanagementproject.common.FailedMessages.WORKER_NOT_EXIST;
 
 /**
  * <p>
@@ -47,13 +47,35 @@ import static gang.lu.riskmanagementproject.common.BusinessScene.*;
 public class RiskIndicatorServiceImpl extends ServiceImpl<RiskIndicatorMapper, RiskIndicator> implements RiskIndicatorService {
 
     private final RiskIndicatorMapper riskIndicatorMapper;
-
-    private final WorkerValidator workerValidator;
-
-    private final RiskValidator riskValidator;
-
+    private final RiskIndicatorConverter riskIndicatorConverter;
     private final GeneralValidator generalValidator;
+    private final WorkerMapper workerMapper;
 
+
+    /**
+     * 组合分页查询
+     *
+     * @param queryDTO 工人id
+     * @return 风险信息集合
+     */
+    @Override
+    @BusinessLog(value = "多条件查询风险指标", recordParams = true)
+    public PageVO<RiskIndicatorVO> searchRiskIndicators(RiskIndicatorQueryDTO queryDTO) {
+        // 1. 校验工人存在性（仅当传了workerId时）
+        if (queryDTO.getWorkerId() != null) {
+            generalValidator.validateIdExist(queryDTO.getWorkerId(), workerMapper, WORKER_NOT_EXIST);
+        }
+        // 校验时间
+        generalValidator.validateTimeRange(queryDTO.getRecordStartTime(), queryDTO.getRecordEndTime());
+        // 2. 构建分页对象（自动处理默认值/最大值）
+        Page<RiskIndicator> poPage = PageHelper.buildPage(queryDTO, GET_RISK_INDICATOR);
+        // 3. 构建多条件查询器
+        LambdaQueryWrapper<RiskIndicator> wrapper = buildRiskIndicatorQueryWrapper(queryDTO);
+        // 4. 分页查询
+        poPage = page(poPage, wrapper);
+        // 5. 转换为通用分页VO
+        return riskIndicatorConverter.pagePoToPageVO(poPage);
+    }
 
     /**
      * 由后台算法生成，前端调用，插入风险指标信息
@@ -64,24 +86,19 @@ public class RiskIndicatorServiceImpl extends ServiceImpl<RiskIndicatorMapper, R
     @Transactional(rollbackFor = Exception.class)
     @BusinessLog(value = "新增风险指标", recordParams = true)
     public RiskIndicatorVO addRiskIndicator(RiskIndicatorDTO riskIndicatorDTO) {
-        // 1. 校验工人存在性
-        Long workerId = riskIndicatorDTO.getWorkerId();
-        workerValidator.validateWorkerExist(workerId, ADD_RISK_INDICATOR);
-
-        // 2. 参数校验
+        // 1. 校验工人存在性（ID格式已由@ValidId校验）
+        generalValidator.validateIdExist(riskIndicatorDTO.getWorkerId(), workerMapper, WORKER_NOT_EXIST);
+        // 2. 业务参数校验（医疗参数合法性）
         MedicalUtil.validateHeartRate(riskIndicatorDTO.getHeartRate());
         MedicalUtil.validateRespiratoryRate(riskIndicatorDTO.getRespiratoryRate());
         MedicalUtil.validateFatiguePercent(riskIndicatorDTO.getFatiguePercent());
-
-        // 3. 风险等级校验
-        riskValidator.validateRiskLevel(riskIndicatorDTO.getRiskLevel(), ADD_RISK_INDICATOR);
-
-        // 4. 转换+默认值
-        RiskIndicator riskIndicator = ConvertUtil.convert(riskIndicatorDTO, RiskIndicator.class);
+        // 3. 转换DTO→PO + 设置默认值
+        RiskIndicator riskIndicator = riskIndicatorConverter.dtoToPo(riskIndicatorDTO);
         riskIndicator.setRecordTime(ObjectUtil.defaultIfNull(riskIndicator.getRecordTime(), LocalDateTime.now()));
-        // 5. 插入
+        // 4. 插入数据库并校验结果
         generalValidator.validateDbOperateResult(riskIndicatorMapper.insert(riskIndicator));
-        return ConvertUtil.convert(riskIndicator, RiskIndicatorVO.class);
+        // 5. PO→VO返回
+        return riskIndicatorConverter.poToVo(riskIndicator);
     }
 
     /**
@@ -93,37 +110,12 @@ public class RiskIndicatorServiceImpl extends ServiceImpl<RiskIndicatorMapper, R
     @Override
     @BusinessLog(value = "查询最新风险指标（工人ID）", recordParams = true)
     public RiskIndicatorVO getLatestRiskIndicatorByWorkerId(Long workerId) {
-        workerValidator.validateWorkerExist(workerId, GET_LATEST_RISK_INDICATOR);
+        // 校验工人存在性
+        generalValidator.validateIdExist(workerId, workerMapper, WORKER_NOT_EXIST);
+        // 查询最新记录
         RiskIndicator latest = riskIndicatorMapper.selectLatestByWorkerId(workerId);
-        if (ObjectUtil.isNull(latest)) {
-            return null;
-        }
-        return ConvertUtil.convert(latest, RiskIndicatorVO.class);
-    }
-
-    /**
-     * 由工人id查询他历史所有的风险指标信息，按照时间先后，新的在前
-     *
-     * @param workerId 工人id
-     * @return 风险信息集合
-     */
-    @Override
-    @BusinessLog(value = "查询历史风险指标（工人ID）", recordParams = true)
-    public List<RiskIndicatorVO> getRiskIndicatorsByWorkerId(Long workerId, Integer pageNum, Integer pageSize) {
-        workerValidator.validateWorkerExist(workerId, GET_HISTORY_RISK_INDICATOR);
-        // 1. 一键构建分页对象（替代手动参数处理）
-        Page<RiskIndicator> page = PageUtil.buildPage(pageNum, pageSize, GET_HISTORY_RISK_INDICATOR_BY_WORKER_ID);
-
-        // 2. 分页查询
-        page = lambdaQuery()
-                .eq(RiskIndicator::getWorkerId, workerId)
-                .orderByDesc(RiskIndicator::getRecordTime)
-                .page(page);
-
-        // 3. 结果转换（简化判空逻辑）
-        return ObjectUtil.isEmpty(page.getRecords())
-                ? Collections.emptyList()
-                : ConvertUtil.convertList(page.getRecords(), RiskIndicatorVO.class);
+        // 转换PO→VO（空值直接返回null）
+        return ObjectUtil.isNull(latest) ? null : riskIndicatorConverter.poToVo(latest);
     }
 
     /**
@@ -135,7 +127,6 @@ public class RiskIndicatorServiceImpl extends ServiceImpl<RiskIndicatorMapper, R
     @BusinessLog(value = "统计风险等级人数分布", recordParams = false)
     public RiskLevelCountVO countDistinctWorkerByRiskLevel() {
         Map<String, Map<String, Object>> riskCountMap = riskIndicatorMapper.countDistinctWorkerByRiskLevel();
-
         RiskLevelCountVO vo = new RiskLevelCountVO();
         vo.setLowRiskCount(StatisticalUtil.getCountFromMap(riskCountMap, RiskLevel.LOW_RISK.getValue()));
         vo.setMediumRiskCount(StatisticalUtil.getCountFromMap(riskCountMap, RiskLevel.MEDIUM_RISK.getValue()));
@@ -161,6 +152,63 @@ public class RiskIndicatorServiceImpl extends ServiceImpl<RiskIndicatorMapper, R
         resultVO.setStatDate(statDateStr);
         resultVO.setPeriodItems(StatisticalUtil.buildTimePeriodItems(periodList));
         return resultVO;
+    }
+
+    private LambdaQueryWrapper<RiskIndicator> buildRiskIndicatorQueryWrapper(RiskIndicatorQueryDTO queryDTO) {
+        LambdaQueryWrapper<RiskIndicator> wrapper = new LambdaQueryWrapper<>();
+
+        // 1. 工人ID（精确匹配，原按工人ID查历史的核心逻辑）
+        if (queryDTO.getWorkerId() != null) {
+            wrapper.eq(RiskIndicator::getWorkerId, queryDTO.getWorkerId());
+        }
+
+        // 2. 风险等级（枚举转换）
+        if (StrUtil.isNotBlank(queryDTO.getRiskLevelValue())) {
+            RiskLevel riskLevel = riskIndicatorConverter.stringToRiskLevel(queryDTO.getRiskLevelValue());
+            wrapper.eq(RiskIndicator::getRiskLevel, riskLevel);
+        }
+
+        // 3. 是否报警
+        if (queryDTO.getAlertFlag() != null) {
+            wrapper.eq(RiskIndicator::getAlertFlag, queryDTO.getAlertFlag());
+        }
+
+        // 4. 心率区间
+        if (queryDTO.getMinHeartRate() != null) {
+            wrapper.ge(RiskIndicator::getHeartRate, queryDTO.getMinHeartRate());
+        }
+        if (queryDTO.getMaxHeartRate() != null) {
+            wrapper.le(RiskIndicator::getHeartRate, queryDTO.getMaxHeartRate());
+        }
+
+        // 5. 呼吸率区间
+        if (queryDTO.getMinRespiratoryRate() != null) {
+            wrapper.ge(RiskIndicator::getRespiratoryRate, queryDTO.getMinRespiratoryRate());
+        }
+        if (queryDTO.getMaxRespiratoryRate() != null) {
+            wrapper.le(RiskIndicator::getRespiratoryRate, queryDTO.getMaxRespiratoryRate());
+        }
+
+        // 6. 疲劳百分比区间
+        if (queryDTO.getMinFatiguePercent() != null) {
+            wrapper.ge(RiskIndicator::getFatiguePercent, queryDTO.getMinFatiguePercent());
+        }
+        if (queryDTO.getMaxFatiguePercent() != null) {
+            wrapper.le(RiskIndicator::getFatiguePercent, queryDTO.getMaxFatiguePercent());
+        }
+
+        // 7. 记录时间区间（前端日历选择的核心逻辑）
+        if (queryDTO.getRecordStartTime() != null) {
+            wrapper.ge(RiskIndicator::getRecordTime, queryDTO.getRecordStartTime());
+        }
+        if (queryDTO.getRecordEndTime() != null) {
+            wrapper.le(RiskIndicator::getRecordTime, queryDTO.getRecordEndTime());
+        }
+
+        // 8. 排序（默认按记录时间降序，最新的在前）
+        wrapper.orderByDesc(RiskIndicator::getRecordTime);
+
+        return wrapper;
     }
 
 }

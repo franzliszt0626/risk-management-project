@@ -7,36 +7,37 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import gang.lu.riskmanagementproject.annotation.BusinessLog;
-import gang.lu.riskmanagementproject.common.FailureMessages;
+import gang.lu.riskmanagementproject.common.BusinessConstants;
+import gang.lu.riskmanagementproject.converter.WorkerConverter;
 import gang.lu.riskmanagementproject.domain.dto.WorkerDTO;
+import gang.lu.riskmanagementproject.domain.dto.query.WorkerQueryDTO;
 import gang.lu.riskmanagementproject.domain.enums.Status;
 import gang.lu.riskmanagementproject.domain.enums.WorkType;
 import gang.lu.riskmanagementproject.domain.po.Worker;
-import gang.lu.riskmanagementproject.domain.query.WorkerQuery;
+import gang.lu.riskmanagementproject.domain.vo.normal.PageVO;
 import gang.lu.riskmanagementproject.domain.vo.normal.WorkerVO;
 import gang.lu.riskmanagementproject.domain.vo.statistical.worker.WorkerStatusCountVO;
 import gang.lu.riskmanagementproject.domain.vo.statistical.worker.WorkerTypeCountVO;
 import gang.lu.riskmanagementproject.exception.BizException;
 import gang.lu.riskmanagementproject.mapper.WorkerMapper;
 import gang.lu.riskmanagementproject.service.WorkerService;
-import gang.lu.riskmanagementproject.util.ConvertUtil;
-import gang.lu.riskmanagementproject.util.PageUtil;
+import gang.lu.riskmanagementproject.util.PageHelper;
 import gang.lu.riskmanagementproject.util.StatisticalUtil;
 import gang.lu.riskmanagementproject.validator.GeneralValidator;
-import gang.lu.riskmanagementproject.validator.WorkerValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import static gang.lu.riskmanagementproject.common.BusinessScene.*;
-import static gang.lu.riskmanagementproject.common.EnumName.STATUS;
-import static gang.lu.riskmanagementproject.common.EnumName.WORK_TYPE;
-import static gang.lu.riskmanagementproject.common.FieldName.*;
+import static gang.lu.riskmanagementproject.common.BusinessConstants.*;
+import static gang.lu.riskmanagementproject.common.FailedMessages.*;
 
 /**
  * <p>
@@ -51,10 +52,29 @@ import static gang.lu.riskmanagementproject.common.FieldName.*;
 public class WorkerServiceImpl extends ServiceImpl<WorkerMapper, Worker> implements WorkerService {
 
     private final WorkerMapper workerMapper;
-
-    private final WorkerValidator workerValidator;
-
+    private final WorkerConverter workerConverter;
     private final GeneralValidator generalValidator;
+
+
+    /**
+     * 组合条件分页查询工人
+     *
+     * @param workerQueryDTO 查询数据传输实体
+     * @return 分页结果
+     */
+    @Override
+    @BusinessLog(value = "组合查询工人", recordParams = true)
+    public PageVO<WorkerVO> searchWorkers(WorkerQueryDTO workerQueryDTO) {
+        // 1. 构建分页对象（直接传入继承了PageQueryDTO的workerQueryDTO）
+        Page<Worker> poPage = PageHelper.buildPage(workerQueryDTO, GET_WORKER);
+        // 2. 构建组合查询条件
+        LambdaQueryWrapper<Worker> wrapper = buildWorkerQueryWrapper(workerQueryDTO);
+        // 3. 分页查询
+        poPage = page(poPage, wrapper);
+        // 4. 复用PageConverter的转换逻辑
+        return workerConverter.pagePoToPageVO(poPage);
+    }
+
 
     /**
      * 创建工人（统一参数校验+枚举处理）
@@ -66,26 +86,19 @@ public class WorkerServiceImpl extends ServiceImpl<WorkerMapper, Worker> impleme
         // 1. 校验
         String workerCode = dto.getWorkerCode();
         String name = dto.getName();
-        workerValidator.validateWorkerCode(workerCode, null, ADD_WORKER);
-        generalValidator.validateStringNotBlank(name, NAME, ADD_WORKER);
-
-        // 2. 枚举默认值
-        if (ObjectUtil.isNull(dto.getStatus())) {
-            dto.setStatus(Status.NORMAL);
+        generalValidator.validateStringNotBlank(workerCode, BusinessConstants.WORKER_CODE, BusinessConstants.ADD_WORKER);
+        generalValidator.validateStringNotBlank(name, BusinessConstants.NAME, BusinessConstants.ADD_WORKER);
+        // 2. 工号唯一性校验
+        if (lambdaQuery().eq(Worker::getWorkerCode, workerCode).exists()) {
+            throw new BizException(HttpStatus.CONFLICT, WORKER_CODE_DUPLICATE);
         }
-        if (ObjectUtil.isNull(dto.getWorkType())) {
-            dto.setWorkType(WorkType.NORMAL_WORK);
-        }
-
-        // 3. 转换+保存
-        Worker worker = ConvertUtil.convert(dto, Worker.class);
+        // 4. DTO→PO转换 + 设置时间字段
+        Worker worker = workerConverter.dtoToPo(dto);
         worker.setCreateTime(LocalDateTime.now());
         worker.setUpdateTime(LocalDateTime.now());
-
+        // 5. 插入数据库并校验结果
         int inserted = workerMapper.insert(worker);
-        if (inserted != 1) {
-            throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR, FailureMessages.WORKER_CREATE_ERROR);
-        }
+        generalValidator.validateDbOperateResult(inserted);
     }
 
     /**
@@ -95,11 +108,9 @@ public class WorkerServiceImpl extends ServiceImpl<WorkerMapper, Worker> impleme
     @Transactional(rollbackFor = Exception.class)
     @BusinessLog(value = "删除工人", recordParams = true)
     public void deleteWorker(Long id) {
-        workerValidator.validateWorkerExist(id);
+        generalValidator.validateIdExist(id, workerMapper, WORKER_NOT_EXIST);
         int deleted = workerMapper.deleteById(id);
-        if (deleted != 1) {
-            throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR, FailureMessages.WORKER_DELETE_ERROR);
-        }
+        generalValidator.validateDbOperateResult(deleted);
     }
 
     /**
@@ -109,29 +120,28 @@ public class WorkerServiceImpl extends ServiceImpl<WorkerMapper, Worker> impleme
     @Transactional(rollbackFor = Exception.class)
     @BusinessLog(value = "更新工人", recordParams = true)
     public void updateWorker(Long id, WorkerDTO dto) {
-        Worker existing = workerValidator.validateWorkerExist(id);
-
-        // 工号唯一性校验
+        // 1. 校验工人存在性
+        Worker existing = generalValidator.validateIdExist(id, workerMapper, WORKER_NOT_EXIST);
+        // 2. 工号唯一性校验（仅当工号修改时）
         String newWorkerCode = dto.getWorkerCode();
         if (StrUtil.isNotBlank(newWorkerCode) && !newWorkerCode.equals(existing.getWorkerCode())) {
-            workerValidator.validateWorkerCode(newWorkerCode, id, UPDATE_WORKER);
+            boolean codeExists = lambdaQuery()
+                    .eq(Worker::getWorkerCode, newWorkerCode)
+                    .ne(Worker::getId, id)
+                    .exists();
+            if (codeExists) {
+                throw new BizException(HttpStatus.CONFLICT, WORKER_CODE_DUPLICATE);
+            }
         }
-        // 枚举默认值
-        if (ObjectUtil.isNull(dto.getStatus())) {
-            dto.setStatus(existing.getStatus());
-        }
-        if (ObjectUtil.isNull(dto.getWorkType())) {
-            dto.setWorkType(existing.getWorkType());
-        }
-        // 转换+更新
-        Worker updated = ConvertUtil.convert(dto, Worker.class);
+        // 4. 用DTO更新PO（空值不覆盖）
+        Worker updated = new Worker();
+        workerConverter.updatePoFromDto(dto, updated);
         updated.setId(id);
         updated.setCreateTime(existing.getCreateTime());
         updated.setUpdateTime(LocalDateTime.now());
+        // 5. 更新数据库并校验结果
         int updatedRows = workerMapper.updateById(updated);
-        if (updatedRows != 1) {
-            throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR, FailureMessages.WORKER_UPDATE_ERROR);
-        }
+        generalValidator.validateDbOperateResult(updatedRows);
 
     }
 
@@ -141,8 +151,8 @@ public class WorkerServiceImpl extends ServiceImpl<WorkerMapper, Worker> impleme
     @Override
     @BusinessLog(value = "查询工人（ID）", recordParams = true)
     public WorkerVO getWorkerById(Long id) {
-        Worker worker = workerValidator.validateWorkerExist(id);
-        return ConvertUtil.convert(worker, WorkerVO.class);
+        Worker worker = generalValidator.validateIdExist(id, workerMapper, WORKER_NOT_EXIST);
+        return workerConverter.poToVo(worker);
     }
 
     /**
@@ -151,107 +161,17 @@ public class WorkerServiceImpl extends ServiceImpl<WorkerMapper, Worker> impleme
     @Override
     @BusinessLog(value = "查询工人（工号）", recordParams = true)
     public WorkerVO getWorkerByCode(String workerCode) {
-        generalValidator.validateStringNotBlank(workerCode, WORKER_CODE, GET_WORKER_BY_WORKCODE);
+        // 1. 通用非空校验
+        generalValidator.validateStringNotBlank(workerCode, BusinessConstants.WORKER_CODE, BusinessConstants.GET_WORKER_BY_WORKCODE);
+        // 2. 查询工人
         Worker worker = getWorkerByCodeWithOutVerify(workerCode);
         if (ObjectUtil.isNull(worker)) {
-            throw new BizException(HttpStatus.NOT_FOUND, FailureMessages.WORKER_NOT_EXIST);
+            throw new BizException(HttpStatus.NOT_FOUND, WORKER_NOT_EXIST);
         }
-        return ConvertUtil.convert(worker, WorkerVO.class);
+        // 3. PO→VO转换
+        return workerConverter.poToVo(worker);
     }
 
-    /**
-     * 按姓名模糊查询
-     */
-    @Override
-    @BusinessLog(value = "按姓名模糊查询工人", recordParams = true)
-    public List<WorkerVO> searchWorkersByName(String name) {
-        if (StrUtil.isBlank(name)) {
-            return Collections.emptyList();
-        }
-        String trimedName = name.trim();
-        List<Worker> workers = lambdaQuery()
-                .like(Worker::getName, trimedName)
-                .orderByDesc(Worker::getUpdateTime)
-                .list();
-        if (ObjectUtil.isEmpty(workers)) {
-            return Collections.emptyList();
-        }
-        return ConvertUtil.convertList(workers, WorkerVO.class);
-    }
-
-    /**
-     * 按状态查询（枚举直接作为查询条件）
-     */
-    @Override
-    @BusinessLog(value = "按状态查询工人", recordParams = true)
-    public List<WorkerVO> getWorkersByStatus(Status status) {
-        generalValidator.validateEnumNotNull(status, STATUS, GET_WORKER_BY_STATUS);
-
-        List<Worker> workers = lambdaQuery()
-                .eq(Worker::getStatus, status)
-                .orderByDesc(Worker::getUpdateTime)
-                .list();
-
-        if (ObjectUtil.isEmpty(workers)) {
-            return Collections.emptyList();
-        }
-
-        return ConvertUtil.convertList(workers, WorkerVO.class);
-    }
-
-    /**
-     * 按工种查询（适配WorkType枚举）
-     */
-    @Override
-    @BusinessLog(value = "按工种查询工人", recordParams = true)
-    public List<WorkerVO> getWorkersByWorkType(WorkType workType) {
-        generalValidator.validateEnumNotNull(workType, WORK_TYPE, GET_WORKER_BY_WORKTYPE);
-        List<Worker> workers = lambdaQuery()
-                .eq(Worker::getWorkType, workType)
-                .orderByDesc(Worker::getUpdateTime)
-                .list();
-        if (ObjectUtil.isEmpty(workers)) {
-            return Collections.emptyList();
-        }
-        return ConvertUtil.convertList(workers, WorkerVO.class);
-    }
-
-    /**
-     * 按岗位查询
-     */
-    @Override
-    @BusinessLog(value = "按岗位查询工人", recordParams = true)
-    public List<WorkerVO> getWorkersByPosition(String position) {
-        if (StrUtil.isBlank(position)) {
-            return Collections.emptyList();
-        }
-        String trimedPosition = position.trim();
-        List<Worker> workers = lambdaQuery()
-                .like(Worker::getPosition, trimedPosition)
-                .orderByDesc(Worker::getUpdateTime)
-                .list();
-        if (ObjectUtil.isEmpty(workers)) {
-            return Collections.emptyList();
-        }
-        return ConvertUtil.convertList(workers, WorkerVO.class);
-    }
-
-    /**
-     * 分页查询所有工人（统一分页参数处理）
-     */
-    @Override
-    @BusinessLog(value = "分页查询所有工人", recordParams = true)
-    public Page<WorkerVO> getAllWorkers(Integer pageNum, Integer pageSize) {
-        // 分页参数处理
-        Page<Worker> workerPage = PageUtil.buildPage(pageNum, pageSize, GET_WORKER);
-        // 分页查询
-        LambdaQueryWrapper<Worker> wrapper = new LambdaQueryWrapper<>();
-        wrapper.orderByDesc(Worker::getUpdateTime);
-        // 3. 分页查询（MyBatis-Plus自动计算总数，无需手动count）
-        workerPage = page(workerPage, wrapper);
-        // 4. 转换VO（无需手动补全total/pages）
-        return ConvertUtil.convertPageWithManualTotal(workerPage, WorkerVO.class);
-    }
 
     /**
      * 按工人状态统计数量
@@ -305,7 +225,7 @@ public class WorkerServiceImpl extends ServiceImpl<WorkerMapper, Worker> impleme
     public void batchDeleteWorkers(List<Long> ids) {
         // 1. 空值校验
         if (CollUtil.isEmpty(ids)) {
-            throw new BizException(HttpStatus.BAD_REQUEST, FailureMessages.WORKER_DELETE_BATCH_ID_EMPTY);
+            throw new BizException(HttpStatus.BAD_REQUEST, WORKER_DELETE_BATCH_ID_EMPTY);
         }
         // 2. 批量存在性校验（1次查询替代N次）
         List<Worker> existWorkers = workerMapper.selectBatchIds(ids);
@@ -314,32 +234,11 @@ public class WorkerServiceImpl extends ServiceImpl<WorkerMapper, Worker> impleme
             Set<Long> existIds = existWorkers.stream().map(Worker::getId).collect(Collectors.toSet());
             List<Long> notExistIds = ids.stream().filter(id -> !existIds.contains(id)).toList();
             throw new BizException(HttpStatus.NOT_FOUND,
-                    String.format(FailureMessages.WORKER_NOT_EXIST_BATCH, notExistIds));
+                    String.format(WORKER_NOT_EXIST_BATCH, notExistIds));
         }
         // 3. 执行批量删除
         int deleted = workerMapper.deleteBatchIds(ids);
-        if (deleted != ids.size()) {
-            throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR, FailureMessages.WORKER_DELETE_BATCH_ERROR);
-        }
-    }
-
-    /**
-     * 组合条件分页查询工人
-     *
-     * @param workerQuery 查询数据传输实体
-     * @return 分页结果
-     */
-    @Override
-    @BusinessLog(value = "组合查询工人", recordParams = true)
-    public Page<WorkerVO> searchWorkers(WorkerQuery workerQuery) {
-        // 1. 构建分页对象
-        Page<Worker> workerPage = PageUtil.buildPage(workerQuery.getPageNum(), workerQuery.getPageSize(), GET_WORKER);
-        // 2. 构建组合查询条件（逻辑不变）
-        LambdaQueryWrapper<Worker> wrapper = buildWorkerQueryWrapper(workerQuery);
-        // 3. 分页查询（自动计算总数）
-        workerPage = page(workerPage, wrapper);
-        // 4. 转换VO
-        return ConvertUtil.convertPageWithManualTotal(workerPage, WorkerVO.class);
+        generalValidator.validateDbOperateResult(deleted);
     }
 
     /**
@@ -355,39 +254,47 @@ public class WorkerServiceImpl extends ServiceImpl<WorkerMapper, Worker> impleme
     /**
      * 建立查询条件
      */
-    private LambdaQueryWrapper<Worker> buildWorkerQueryWrapper(WorkerQuery workerQuery) {
+    private LambdaQueryWrapper<Worker> buildWorkerQueryWrapper(WorkerQueryDTO workerQueryDTO) {
         LambdaQueryWrapper<Worker> wrapper = new LambdaQueryWrapper<>();
-        // 工号模糊匹配
-        if (StrUtil.isNotBlank(workerQuery.getWorkerCode())) {
-            wrapper.like(Worker::getWorkerCode, workerQuery.getWorkerCode().trim());
+
+        // 1. 工号模糊匹配（原getWorkerByCode的模糊版）
+        if (StrUtil.isNotBlank(workerQueryDTO.getWorkerCode())) {
+            wrapper.like(Worker::getWorkerCode, workerQueryDTO.getWorkerCode().trim());
         }
-        // 姓名模糊匹配
-        if (StrUtil.isNotBlank(workerQuery.getName())) {
-            wrapper.like(Worker::getName, workerQuery.getName().trim());
+
+        // 2. 姓名模糊匹配（原searchWorkersByName逻辑）
+        if (StrUtil.isNotBlank(workerQueryDTO.getName())) {
+            wrapper.like(Worker::getName, workerQueryDTO.getName().trim());
         }
-        // 岗位模糊匹配
-        if (StrUtil.isNotBlank(workerQuery.getPosition())) {
-            wrapper.like(Worker::getPosition, workerQuery.getPosition().trim());
+
+        // 3. 岗位模糊匹配（原getWorkersByPosition逻辑）
+        if (StrUtil.isNotBlank(workerQueryDTO.getPosition())) {
+            wrapper.like(Worker::getPosition, workerQueryDTO.getPosition().trim());
         }
-        // 工龄区间
-        if (Objects.nonNull(workerQuery.getMinWorkYears())) {
-            wrapper.ge(Worker::getWorkYears, workerQuery.getMinWorkYears());
+
+        // 4. 工龄区间筛选
+        if (Objects.nonNull(workerQueryDTO.getMinWorkYears())) {
+            wrapper.ge(Worker::getWorkYears, workerQueryDTO.getMinWorkYears());
         }
-        if (Objects.nonNull(workerQuery.getMaxWorkYears())) {
-            wrapper.le(Worker::getWorkYears, workerQuery.getMaxWorkYears());
+        if (Objects.nonNull(workerQueryDTO.getMaxWorkYears())) {
+            wrapper.le(Worker::getWorkYears, workerQueryDTO.getMaxWorkYears());
         }
-        // 工作类型（枚举转换）
-        if (StrUtil.isNotBlank(workerQuery.getWorkTypeValue())) {
-            WorkType workType = WorkType.fromValue(workerQuery.getWorkTypeValue());
+
+        // 5. 工种筛选（原getWorkersByWorkType逻辑）
+        if (StrUtil.isNotBlank(workerQueryDTO.getWorkTypeValue())) {
+            WorkType workType = workerConverter.stringToWorkType(workerQueryDTO.getWorkTypeValue());
             wrapper.eq(Worker::getWorkType, workType);
         }
-        // 状态（枚举转换）
-        if (StrUtil.isNotBlank(workerQuery.getStatusValue())) {
-            Status status = Status.fromValue(workerQuery.getStatusValue());
+
+        // 6. 状态筛选（原getWorkersByStatus逻辑）
+        if (StrUtil.isNotBlank(workerQueryDTO.getStatusValue())) {
+            Status status = workerConverter.stringToStatus(workerQueryDTO.getStatusValue());
             wrapper.eq(Worker::getStatus, status);
         }
-        // 排序
+
+        // 7. 排序（统一按更新时间降序）
         wrapper.orderByDesc(Worker::getUpdateTime);
+
         return wrapper;
     }
 }

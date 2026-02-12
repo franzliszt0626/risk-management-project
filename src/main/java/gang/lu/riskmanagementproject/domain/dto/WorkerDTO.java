@@ -1,6 +1,8 @@
 package gang.lu.riskmanagementproject.domain.dto;
 
 
+import gang.lu.riskmanagementproject.annotation.ValidEnum;
+import gang.lu.riskmanagementproject.common.BusinessConstants;
 import gang.lu.riskmanagementproject.domain.enums.Status;
 import gang.lu.riskmanagementproject.domain.enums.WorkType;
 import io.swagger.annotations.ApiModel;
@@ -39,8 +41,10 @@ public class WorkerDTO {
     private Integer workYears;
 
     @ApiModelProperty(value = "工作种类", example = "高空作业")
-    private WorkType workType;
+    @ValidEnum(enumClass = WorkType.class, bizName = BusinessConstants.WORK_TYPE)
+    private String workTypeValue;
 
     @ApiModelProperty(value = "当前状态", example = "正常")
-    private Status status;
+    @ValidEnum(enumClass = Status.class, bizName = BusinessConstants.STATUS)
+    private String statusValue;
 }

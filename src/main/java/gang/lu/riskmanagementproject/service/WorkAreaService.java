@@ -1,12 +1,12 @@
 package gang.lu.riskmanagementproject.service;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import gang.lu.riskmanagementproject.domain.dto.WorkAreaDTO;
-import gang.lu.riskmanagementproject.domain.enums.AreaRiskLevel;
+import gang.lu.riskmanagementproject.domain.dto.query.WorkAreaQueryDTO;
 import gang.lu.riskmanagementproject.domain.po.WorkArea;
-import gang.lu.riskmanagementproject.domain.vo.statistical.area.WorkAreaRiskCountVO;
+import gang.lu.riskmanagementproject.domain.vo.normal.PageVO;
 import gang.lu.riskmanagementproject.domain.vo.normal.WorkAreaVO;
+import gang.lu.riskmanagementproject.domain.vo.statistical.area.WorkAreaRiskCountVO;
 
 import java.util.List;
 
@@ -65,23 +65,11 @@ public interface WorkAreaService extends IService<WorkArea> {
     List<WorkAreaVO> getWorkAreaByCode(String areaCode);
 
     /**
-     * 多条件分页查询工作区域
-     *
-     * @param pageNum   页码
-     * @param pageSize  每页条数
-     * @param areaName  区域名称（模糊）
-     * @param riskLevel 风险等级（枚举）
-     * @return 分页结果
+     * 分页查询工作区域（支持多条件筛选，无条件则查全部）
+     * @param queryDTO 分页DTO
+     * @return 分页结果VO
      */
-    Page<WorkAreaVO> queryWorkAreas(Integer pageNum, Integer pageSize, String areaName, AreaRiskLevel riskLevel);
-
-    /**
-     * 分页查询所有工作区域（无筛选条件）
-     * @param pageNum 页码
-     * @param pageSize 每页条数
-     * @return 分页后的所有工作区域VO列表
-     */
-    Page<WorkAreaVO> getAllWorkAreas(Integer pageNum, Integer pageSize);
+    PageVO<WorkAreaVO> searchWorkAreas(WorkAreaQueryDTO queryDTO);
 
     /**
      * 按风险等级统计工作区域数量

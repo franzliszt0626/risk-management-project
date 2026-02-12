@@ -1,32 +1,34 @@
 package gang.lu.riskmanagementproject.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import gang.lu.riskmanagementproject.annotation.BusinessLog;
-import gang.lu.riskmanagementproject.common.FailureMessages;
+import gang.lu.riskmanagementproject.common.BusinessConstants;
+import gang.lu.riskmanagementproject.converter.AlertRecordConverter;
 import gang.lu.riskmanagementproject.domain.dto.AlertRecordDTO;
+import gang.lu.riskmanagementproject.domain.dto.query.AlertRecordQueryDTO;
 import gang.lu.riskmanagementproject.domain.enums.AlertLevel;
 import gang.lu.riskmanagementproject.domain.po.AlertRecord;
 import gang.lu.riskmanagementproject.domain.vo.normal.AlertRecordVO;
+import gang.lu.riskmanagementproject.domain.vo.normal.PageVO;
 import gang.lu.riskmanagementproject.exception.BizException;
 import gang.lu.riskmanagementproject.mapper.AlertRecordMapper;
+import gang.lu.riskmanagementproject.mapper.WorkerMapper;
 import gang.lu.riskmanagementproject.service.AlertRecordService;
-import gang.lu.riskmanagementproject.util.ConvertUtil;
-import gang.lu.riskmanagementproject.validator.AlertRecordValidator;
+import gang.lu.riskmanagementproject.util.PageHelper;
 import gang.lu.riskmanagementproject.validator.GeneralValidator;
-import gang.lu.riskmanagementproject.validator.WorkerValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
 
-import static gang.lu.riskmanagementproject.common.BusinessScene.*;
-import static gang.lu.riskmanagementproject.common.FieldName.*;
+import static gang.lu.riskmanagementproject.common.BusinessConstants.GET_ALERT_RECORD;
+import static gang.lu.riskmanagementproject.common.FailedMessages.*;
 
 
 /**
@@ -42,12 +44,27 @@ import static gang.lu.riskmanagementproject.common.FieldName.*;
 public class AlertRecordServiceImpl extends ServiceImpl<AlertRecordMapper, AlertRecord> implements AlertRecordService {
 
     private final AlertRecordMapper alertRecordMapper;
-
-    private final WorkerValidator workerValidator;
-
-    private final AlertRecordValidator alertRecordValidator;
-
+    private final WorkerMapper workerMapper;
     private final GeneralValidator generalValidator;
+    private final AlertRecordConverter alertRecordConverter;
+
+
+    @Override
+    @BusinessLog(value = "多条件查询预警记录", recordParams = true)
+    public PageVO<AlertRecordVO> searchAlertRecords(AlertRecordQueryDTO queryDTO) {
+        // 1. 构建分页对象
+        Page<AlertRecord> poPage = PageHelper.buildPage(queryDTO, GET_ALERT_RECORD);
+        // 校验时间
+        generalValidator.validateTimeRange(queryDTO.getCreatedStartTime(), queryDTO.getCreatedEndTime());
+        generalValidator.validateTimeRange(queryDTO.getHandleStartTime(), queryDTO.getHandleEndTime());
+        // 2. 构建多条件查询Wrapper
+        LambdaQueryWrapper<AlertRecord> wrapper = buildAlertRecordQueryWrapper(queryDTO);
+        // 3. 分页查询
+        poPage = page(poPage, wrapper);
+        // 4. PO分页转VO分页
+        return alertRecordConverter.pagePoToPageVO(poPage);
+    }
+
 
     /**
      * 新增一条预警记录
@@ -59,15 +76,12 @@ public class AlertRecordServiceImpl extends ServiceImpl<AlertRecordMapper, Alert
     @Transactional(rollbackFor = Exception.class)
     @BusinessLog(value = "新增预警记录", recordParams = true)
     public AlertRecordVO addAlertRecord(AlertRecordDTO dto) {
-        // 1. 校验工人存在性
-        Long workerId = dto.getWorkerId();
-        workerValidator.validateWorkerExist(workerId, ADD_ALERT_RECORD);
-        // 2. 校验预警等级
-        alertRecordValidator.validateAlertLevel(dto.getAlertLevel(), ADD_ALERT_RECORD);
-        // 3. DTO转PO + 插入
-        AlertRecord alertRecord = ConvertUtil.convert(dto, AlertRecord.class);
+        // 1. 校验工人存在性（id由controller校验）
+        generalValidator.validateIdExist(dto.getWorkerId(), workerMapper, WORKER_NOT_EXIST);
+        // 2. DTO转PO + 插入
+        AlertRecord alertRecord = alertRecordConverter.dtoToPo(dto);
         generalValidator.validateDbOperateResult(alertRecordMapper.insert(alertRecord));
-        return ConvertUtil.convert(alertRecord, AlertRecordVO.class);
+        return alertRecordConverter.poToVo(alertRecord);
     }
 
     /**
@@ -79,7 +93,7 @@ public class AlertRecordServiceImpl extends ServiceImpl<AlertRecordMapper, Alert
     @Transactional(rollbackFor = Exception.class)
     @BusinessLog(value = "删除预警记录", recordParams = true)
     public void deleteAlertRecord(Long id) {
-        alertRecordValidator.validateAlertRecordExist(id);
+        generalValidator.validateIdExist(id, alertRecordMapper, ALERT_RECORD_NOT_EXIST);
         generalValidator.validateDbOperateResult(alertRecordMapper.deleteById(id));
     }
 
@@ -94,23 +108,19 @@ public class AlertRecordServiceImpl extends ServiceImpl<AlertRecordMapper, Alert
     @Transactional(rollbackFor = Exception.class)
     @BusinessLog(value = "修改预警记录", recordParams = true)
     public AlertRecordVO updateAlertRecord(Long id, AlertRecordDTO dto) {
-        AlertRecord alertRecord = alertRecordValidator.validateAlertRecordExist(id);
-        // 1、校验工人ID
+        // 1. 校验预警记录存在性
+        AlertRecord alertRecord = generalValidator.validateIdExist(id, alertRecordMapper, ALERT_RECORD_NOT_EXIST);
+        // 2、校验工人ID
         Long newWorkerId = dto.getWorkerId();
-        // 如果前端没传id，则校验旧id，传了就校验新id
-        workerValidator.validateWorkerExist(
-                ObjectUtil.isNotNull(newWorkerId) ? newWorkerId : alertRecord.getWorkerId(),
-                UPDATE_ALERT_RECORD
-        );
-        // 2、校验预警等级（若传入）
-        if (ObjectUtil.isNotNull(dto.getAlertLevel())) {
-            alertRecordValidator.validateAlertLevel(dto.getAlertLevel(), UPDATE_ALERT_RECORD);
+        if (ObjectUtil.isNotNull(newWorkerId)) {
+            generalValidator.validateIdExist(newWorkerId, workerMapper, WORKER_NOT_EXIST);
         }
-
-        // 3、DTO转PO（覆盖非空字段）
-        BeanUtil.copyProperties(dto, alertRecord, ID, CREATE_TIME);
+        // 3. 通用转换器：用DTO更新PO（空值不覆盖）
+        alertRecordConverter.updatePoFromDto(dto, alertRecord);
+        // 4. 数据库操作
         generalValidator.validateDbOperateResult(alertRecordMapper.updateById(alertRecord));
-        return ConvertUtil.convert(alertRecordMapper.selectById(id), AlertRecordVO.class);
+        // 5. 返回VO
+        return alertRecordConverter.poToVo(alertRecordMapper.selectById(id));
     }
 
 
@@ -123,59 +133,8 @@ public class AlertRecordServiceImpl extends ServiceImpl<AlertRecordMapper, Alert
     @Override
     @BusinessLog(value = "查询预警记录（ID）", recordParams = true)
     public AlertRecordVO getAlertRecordById(Long id) {
-        AlertRecord alertRecord = alertRecordValidator.validateAlertRecordExist(id);
-        return ConvertUtil.convert(alertRecord, AlertRecordVO.class);
-    }
-
-    /**
-     * 根据工人ID查询（查不到返回空）
-     *
-     * @param workerId 工人id
-     * @return 集合
-     */
-    @Override
-    @BusinessLog(value = "查询工人预警记录", recordParams = true)
-    public List<AlertRecordVO> getAlertRecordsByWorkerId(Long workerId) {
-        workerValidator.validateWorkerExist(workerId, GET_ALERT_RECORD);
-        List<AlertRecord> alertRecords = alertRecordMapper.selectByWorkerId(workerId);
-        if (ObjectUtil.isEmpty(alertRecords)) {
-            return Collections.emptyList();
-        }
-        return ConvertUtil.convertList(alertRecords, AlertRecordVO.class);
-    }
-
-    /**
-     * 根据预警级别查询
-     *
-     * @param alertLevel 级别
-     * @return 结果集合
-     */
-    @Override
-    @BusinessLog(value = "查询预警记录（级别）", recordParams = true)
-    public List<AlertRecordVO> getAlertRecordsByAlertLevel(AlertLevel alertLevel) {
-        alertRecordValidator.validateAlertLevel(alertLevel, GET_ALERT_RECORD);
-        List<AlertRecord> alertRecords = alertRecordMapper.selectByAlertLevel(alertLevel.getValue());
-        if (ObjectUtil.isEmpty(alertRecords)) {
-            return Collections.emptyList();
-        }
-        return ConvertUtil.convertList(alertRecords, AlertRecordVO.class);
-    }
-
-    /**
-     * 根据预警类型模糊查询
-     *
-     * @param alertType 类型
-     * @return 结果集合
-     */
-    @Override
-    @BusinessLog(value = "查询预警记录（类型模糊）", recordParams = true)
-    public List<AlertRecordVO> getAlertRecordsByAlertTypeLike(String alertType) {
-        generalValidator.validateStringNotBlank(alertType, ALERT_TYPE, GET_ALERT_RECORD);
-        List<AlertRecord> alertRecords = alertRecordMapper.selectByAlertTypeLike(alertType);
-        if (ObjectUtil.isEmpty(alertRecords)) {
-            return Collections.emptyList();
-        }
-        return ConvertUtil.convertList(alertRecords, AlertRecordVO.class);
+        AlertRecord alertRecord = generalValidator.validateIdExist(id, alertRecordMapper, ALERT_RECORD_NOT_EXIST);
+        return alertRecordConverter.poToVo(alertRecord);
     }
 
     /**
@@ -188,14 +147,68 @@ public class AlertRecordServiceImpl extends ServiceImpl<AlertRecordMapper, Alert
     @Transactional(rollbackFor = Exception.class)
     @BusinessLog(value = "标记预警记录为已处理", recordParams = true)
     public void markAlertRecordAsHandled(Long id, String handledBy) {
-        // 1、看记录是否存在
-        alertRecordValidator.validateAlertRecordExist(id);
-        // 2、校验处理人是否为空
-        generalValidator.validateStringNotBlank(handledBy, HANDLED_BY, HANDLE_ALERT_RECORD);
+        // 1. 校验预警记录存在性
+        generalValidator.validateIdExist(id, alertRecordMapper, ALERT_RECORD_NOT_EXIST);
+        // 2. 校验处理人非空
+        generalValidator.validateStringNotBlank(handledBy, BusinessConstants.HANDLED_BY, BusinessConstants.HANDLE_ALERT_RECORD);
+        // 3. 标记已处理
         int rows = alertRecordMapper.markAsHandled(id, handledBy, LocalDateTime.now());
         if (rows == 0) {
-            throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR, FailureMessages.ALERT_RECORD_HANDLE_ERROR);
+            throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR, ALERT_RECORD_HANDLE_ERROR);
         }
+    }
+
+    private LambdaQueryWrapper<AlertRecord> buildAlertRecordQueryWrapper(AlertRecordQueryDTO queryDTO) {
+        LambdaQueryWrapper<AlertRecord> wrapper = new LambdaQueryWrapper<>();
+
+        // 2. 工人ID精确匹配
+        if (queryDTO.getWorkerId() != null) {
+            wrapper.eq(AlertRecord::getWorkerId, queryDTO.getWorkerId());
+        }
+
+        // 3. 预警类型模糊匹配
+        if (StrUtil.isNotBlank(queryDTO.getAlertType())) {
+            wrapper.like(AlertRecord::getAlertType, queryDTO.getAlertType().trim());
+        }
+
+        // 4. 预警级别（直接用DTO的String值，MapStruct已自动转换，此处无需手动转枚举）
+        if (StrUtil.isNotBlank(queryDTO.getAlertLevelValue())) {
+            // 注意：如果AlertRecord的alertLevel字段是AlertLevel枚举类型，MapStruct已自动转换，此处直接传String会报错
+            // 修正：通过MapStruct的转换方法自动转枚举，业务层无需关心
+            AlertLevel alertLevel = alertRecordConverter.stringToAlertLevel(queryDTO.getAlertLevelValue());
+            wrapper.eq(AlertRecord::getAlertLevel, alertLevel);
+        }
+
+        // 5. 是否已处理
+        if (queryDTO.getIsHandled() != null) {
+            wrapper.eq(AlertRecord::getIsHandled, queryDTO.getIsHandled());
+        }
+
+        // 6. 处理人模糊匹配
+        if (StrUtil.isNotBlank(queryDTO.getHandledBy())) {
+            wrapper.like(AlertRecord::getHandledBy, queryDTO.getHandledBy().trim());
+        }
+
+        // 7. 创建时间区间
+        if (queryDTO.getCreatedStartTime() != null) {
+            wrapper.ge(AlertRecord::getCreatedTime, queryDTO.getCreatedStartTime());
+        }
+        if (queryDTO.getCreatedEndTime() != null) {
+            wrapper.le(AlertRecord::getCreatedTime, queryDTO.getCreatedEndTime());
+        }
+
+        // 8. 处理时间区间
+        if (queryDTO.getHandleStartTime() != null) {
+            wrapper.ge(AlertRecord::getHandleTime, queryDTO.getHandleStartTime());
+        }
+        if (queryDTO.getHandleEndTime() != null) {
+            wrapper.le(AlertRecord::getHandleTime, queryDTO.getHandleEndTime());
+        }
+
+        // 9. 排序（默认按创建时间降序，最新的预警在前）
+        wrapper.orderByDesc(AlertRecord::getCreatedTime);
+
+        return wrapper;
     }
 
 }
