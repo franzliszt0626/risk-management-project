@@ -100,7 +100,8 @@ public abstract class BaseCrudServiceImpl<
         baseMapper.updateById(updatePo);
         generalValidator.validateDbOperateResult(1);
         // 6. 返回最新VO
-        return converter.poToVo(this.getById(id));
+        PO updated = baseMapper.selectById(id);
+        return converter.poToVo(updated);
     }
 
     @Override

@@ -35,6 +35,7 @@ public interface FailedMessages {
     String WORKER_DELETE_BATCH_ERROR = "【工人操作失败】批量删除工人信息失败，请稍后重试！";
     String WORKER_UPDATE_ERROR = "【工人操作失败】更新工人信息失败，请稍后重试！";
     String WORKER_NOT_EXIST = "【参数校验失败】工人信息不存在，请确认工人ID是否正确！";
+    String WORKER_NOT_EXIST_BY_CODE = "【参数校验失败】工人信息不存在，请确认工人工号是否正确！";
     String WORKER_NOT_EXIST_WITH_PARAM = "【参数校验失败】工人信息不存在，ID：%s！";
     String WORKER_NOT_EXIST_BATCH = "【工人操作失败】批量删除工人失败，请校验ID合法性！";
     String WORKER_CODE_DUPLICATE = "【参数校验失败】工号重复：%s，请更换工号！";

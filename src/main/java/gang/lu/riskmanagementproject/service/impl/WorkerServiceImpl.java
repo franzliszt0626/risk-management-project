@@ -205,7 +205,7 @@ public class WorkerServiceImpl
 
         Worker worker = getWorkerByCodeWithOutVerify(workerCode);
         if (ObjectUtil.isNull(worker)) {
-            throw new BizException(HttpStatus.NOT_FOUND, WORKER_NOT_EXIST);
+            throw new BizException(HttpStatus.NOT_FOUND, WORKER_NOT_EXIST_BY_CODE);
         }
 
         return converter.poToVo(worker);
