@@ -5,6 +5,7 @@ package gang.lu.riskmanagementproject.domain.po;
 import com.baomidou.mybatisplus.annotation.*;
 import gang.lu.riskmanagementproject.domain.enums.AlertLevel;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.time.LocalDateTime;
@@ -16,13 +17,11 @@ import java.time.LocalDateTime;
  * @date 2026/1/31 15:30
  * @description 警报报告
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
 @TableName("t_alert_record")
-public class AlertRecord implements BasePO {
-
-    @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
+public class AlertRecord extends BasePO {
 
     private Long workerId;
 

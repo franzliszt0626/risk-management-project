@@ -98,15 +98,24 @@ public class StatisticalUtil {
      * 获取时间段描述（从RiskIndicatorImpl中抽取）
      */
     public static String getPeriodDesc(Integer period) {
-        return switch (period) {
-            case 0 -> "00:00-04:00";
-            case 4 -> "04:00-08:00";
-            case 8 -> "08:00-12:00";
-            case 12 -> "12:00-16:00";
-            case 16 -> "16:00-20:00";
-            case 20 -> "20:00-24:00";
-            default -> "未知时间段";
-        };
+        if (period == null) {
+            return "未知时间段";
+        }
+        switch (period) {
+            case 0:
+                return "00:00-04:00";
+            case 4:
+                return "04:00-08:00";
+            case 8:
+                return "08:00-12:00";
+            case 12:
+                return "12:00-16:00";
+            case 16:
+                return "16:00-20:00";
+            case 20:
+                return "20:00-24:00";
+            default:
+                return "未知时间段";
+        }
     }
-
 }

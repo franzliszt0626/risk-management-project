@@ -22,7 +22,7 @@ public @interface ValidId {
 
     String bizName() default "ID";
 
-    String message() default "无效的{bizName}，请传入正整数！";
+    String message() default "【参数校验失败】无效的{bizName}，请传入正整数！";
 
     Class<?>[] groups() default {};
 

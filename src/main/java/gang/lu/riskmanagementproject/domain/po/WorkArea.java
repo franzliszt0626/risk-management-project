@@ -4,6 +4,7 @@ package gang.lu.riskmanagementproject.domain.po;
 import com.baomidou.mybatisplus.annotation.*;
 import gang.lu.riskmanagementproject.domain.enums.AreaRiskLevel;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.time.LocalDateTime;
@@ -15,13 +16,12 @@ import java.time.LocalDateTime;
  * @date 2026/1/31 15:29
  * @description 工作地点
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
 @TableName("t_work_area")
-public class WorkArea implements BasePO {
+public class WorkArea extends BasePO {
 
-    @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
 
     private String areaCode;
 

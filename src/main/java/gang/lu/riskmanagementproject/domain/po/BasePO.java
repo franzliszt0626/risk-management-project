@@ -1,5 +1,9 @@
 package gang.lu.riskmanagementproject.domain.po;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import lombok.Data;
+
 import java.io.Serializable;
 
 /**
@@ -8,19 +12,11 @@ import java.io.Serializable;
  * @date 2026/2/13 00:06
  * @description PO通用接口
  */
-public interface BasePO extends Serializable {
+@Data
+public abstract class BasePO implements Serializable {
     /**
-     * 设置主键ID（适配链式调用）
-     *
-     * @param id 主键
-     * @return 当前PO对象
+     * 主键ID
      */
-    <T extends BasePO> T setId(Long id);
-
-    /**
-     * 获取主键ID
-     *
-     * @return 获取id
-     */
-    Long getId();
+    @TableId(value = "id", type = IdType.AUTO)
+    private Long id;
 }

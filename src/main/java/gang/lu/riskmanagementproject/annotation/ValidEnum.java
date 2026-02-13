@@ -30,7 +30,7 @@ public @interface ValidEnum {
 
     boolean allowBlank() default true;
 
-    String message() default "无效的{bizName}（当前值：{currentValue}）！允许值为：{enumValues}";
+    String message() default "【参数校验失败】无效的{bizName}（当前值：{currentValue}）！允许值为：{enumValues}";
 
     Class<?>[] groups() default {};
 

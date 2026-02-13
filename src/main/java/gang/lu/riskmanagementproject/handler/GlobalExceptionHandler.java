@@ -41,7 +41,6 @@ public class GlobalExceptionHandler {
     // ======================== 常量定义 ========================
 
     private static final String PROBLEM = "problem: ";
-    private static final String PARAM_VERIFY_PREFIX = "【参数校验失败】";
     private static final String PARAM_TYPE_ERROR_TEMPLATE = "参数【%s】格式错误，请传入有效的%s类型值（当前值：%s）";
 
     // ======================== 私有工具方法 ========================
@@ -56,16 +55,10 @@ public class GlobalExceptionHandler {
         if (fieldErrors == null || fieldErrors.isEmpty()) {
             return COMMON_PARAM_VERIFY_ERROR;
         }
-
-        StringBuilder sb = new StringBuilder(PARAM_VERIFY_PREFIX);
-        for (int i = 0; i < fieldErrors.size(); i++) {
-            FieldError error = fieldErrors.get(i);
-            sb.append(error.getDefaultMessage());
-            if (i < fieldErrors.size() - 1) {
-                sb.append("；");
-            }
-        }
-        return sb.toString();
+        // 只取第一个错误，不再拼接所有错误
+        FieldError firstError = fieldErrors.get(0);
+        // 拼接统一前缀 + 第一个错误的具体信息
+        return firstError.getDefaultMessage();
     }
 
     /**

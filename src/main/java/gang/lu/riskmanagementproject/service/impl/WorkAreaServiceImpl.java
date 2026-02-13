@@ -122,7 +122,7 @@ public class WorkAreaServiceImpl
         generalValidator.validateStringNotBlank(areaName, BusinessConstants.WORK_AREA_NAME, ADD_WORK_AREA);
 
         if (lambdaQuery().eq(WorkArea::getAreaCode, areaCode).exists()) {
-            throw new BizException(HttpStatus.CONFLICT, String.format(WORK_AREA_CODE_DUPLICATE, ADD_WORK_AREA));
+            throw new BizException(HttpStatus.CONFLICT, String.format(WORK_AREA_CODE_DUPLICATE, dto.getAreaCode()));
         }
     }
 

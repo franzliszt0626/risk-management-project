@@ -87,7 +87,8 @@ public class GeneralValidator {
             Set<Long> existIds = existList.stream()
                     .map(item -> (Long) ReflectUtil.getFieldValue(item, ID))
                     .collect(Collectors.toSet());
-            List<Long> notExistIds = ids.stream().filter(id -> !existIds.contains(id)).toList();
+            List<Long> notExistIds = ids.stream().filter(id -> !existIds.contains(id))
+                    .collect(Collectors.toList());
             throw new BizException(HttpStatus.NOT_FOUND, String.format(notExistMsg, notExistIds));
         }
     }

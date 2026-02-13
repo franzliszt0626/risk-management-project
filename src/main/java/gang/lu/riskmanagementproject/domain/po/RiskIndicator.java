@@ -4,6 +4,7 @@ package gang.lu.riskmanagementproject.domain.po;
 import com.baomidou.mybatisplus.annotation.*;
 import gang.lu.riskmanagementproject.domain.enums.RiskLevel;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.time.LocalDateTime;
@@ -14,16 +15,12 @@ import java.time.LocalDateTime;
  * @date 2026/1/31 15:19
  * @description 风险指标类
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
 @TableName("t_risk_indicator")
-public class RiskIndicator implements BasePO{
+public class RiskIndicator extends BasePO {
 
-    /**
-     * 主键
-     */
-    @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
 
     /**
      * 对应的工人表中的id

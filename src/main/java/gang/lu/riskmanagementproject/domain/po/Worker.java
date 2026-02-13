@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import gang.lu.riskmanagementproject.domain.enums.Status;
 import gang.lu.riskmanagementproject.domain.enums.WorkType;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.time.LocalDateTime;
@@ -14,16 +15,11 @@ import java.time.LocalDateTime;
  * @date 2026/1/31 15:07
  * @description 工人信息实体
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
 @TableName("t_worker")
-public class Worker implements BasePO {
-
-    /**
-     * 主键，工人id，默认自增长
-     */
-    @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
+public class Worker extends BasePO {
 
     /**
      * 工人工号，唯一标识
