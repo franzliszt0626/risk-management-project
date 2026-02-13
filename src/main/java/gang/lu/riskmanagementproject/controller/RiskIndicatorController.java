@@ -21,16 +21,20 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import java.time.LocalDate;
+import java.util.List;
 
+import static gang.lu.riskmanagementproject.common.FailedMessages.RISK_INDICATOR_ID_LIST_EMPTY;
 import static gang.lu.riskmanagementproject.common.SuccessMessages.*;
 
-
 /**
+ * <p>
+ * 风险指标表 前端控制器
+ * </p>
+ *
  * @author Franz Liszt
- * @version 1.0
- * @date 2026-02-01 11:08:10
- * @description 风险指标管理，存储用户实时风险指标
+ * @since 2026-02-01
  */
 @RestController
 @RequestMapping("/api/risk-indicator")
@@ -41,63 +45,95 @@ public class RiskIndicatorController {
 
     private final RiskIndicatorService riskIndicatorService;
 
+    // ======================== 通用CRUD接口 ========================
 
-    @PostMapping("/search")
-    @ApiOperation("多条件组合分页查询风险指标（支持工人ID/风险等级/时间区间等筛选）")
-    @ApiImplicitParam(name = "queryDTO", value = "风险指标查询条件（含分页）", required = true, dataType = "RiskIndicatorQueryDTO", paramType = "body")
-    public Result<PageVO<RiskIndicatorVO>> searchRiskIndicators(@Valid @RequestBody RiskIndicatorQueryDTO queryDTO) {
-        PageHelper.bindGlobalDefaultRule(queryDTO);
-        PageVO<RiskIndicatorVO> pageVO = riskIndicatorService.searchRiskIndicators(queryDTO);
-        return Result.ok(String.format(RISK_INDICATOR_GET_HISTORY_SUCCESS, pageVO.getTotal()), pageVO);
-    }
-
-
-    /**
-     * 这个接口用于前端接受算法返回的参数后，调用本接口插入风险指标数据
-     *
-     * @param riskIndicatorDTO 前端传来的数据传输实体
-     * @return void
-     */
+    @ApiOperation("新增风险指标")
     @PostMapping
-    @ApiOperation("插入风险指标信息，接受前端调用，接受算法数据")
-    @ApiImplicitParam(name = "riskIndicatorDTO", value = "风险指标数据", required = true, dataType = "RiskIndicatorDTO", paramType = "body")
-    public Result<RiskIndicatorVO> addRiskIndicator(@Valid @RequestBody RiskIndicatorDTO riskIndicatorDTO) {
-        RiskIndicatorVO riskIndicatorVO = riskIndicatorService.addRiskIndicator(riskIndicatorDTO);
-        return Result.ok(RISK_INDICATOR_ADD_SUCCESS, riskIndicatorVO);
+    public Result<RiskIndicatorVO> addRiskIndicator(
+            @ApiParam("风险指标新增数据")
+            @Valid @RequestBody RiskIndicatorDTO dto) {
+        RiskIndicatorVO vo = riskIndicatorService.add(dto);
+        return Result.ok(RISK_INDICATOR_ADD_SUCCESS, vo);
     }
 
-    @GetMapping("/latest/{workerId}")
-    @ApiOperation("根据工人id查询他【最新一次】的风险指标")
+    @ApiOperation("删除风险指标")
+    @DeleteMapping("/{id}")
+    public Result<Void> deleteRiskIndicator(
+            @ApiParam("风险指标ID")
+            @PathVariable
+            @ValidId(bizName = BusinessConstants.RISK_INDICATOR_ID) Long id) {
+        riskIndicatorService.delete(id);
+        return Result.ok(RISK_INDICATOR_DELETE_SUCCESS);
+    }
+
+    @ApiOperation("批量删除风险指标")
+    @DeleteMapping("/batch")
+    public Result<Void> batchDeleteRiskIndicator(
+            @ApiParam("风险指标ID列表")
+            @RequestBody
+            @NotEmpty(message = RISK_INDICATOR_ID_LIST_EMPTY) List<Long> ids) {
+        riskIndicatorService.batchDelete(ids);
+        return Result.ok(RISK_INDICATOR_BATCH_DELETE_SUCCESS);
+    }
+
+    @ApiOperation("修改风险指标")
+    @PutMapping("/{id}")
+    public Result<RiskIndicatorVO> updateRiskIndicator(
+            @ApiParam("风险指标ID")
+            @PathVariable
+            @ValidId(bizName = BusinessConstants.RISK_INDICATOR_ID) Long id,
+            @ApiParam("风险指标修改数据")
+            @Valid @RequestBody RiskIndicatorDTO dto) {
+        RiskIndicatorVO vo = riskIndicatorService.update(id, dto);
+        return Result.ok(RISK_INDICATOR_UPDATE_SUCCESS, vo);
+    }
+
+    @ApiOperation("根据ID查询风险指标")
+    @GetMapping("/{id}")
+    public Result<RiskIndicatorVO> getRiskIndicatorById(
+            @ApiParam("风险指标ID")
+            @PathVariable
+            @ValidId(bizName = BusinessConstants.RISK_INDICATOR_ID) Long id) {
+        RiskIndicatorVO vo = riskIndicatorService.getOneById(id);
+        return Result.ok(RISK_INDICATOR_GET_SUCCESS, vo);
+    }
+
+    @ApiOperation("多条件组合分页查询风险指标")
+    @ApiImplicitParam(name = "queryDTO", value = "风险指标查询条件（含分页）", required = true, dataType = "RiskIndicatorQueryDTO", paramType = "body")
+    @PostMapping("/search")
+    public Result<PageVO<RiskIndicatorVO>> searchRiskIndicators(
+            @Valid @RequestBody RiskIndicatorQueryDTO queryDTO) {
+        PageHelper.bindGlobalDefaultRule(queryDTO);
+        PageVO<RiskIndicatorVO> pageVO = riskIndicatorService.search(queryDTO);
+        return Result.ok(RISK_INDICATOR_GET_HISTORY_SUCCESS, pageVO);
+    }
+
+    // ======================== 个性化业务接口 ========================
+
+    @ApiOperation("根据工人ID查询最新风险指标")
     @ApiImplicitParam(name = "workerId", value = "工人ID", required = true, dataType = "Long", paramType = "path")
+    @GetMapping("/latest/{workerId}")
     public Result<RiskIndicatorVO> getLatestRiskIndicatorByWorkerId(
+            @ApiParam("工人ID")
             @PathVariable
             @ValidId(bizName = BusinessConstants.WORKER_ID) Long workerId) {
         RiskIndicatorVO vo = riskIndicatorService.getLatestRiskIndicatorByWorkerId(workerId);
         return Result.ok(RISK_INDICATOR_GET_LATEST_SUCCESS, vo);
     }
 
-    /**
-     * 统计去重工人的风险等级人数分布
-     */
-    @GetMapping("/count/risk-level")
     @ApiOperation("统计不重复工人的风险等级人数分布")
+    @GetMapping("/count/risk-level")
     public Result<RiskLevelCountVO> countDistinctWorkerByRiskLevel() {
         RiskLevelCountVO countVO = riskIndicatorService.countDistinctWorkerByRiskLevel();
         return Result.ok(RISK_INDICATOR_STATISTIC_RISK_LEVEL_COUNT_SUCCESS, countVO);
     }
 
-    /**
-     * 统计当日各4小时时间段高风险工人数
-     *
-     * @param statDate 统计日期（格式：yyyy-MM-dd，不传则默认当天）
-     */
+    @ApiOperation("统计当日4小时时间段高风险工人数")
     @GetMapping("/count/time-period")
-    @ApiOperation("统计当日4小时时间段高风险工人数（中+高+严重风险）")
     public Result<RiskTimePeriodCountVO> countHighRiskWorkerByTimePeriod(
             @ApiParam(value = "统计日期（yyyy-MM-dd），默认当天", example = "2026-02-01")
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate statDate) {
         RiskTimePeriodCountVO countVO = riskIndicatorService.countHighRiskWorkerByTimePeriod(statDate);
         return Result.ok(RISK_INDICATOR_STATISTIC_HIGH_RISK_COUNT_SUCCESS, countVO);
     }
-
 }

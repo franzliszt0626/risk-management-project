@@ -8,7 +8,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.hibernate.validator.constraints.Length;
 
 import java.time.LocalDateTime;
 
@@ -27,7 +26,6 @@ public class AlertRecordQueryDTO extends PageQueryDTO {
     private Long workerId;
 
     @ApiModelProperty(value = "预警类型（模糊查询）", example = "心率异常")
-    @Length(max = 50, message = "预警类型长度不能超过50个字符")
     private String alertType;
 
     @ApiModelProperty(value = "预警级别（警告/严重）", example = "警告")
@@ -38,7 +36,6 @@ public class AlertRecordQueryDTO extends PageQueryDTO {
     private Boolean isHandled;
 
     @ApiModelProperty(value = "处理人（模糊查询）", example = "张三")
-    @Length(max = 20, message = "处理人长度不能超过20个字符")
     private String handledBy;
 
     @ApiModelProperty(value = "创建时间开始（格式：yyyy-MM-dd HH:mm:ss）", example = "2026-02-01 00:00:00")

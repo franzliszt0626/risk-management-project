@@ -4,6 +4,9 @@ import cn.hutool.core.util.ObjectUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Franz Liszt
  * @version 1.0
@@ -33,5 +36,20 @@ public class BasicUtil {
         return value.intValue();
     }
 
-
+    /**
+     * 安全转换Iterable<Long>为List<Long>
+     */
+    public static List<Long> safeConvertToList(Iterable<Long> ids) {
+        List<Long> idList = new ArrayList<>();
+        if (ids == null) {
+            return idList;
+        }
+        // 遍历Iterable，逐个添加Long类型元素
+        for (Long id : ids) {
+            if (ObjectUtil.isNotNull(id)) {
+                idList.add(id);
+            }
+        }
+        return idList;
+    }
 }

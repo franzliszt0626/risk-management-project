@@ -36,7 +36,7 @@ public class GeneralValidator {
     public void validateStringNotBlank(String value, String fieldName, String businessScene) {
         if (StrUtil.isBlank(value)) {
             throw new BizException(HttpStatus.BAD_REQUEST,
-                    String.format(COMMON_PARAM_EMPTY_ERROR, businessScene, fieldName));
+                    String.format(COMMON_PARAM_EMPTY_ERROR, fieldName));
         }
     }
 
@@ -47,7 +47,7 @@ public class GeneralValidator {
     public <E> void validateEnumNotNull(E enumValue, String enumName, String businessScene) {
         if (ObjectUtil.isNull(enumValue)) {
             throw new BizException(HttpStatus.BAD_REQUEST,
-                    String.format(COMMON_PARAM_EMPTY_ERROR, businessScene, enumName));
+                    String.format(COMMON_PARAM_EMPTY_ERROR, enumName));
         }
     }
 
@@ -61,13 +61,26 @@ public class GeneralValidator {
     }
 
     /**
+     * 通用数据库操作结果校验（批量操作）
+     *
+     * @param rows          影响行数
+     * @param expectMinRows 期望最小行数（一般传批量操作的ID数量）
+     */
+    public void validateBatchDbOperateResult(int rows, int expectMinRows) {
+        // 批量操作允许影响行数 < 期望数（比如部分ID不存在），但不能为0
+        if (rows <= 0) {
+            throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR, COMMON_DATABASE_ERROR);
+        }
+    }
+
+    /**
      * 通用批量ID存在性校验（抽取共性，所有业务复用）
      */
     @ValidateLog(value = VALIDATE_BATCH_ID_EXIST, logLevel = ValidateLog.LogLevel.WARN)
     public <T> void validateBatchIdsExist(List<Long> ids, BaseMapper<T> mapper, String notExistMsg) {
         if (CollUtil.isEmpty(ids)) {
             throw new BizException(HttpStatus.BAD_REQUEST,
-                    String.format(COMMON_PARAM_EMPTY_ERROR, BATCH_OPERATE, ID_LIST));
+                    String.format(COMMON_PARAM_EMPTY_ERROR, ID_LIST));
         }
         List<T> existList = mapper.selectBatchIds(ids);
         if (existList.size() != ids.size()) {
@@ -99,4 +112,22 @@ public class GeneralValidator {
             throw new BizException(HttpStatus.BAD_REQUEST, COMMON_TIME_INVALID_ERROR);
         }
     }
+
+    /**
+     * 通用的 最小值 ≤ 最大值 校验方法（适配Integer/Double）
+     *
+     * @param min    最小值
+     * @param max    最大值
+     * @param bizKey 哪个字段
+     */
+    public <T extends Comparable<T>> void validateMinMaxRange(T min, T max, String bizKey) {
+        // 只有当最小值和最大值都不为空时，才需要校验大小关系
+        if (ObjectUtil.isNotNull(min) && ObjectUtil.isNotNull(max)) {
+            if (min.compareTo(max) > 0) {
+                throw new BizException(HttpStatus.BAD_REQUEST,
+                        String.format(COMMON_MIN_MAX_INVALID_ERROR, bizKey));
+            }
+        }
+    }
+
 }

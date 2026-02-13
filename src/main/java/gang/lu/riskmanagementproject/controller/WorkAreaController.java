@@ -8,20 +8,22 @@ import gang.lu.riskmanagementproject.domain.dto.query.WorkAreaQueryDTO;
 import gang.lu.riskmanagementproject.domain.vo.normal.PageVO;
 import gang.lu.riskmanagementproject.domain.vo.normal.WorkAreaVO;
 import gang.lu.riskmanagementproject.domain.vo.statistical.area.WorkAreaRiskCountVO;
-import gang.lu.riskmanagementproject.service.WorkAreaService;
 import gang.lu.riskmanagementproject.helper.PageHelper;
+import gang.lu.riskmanagementproject.service.WorkAreaService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
+import static gang.lu.riskmanagementproject.common.FailedMessages.*;
 import static gang.lu.riskmanagementproject.common.SuccessMessages.*;
 
 /**
@@ -34,99 +36,93 @@ import static gang.lu.riskmanagementproject.common.SuccessMessages.*;
  */
 @RestController
 @RequestMapping("/api/work-area")
-@RequiredArgsConstructor
 @Api(tags = "工作区域管理 API")
+@RequiredArgsConstructor
 @Validated
 public class WorkAreaController {
 
     private final WorkAreaService workAreaService;
 
-    /**
-     * 新增工作区域
-     */
-    @PostMapping
+    // ======================== 通用CRUD接口 ========================
+
     @ApiOperation("新增工作区域")
-    @ApiImplicitParam(name = "dto", value = "工作区域数据", required = true, dataType = "WorkAreaDTO", paramType = "body")
-    public Result<Boolean> addWorkArea(@Valid @RequestBody WorkAreaDTO dto) {
-        boolean result = workAreaService.addWorkArea(dto);
-        return Result.ok(WORK_AREA_ADD_SUCCESS, result);
-    }
-
-    /**
-     * 删除工作区域（按ID）
-     */
-    @DeleteMapping("/{id}")
-    @ApiOperation("删除工作区域")
-    @ApiImplicitParam(name = "id", value = "工作区域ID", required = true, dataType = "Long", paramType = "path", example = "1")
-    public Result<Boolean> deleteWorkArea(@PathVariable
-                                          @ValidId(bizName = BusinessConstants.WORK_AREA_ID) Long id) {
-        boolean result = workAreaService.deleteWorkArea(id);
-        return Result.ok(WORK_AREA_DELETE_SUCCESS, result);
-    }
-
-    /**
-     * 修改工作区域
-     */
-    @PutMapping("/{id}")
-    @ApiOperation("修改工作区域")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "工作区域ID", required = true, dataType = "Long", paramType = "path", example = "1"),
-            @ApiImplicitParam(name = "dto", value = "工作区域更新数据", required = true, dataType = "WorkAreaDTO", paramType = "body")
-    })
-    public Result<Boolean> updateWorkArea(
-            @PathVariable
-            @ValidId(bizName = BusinessConstants.WORK_AREA_ID) Long id,
+    @PostMapping
+    public Result<WorkAreaVO> addWorkArea(
+            @ApiParam("工作区域新增数据")
             @Valid @RequestBody WorkAreaDTO dto) {
-        boolean result = workAreaService.updateWorkArea(id, dto);
-        return Result.ok(WORK_AREA_UPDATE_SUCCESS, result);
+        WorkAreaVO vo = workAreaService.add(dto);
+        return Result.ok(WORK_AREA_ADD_SUCCESS, vo);
     }
 
-    /**
-     * 按ID查询工作区域
-     */
-    @GetMapping("/{id}")
-    @ApiOperation("按ID查询工作区域")
-    @ApiImplicitParam(name = "id", value = "工作区域ID", required = true, dataType = "Long", paramType = "path", example = "1")
-    public Result<WorkAreaVO> getWorkAreaById(
+    @ApiOperation("删除工作区域")
+    @DeleteMapping("/{id}")
+    public Result<Void> deleteWorkArea(
+            @ApiParam("工作区域ID")
             @PathVariable
             @ValidId(bizName = BusinessConstants.WORK_AREA_ID) Long id) {
-        WorkAreaVO vo = workAreaService.getWorkAreaById(id);
+        workAreaService.delete(id);
+        return Result.ok(WORK_AREA_DELETE_SUCCESS);
+    }
+
+    @ApiOperation("批量删除工作区域")
+    @DeleteMapping("/batch")
+    public Result<Void> batchDeleteWorkArea(
+            @ApiParam("工作区域ID列表")
+            @RequestBody
+            @NotEmpty(message = WORK_AREA_DELETE_BATCH_ID_EMPTY) List<Long> ids) {
+        workAreaService.batchDelete(ids);
+        return Result.ok(WORK_AREA_DELETE_BATCH_SUCCESS);
+    }
+
+    @ApiOperation("修改工作区域")
+    @PutMapping("/{id}")
+    public Result<WorkAreaVO> updateWorkArea(
+            @ApiParam("工作区域ID")
+            @PathVariable
+            @ValidId(bizName = BusinessConstants.WORK_AREA_ID) Long id,
+            @ApiParam("工作区域修改数据")
+            @Valid @RequestBody WorkAreaDTO dto) {
+        WorkAreaVO vo = workAreaService.update(id, dto);
+        return Result.ok(WORK_AREA_UPDATE_SUCCESS, vo);
+    }
+
+    @ApiOperation("根据ID查询工作区域")
+    @GetMapping("/{id}")
+    public Result<WorkAreaVO> getWorkAreaById(
+            @ApiParam("工作区域ID")
+            @PathVariable
+            @ValidId(bizName = BusinessConstants.WORK_AREA_ID) Long id) {
+        WorkAreaVO vo = workAreaService.getOneById(id);
         return Result.ok(WORK_AREA_GET_SUCCESS, vo);
     }
 
-    /**
-     * 按区域编码查询工作区域
-     */
-    @GetMapping("/code/{areaCode}")
-    @ApiOperation("按区域编码查询工作区域")
+    @ApiOperation("多条件组合分页查询工作区域")
+    @ApiImplicitParam(name = "queryDTO", value = "工作区域查询条件（含分页）", required = true, dataType = "WorkAreaQueryDTO", paramType = "body")
+    @PostMapping("/search")
+    public Result<PageVO<WorkAreaVO>> searchWorkAreas(
+            @Valid @RequestBody WorkAreaQueryDTO queryDTO) {
+        PageHelper.bindGlobalDefaultRule(queryDTO);
+        PageVO<WorkAreaVO> pageVO = workAreaService.search(queryDTO);
+        return Result.ok(WORK_AREA_GET_ALL_BY_PAGE_CONDITIONAL_SUCCESS, pageVO);
+    }
+
+    // ======================== 个性化业务接口 ========================
+
+    @ApiOperation("根据区域编码查询工作区域")
     @ApiImplicitParam(name = "areaCode", value = "区域编码", required = true, dataType = "String", paramType = "path", example = "AREA_001")
+    @GetMapping("/code/{areaCode}")
     public Result<List<WorkAreaVO>> getWorkAreaByCode(
+            @ApiParam("区域编码")
             @PathVariable
-            @NotBlank(message = "区域编码不能为空") String areaCode) {
+            @NotBlank(message = WORK_AREA_CODE_EMPTY) String areaCode) {
         List<WorkAreaVO> areas = workAreaService.getWorkAreaByCode(areaCode);
         return Result.ok(String.format(WORK_AREA_GET_BY_CODE_SUCCESS, areas.size()), areas);
     }
 
-    /**
-     * 多条件分页查询工作区域
-     */
-    @PostMapping("/search")
-    @ApiOperation("多条件组合分页查询工作区域（支持ID/编码/名称/风险等级等筛选）")
-    @ApiImplicitParam(name = "queryDTO", value = "工作区域查询条件（含分页）", required = true, dataType = "WorkAreaQueryDTO", paramType = "body")
-    public Result<PageVO<WorkAreaVO>> searchWorkAreas(@Valid @RequestBody WorkAreaQueryDTO queryDTO) {
-        PageHelper.bindGlobalDefaultRule(queryDTO);
-        PageVO<WorkAreaVO> pageVO = workAreaService.searchWorkAreas(queryDTO);
-        return Result.ok(WORK_AREA_GET_ALL_BY_PAGE_CONDITIONAL_SUCCESS, pageVO);
-    }
-
-    /**
-     * 按风险等级统计工作区域数量
-     */
-    @GetMapping("/count/risk-level")
     @ApiOperation("按风险等级统计工作区域数量")
+    @GetMapping("/count/risk-level")
     public Result<WorkAreaRiskCountVO> countWorkAreaByRiskLevel() {
         WorkAreaRiskCountVO countVO = workAreaService.countWorkAreaByRiskLevel();
         return Result.ok(WORK_AREA_STATISTIC_RISK_LEVEL_COUNT_SUCCESS, countVO);
     }
-
 }

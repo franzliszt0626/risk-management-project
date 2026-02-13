@@ -19,43 +19,8 @@ import java.util.List;
  * @author Franz Liszt
  * @since 2026-01-31
  */
-public interface WorkerService extends IService<Worker> {
+public interface WorkerService extends BaseCrudService<Worker, WorkerDTO, WorkerVO, WorkerQueryDTO> {
 
-    /**
-     * 组合条件分页查询工人
-     * @param workerQueryDTO 查询数据传输实体（继承PageQueryDTO）
-     * @return 分页结果VO
-     */
-    PageVO<WorkerVO> searchWorkers(WorkerQueryDTO workerQueryDTO);
-
-    /**
-     * 创建工人
-     *
-     * @param dto 工人DTO
-     */
-    void createWorker(WorkerDTO dto);
-
-    /**
-     * 根据ID删除工人
-     *
-     * @param id 工人id
-     */
-    void deleteWorker(Long id);
-
-    /**
-     * 更新工人信息
-     *
-     * @param dto 工人DTO
-     * @param id  工人id
-     */
-    void updateWorker(Long id, WorkerDTO dto);
-
-    /**
-     * 根据ID查询（返回VO）
-     * @param id  工人id
-     * @return WorkerVO
-     */
-    WorkerVO getWorkerById(Long id);
 
     /**
      * 根据工号查询（精确）
@@ -63,7 +28,6 @@ public interface WorkerService extends IService<Worker> {
      * @return WorkerVO
      */
     WorkerVO getWorkerByCode(String workerCode);
-
 
 
     /**
@@ -78,13 +42,6 @@ public interface WorkerService extends IService<Worker> {
      * @return 状态统计结果VO
      */
     WorkerTypeCountVO countWorkerByWorkType();
-
-    /**
-     * 批量删除工人
-     * @param ids id们
-     */
-    void batchDeleteWorkers(List<Long> ids);
-
 
 
 }

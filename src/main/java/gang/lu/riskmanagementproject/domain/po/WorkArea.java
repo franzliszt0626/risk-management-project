@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @Data
 @Accessors(chain = true)
 @TableName("t_work_area")
-public class WorkArea {
+public class WorkArea implements BasePO {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;

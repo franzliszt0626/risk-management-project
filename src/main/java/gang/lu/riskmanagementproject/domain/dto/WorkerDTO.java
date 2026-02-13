@@ -12,6 +12,8 @@ import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.*;
 
+import static gang.lu.riskmanagementproject.common.FailedMessages.*;
+
 /**
  * @author Franz Liszt
  * @date 2026-02-09 21:07:12
@@ -22,22 +24,22 @@ import javax.validation.constraints.*;
 @ApiModel(description = "工人信息 - 传输对象")
 public class WorkerDTO {
     @ApiModelProperty(value = "工号", required = true, example = "W1001")
-    @NotBlank(message = "工号不能为空")
-    @Length(max = 100, message = "工号长度不能超过100个字符")
+    @NotBlank(message = WORKER_CODE_EMPTY)
+    @Length(max = 100, message = WORKER_CODE_INVALID)
     private String workerCode;
 
     @ApiModelProperty(value = "姓名", required = true, example = "张三")
-    @NotBlank(message = "姓名不能为空")
-    @Length(max = 50, message = "姓名长度不能超过50个字符")
+    @NotBlank(message = WORKER_NAME_EMPTY)
+    @Length(max = 50, message = WORKER_NAME_INVALID)
     private String name;
 
     @ApiModelProperty(value = "岗位", example = "焊工")
-    @Length(max = 100, message = "岗位长度不能超过100个字符")
+    @Length(max = 100, message = WORKER_POSITION_INVALID)
     private String position;
 
     @ApiModelProperty(value = "工龄（年）", example = "8")
-    @PositiveOrZero(message = "工龄不能为负数")
-    @Max(value = 100, message = "工龄不能超过100年")
+    @PositiveOrZero(message = WORKER_YEAR_NEGATIVE_INVALID)
+    @Max(value = 100, message = WORKER_YEAR_INVALID)
     private Integer workYears;
 
     @ApiModelProperty(value = "工作种类", example = "高空作业")

@@ -10,6 +10,9 @@ import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.Min;
 
+import static gang.lu.riskmanagementproject.common.FailedMessages.PAGE_NUMBER_INVALID;
+import static gang.lu.riskmanagementproject.common.FailedMessages.PAGE_SIZE_INVALID;
+
 /**
  * @author Franz Liszt
  * @version 1.0
@@ -36,11 +39,11 @@ public class PageQueryDTO {
     public static final Integer DEFAULT_MAX_PAGE_SIZE = PageConfig.MAX_SIZE;
 
     @ApiModelProperty(value = "页码（默认1）", example = "1")
-    @Min(value = 1, message = "页码不能小于1")
+    @Min(value = 1, message = PAGE_NUMBER_INVALID)
     private Integer pageNum;
 
     @ApiModelProperty(value = "每页条数", example = "10")
-    @Range(min = 1, max = Integer.MAX_VALUE, message = "每页条数需在1-{max}之间")
+    @Range(min = 1, max = 100, message = PAGE_SIZE_INVALID)
     private Integer pageSize;
 }
 

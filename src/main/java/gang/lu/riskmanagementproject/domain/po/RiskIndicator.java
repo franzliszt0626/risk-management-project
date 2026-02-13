@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @Data
 @Accessors(chain = true)
 @TableName("t_risk_indicator")
-public class RiskIndicator {
+public class RiskIndicator implements BasePO{
 
     /**
      * 主键

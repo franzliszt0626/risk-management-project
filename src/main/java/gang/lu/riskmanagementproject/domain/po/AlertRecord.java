@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 @Data
 @Accessors(chain = true)
 @TableName("t_alert_record")
-public class AlertRecord {
+public class AlertRecord implements BasePO {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;

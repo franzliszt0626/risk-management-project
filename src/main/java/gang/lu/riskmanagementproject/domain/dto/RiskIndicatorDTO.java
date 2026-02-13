@@ -3,6 +3,7 @@ package gang.lu.riskmanagementproject.domain.dto;
 import gang.lu.riskmanagementproject.annotation.ValidEnum;
 import gang.lu.riskmanagementproject.annotation.ValidId;
 import gang.lu.riskmanagementproject.common.BusinessConstants;
+import gang.lu.riskmanagementproject.config.MedicalConfig;
 import gang.lu.riskmanagementproject.domain.enums.RiskLevel;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -10,6 +11,8 @@ import lombok.Data;
 import org.hibernate.validator.constraints.Range;
 
 import java.time.LocalDateTime;
+
+import static gang.lu.riskmanagementproject.common.FailedMessages.*;
 
 /**
  * @author Franz Liszt
@@ -25,15 +28,15 @@ public class RiskIndicatorDTO {
     private Long workerId;
 
     @ApiModelProperty(value = "心率 (bpm)", required = true, example = "98")
-    @Range(min = 1, max = 300, message = "心率值需在0-300bpm范围内")
+    @Range(min = MedicalConfig.DEFAULT_MIN_HEART_RATE, max = MedicalConfig.DEFAULT_MAX_HEART_RATE, message = RISK_HEART_RATE_INVALID)
     private Integer heartRate;
 
     @ApiModelProperty(value = "呼吸率（次/min）", required = true, example = "25")
-    @Range(min = 1, max = 60, message = "呼吸率值需在0-60次/min范围内")
+    @Range(min = MedicalConfig.DEFAULT_MIN_RESPIRATORY_RATE, max = MedicalConfig.DEFAULT_MAX_RESPIRATORY_RATE, message = RISK_RESPIRATORY_RATE_INVALID)
     private Integer respiratoryRate;
 
     @ApiModelProperty(value = "疲劳百分比 (%)", required = true, example = "78.5")
-    @Range(min = 0, max = 100, message = "疲劳百分比需在0-100%范围内")
+    @Range(min = MedicalConfig.DEFAULT_MIN_FATIGUE_PERCENT, max = MedicalConfig.DEFAULT_MAX_FATIGUE_PERCENT, message = RISK_FATIGUE_PERCENT_INVALID)
     private Double fatiguePercent;
 
     @ApiModelProperty(value = "当前风险等级", required = true)

@@ -12,6 +12,9 @@ import org.hibernate.validator.constraints.Length;
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
+import static gang.lu.riskmanagementproject.common.FailedMessages.ALERT_RECORD_MESSAGE_INVALID;
+import static gang.lu.riskmanagementproject.common.FailedMessages.ALERT_TYPE_EMPTY;
+
 /**
  * @author Franz Liszt
  * @version 1.0
@@ -26,7 +29,7 @@ public class AlertRecordDTO {
     private Long workerId;
 
     @ApiModelProperty(value = "预警类型", required = true, example = "心率异常")
-    @NotBlank(message = "预警类型不能为空")
+    @NotBlank(message = ALERT_TYPE_EMPTY)
     private String alertType;
 
     @ApiModelProperty(value = "预警级别", required = true, example = "警告")
@@ -34,7 +37,7 @@ public class AlertRecordDTO {
     private String alertLevelValue;
 
     @ApiModelProperty(value = "信息", example = "工人心率超过120次/分钟")
-    @Length(max = 200, message = "预警信息长度不能超过200个字符")
+    @Length(max = 200, message = ALERT_RECORD_MESSAGE_INVALID)
     private String message;
 
     @ApiModelProperty(value = "是否处理")

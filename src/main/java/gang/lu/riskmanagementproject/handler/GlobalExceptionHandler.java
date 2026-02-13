@@ -25,44 +25,41 @@ import java.util.stream.Collectors;
 import static gang.lu.riskmanagementproject.common.FailedMessages.*;
 
 /**
+ * <p>
+ * 全局异常处理器
+ * </p>
+ * 统一捕获并处理系统所有异常，返回标准化的Result格式响应，便于前端统一解析
+ * 异常处理优先级：自定义业务异常 > 框架校验异常 > 数据库异常 > 通用运行时异常 > 兜底异常
+ *
  * @author Franz Liszt
- * @version 1.0
- * @date 2026/1/31 16:55
- * @description 全局异常处理器
- * 统一处理系统各类异常，返回标准化Result格式，便于前端统一解析
+ * @since 2026-01-31
  */
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    // ======================== 常量定义 ========================
 
-    public static final String PROBLEM = "problem: ";
+    private static final String PROBLEM = "problem: ";
+    private static final String PARAM_VERIFY_PREFIX = "【参数校验失败】";
+    private static final String PARAM_TYPE_ERROR_TEMPLATE = "参数【%s】格式错误，请传入有效的%s类型值（当前值：%s）";
 
-    /**
-     * 处理@Validated（方法参数）的校验异常
-     */
-    @ExceptionHandler(ConstraintViolationException.class)
-    public Result<?> handleConstraintViolationException(ConstraintViolationException e) {
-        // 提取所有校验失败的提示信息，用分号分隔
-        Set<ConstraintViolation<?>> violations = e.getConstraintViolations();
-        String errorMsg = violations.stream()
-                .map(ConstraintViolation::getMessage)
-                .collect(Collectors.joining("；"));
-        log.warn("【Controller层方法参数校验异常】{}", errorMsg, e);
-        return Result.error(HttpStatus.BAD_REQUEST, errorMsg);
-    }
+    // ======================== 私有工具方法 ========================
 
     /**
-     * 提取字段校验异常的错误信息（优化：移除冗余前缀，只保留字段+自定义提示）
+     * 提取字段校验异常的错误信息（仅保留自定义提示，去除冗余前缀）
+     *
+     * @param fieldErrors 字段错误列表
+     * @return 拼接后的错误信息
      */
     private String extractFieldErrorMsg(List<FieldError> fieldErrors) {
         if (fieldErrors == null || fieldErrors.isEmpty()) {
             return COMMON_PARAM_VERIFY_ERROR;
         }
-        StringBuilder sb = new StringBuilder("【参数校验失败】");
+
+        StringBuilder sb = new StringBuilder(PARAM_VERIFY_PREFIX);
         for (int i = 0; i < fieldErrors.size(); i++) {
             FieldError error = fieldErrors.get(i);
-            // 只拼接：字段名 + 自定义提示信息（去掉前缀）
             sb.append(error.getDefaultMessage());
             if (i < fieldErrors.size() - 1) {
                 sb.append("；");
@@ -73,6 +70,9 @@ public class GlobalExceptionHandler {
 
     /**
      * 递归获取最底层的根异常（解耦，便于复用和测试）
+     *
+     * @param throwable 原始异常
+     * @return 根异常
      */
     private Throwable getRootCause(Throwable throwable) {
         if (throwable == null) {
@@ -82,57 +82,46 @@ public class GlobalExceptionHandler {
         return cause == null ? throwable : getRootCause(cause);
     }
 
-    // ======================== 自定义业务异常（优先级最高） ========================
+    // ======================== 1. 自定义业务异常（最高优先级） ========================
 
+    /**
+     * 处理自定义业务异常
+     */
     @ExceptionHandler(BizException.class)
     public Result<?> handleBizException(BizException e) {
         log.warn("【业务异常】{}", e.getMessage(), e);
         return Result.error(e.getStatus(), e.getMessage());
     }
 
+    /**
+     * 处理非法参数异常（如枚举转换失败、参数值不合法等）
+     */
     @ExceptionHandler(IllegalArgumentException.class)
     public Result<?> handleIllegalArgumentException(IllegalArgumentException e) {
         log.warn("【参数不合法】{}", e.getMessage(), e);
-        // 优先判断是否是枚举转换异常
-        if (e.getMessage().contains("不合法") && e.getMessage().contains("允许值")) {
-            return Result.error(HttpStatus.BAD_REQUEST, e.getMessage());
-        }
-        return Result.error(HttpStatus.BAD_REQUEST, "参数不合法：" + e.getMessage());
+        String errorMsg = e.getMessage().contains("不合法") && e.getMessage().contains("允许值")
+                ? e.getMessage()
+                : "参数不合法：" + e.getMessage();
+        return Result.error(HttpStatus.BAD_REQUEST, errorMsg);
     }
 
-    // ======================== 数据库相关异常 ========================
+    // ======================== 2. 参数校验/绑定异常 ========================
 
     /**
-     * 主键/唯一索引冲突异常
+     * 处理@Validated（方法参数）的校验异常
      */
-    @ExceptionHandler(DuplicateKeyException.class)
-    public Result<?> handleDuplicateKeyException(DuplicateKeyException e) {
-        log.error("【数据库唯一约束冲突】{}", e.getMessage(), e);
-        return Result.error(HttpStatus.CONFLICT, "数据重复，请检查后重试！");
+    @ExceptionHandler(ConstraintViolationException.class)
+    public Result<?> handleConstraintViolationException(ConstraintViolationException e) {
+        Set<ConstraintViolation<?>> violations = e.getConstraintViolations();
+        String errorMsg = violations.stream()
+                .map(ConstraintViolation::getMessage)
+                .collect(Collectors.joining("；"));
+        log.warn("【Controller层方法参数校验异常】{}", errorMsg, e);
+        return Result.error(HttpStatus.BAD_REQUEST, errorMsg);
     }
 
     /**
-     * 空结果集异常
-     */
-    @ExceptionHandler(EmptyResultDataAccessException.class)
-    public Result<?> handleEmptyResultException(EmptyResultDataAccessException e) {
-        log.warn("【数据库空结果集】{}", e.getMessage(), e);
-        return Result.error(HttpStatus.NOT_FOUND, "未查询到相关数据！");
-    }
-
-    /**
-     * 通用数据库异常（兜底）
-     */
-    @ExceptionHandler(DataAccessException.class)
-    public Result<?> handleDataAccessException(DataAccessException e) {
-        log.error("【数据库通用异常】{}", e.getMessage(), e);
-        return Result.error(HttpStatus.INTERNAL_SERVER_ERROR, COMMON_DATABASE_ERROR);
-    }
-
-    // ======================== 参数校验/绑定相关异常 ========================
-
-    /**
-     * 请求体参数校验异常（@Valid/@Validated）
+     * 处理请求体参数校验异常（@Valid/@Validated）
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public Result<?> handleValidationException(MethodArgumentNotValidException e) {
@@ -142,7 +131,7 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 请求参数绑定异常（表单/路径参数）
+     * 处理请求参数绑定异常（表单/路径参数）
      */
     @ExceptionHandler(BindException.class)
     public Result<?> handleBindException(BindException e) {
@@ -152,23 +141,23 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 参数类型不匹配异常（路径/请求参数类型错误）
+     * 处理参数类型不匹配异常（路径/请求参数类型错误）
      */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public Result<?> handleTypeMismatchException(MethodArgumentTypeMismatchException e) {
         String paramName = e.getName();
         String invalidValue = e.getValue() == null ? "空值" : e.getValue().toString();
         String expectedType = e.getRequiredType() == null ? "数字" : e.getRequiredType().getSimpleName();
-        String errorMsg = String.format("参数【%s】格式错误，请传入有效的%s类型值（当前值：%s）", paramName, expectedType, invalidValue);
+        String errorMsg = String.format(PARAM_TYPE_ERROR_TEMPLATE, paramName, expectedType, invalidValue);
 
         log.warn("【参数类型不匹配】{}", errorMsg, e);
         return Result.error(HttpStatus.BAD_REQUEST, errorMsg);
     }
 
-    // ======================== JSON解析相关异常 ========================
+    // ======================== 3. JSON解析异常 ========================
 
     /**
-     * JSON解析异常（参数格式错误、枚举值不合法等）
+     * 处理JSON解析异常（参数格式错误、枚举值不合法等）
      */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public Result<?> handleJsonParseError(HttpMessageNotReadableException e) {
@@ -191,10 +180,39 @@ public class GlobalExceptionHandler {
         return Result.error(HttpStatus.BAD_REQUEST, message);
     }
 
-    // ======================== 通用运行时异常 ========================
+    // ======================== 4. 数据库相关异常 ========================
 
     /**
-     * 空指针异常
+     * 处理主键/唯一索引冲突异常
+     */
+    @ExceptionHandler(DuplicateKeyException.class)
+    public Result<?> handleDuplicateKeyException(DuplicateKeyException e) {
+        log.error("【数据库唯一约束冲突】{}", e.getMessage(), e);
+        return Result.error(HttpStatus.CONFLICT, "数据重复，请检查后重试！");
+    }
+
+    /**
+     * 处理空结果集异常
+     */
+    @ExceptionHandler(EmptyResultDataAccessException.class)
+    public Result<?> handleEmptyResultException(EmptyResultDataAccessException e) {
+        log.warn("【数据库空结果集】{}", e.getMessage(), e);
+        return Result.error(HttpStatus.NOT_FOUND, "未查询到相关数据！");
+    }
+
+    /**
+     * 处理通用数据库异常（兜底）
+     */
+    @ExceptionHandler(DataAccessException.class)
+    public Result<?> handleDataAccessException(DataAccessException e) {
+        log.error("【数据库通用异常】{}", e.getMessage(), e);
+        return Result.error(HttpStatus.INTERNAL_SERVER_ERROR, COMMON_DATABASE_ERROR);
+    }
+
+    // ======================== 5. 通用运行时异常 ========================
+
+    /**
+     * 处理空指针异常
      */
     @ExceptionHandler(NullPointerException.class)
     public Result<?> handleNullPointerException(NullPointerException e) {
@@ -203,7 +221,7 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 通用运行时异常（数组越界、类型转换等）
+     * 处理通用运行时异常（数组越界、类型转换等）
      */
     @ExceptionHandler(RuntimeException.class)
     public Result<?> handleRuntimeException(RuntimeException e) {
@@ -212,8 +230,11 @@ public class GlobalExceptionHandler {
         return Result.error(HttpStatus.INTERNAL_SERVER_ERROR, message);
     }
 
-    // ======================== 兜底异常（所有未捕获的异常） ========================
+    // ======================== 6. 兜底异常（所有未捕获的异常） ========================
 
+    /**
+     * 处理所有未捕获的异常（最低优先级）
+     */
     @ExceptionHandler(Exception.class)
     public Result<?> handleUnexpectedException(Exception e) {
         log.error("【系统未知异常】{}", e.getMessage(), e);

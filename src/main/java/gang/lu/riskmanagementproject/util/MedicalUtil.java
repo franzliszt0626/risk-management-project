@@ -1,7 +1,9 @@
 package gang.lu.riskmanagementproject.util;
 
 import cn.hutool.core.util.ObjectUtil;
+import gang.lu.riskmanagementproject.config.MedicalConfig;
 import gang.lu.riskmanagementproject.exception.BizException;
+import org.springframework.stereotype.Component;
 
 import static gang.lu.riskmanagementproject.common.FailedMessages.*;
 
@@ -11,6 +13,7 @@ import static gang.lu.riskmanagementproject.common.FailedMessages.*;
  * @date 2026/2/1 13:05
  * @description 参数校验工具
  */
+@Component
 public class MedicalUtil {
 
     private MedicalUtil() {
@@ -21,10 +24,10 @@ public class MedicalUtil {
      */
     private static final double MIN_FATIGUE_PERCENT = 0.0;
     private static final double MAX_FATIGUE_PERCENT = 100.0;
-    private static final int MIN_HEART_RATE = 1;
-    private static final int MAX_HEART_RATE = 300;
-    private static final int MIN_RESPIRATORY_RATE = 1;
-    private static final int MAX_RESPIRATORY_RATE = 60;
+    private static final int MIN_HEART_RATE = MedicalConfig.DEFAULT_MIN_HEART_RATE;
+    private static final int MAX_HEART_RATE = MedicalConfig.DEFAULT_MAX_HEART_RATE;
+    private static final int MIN_RESPIRATORY_RATE = MedicalConfig.DEFAULT_MIN_RESPIRATORY_RATE;
+    private static final int MAX_RESPIRATORY_RATE = MedicalConfig.DEFAULT_MAX_RESPIRATORY_RATE;
 
     /**
      * 校验心率

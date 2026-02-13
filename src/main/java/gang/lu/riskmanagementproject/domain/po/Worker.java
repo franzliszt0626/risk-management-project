@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @Data
 @Accessors(chain = true)
 @TableName("t_worker")
-public class Worker {
+public class Worker implements BasePO {
 
     /**
      * 主键，工人id，默认自增长

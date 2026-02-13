@@ -1,10 +1,7 @@
 package gang.lu.riskmanagementproject.service.impl;
 
 import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import gang.lu.riskmanagementproject.annotation.BusinessLog;
 import gang.lu.riskmanagementproject.converter.RiskIndicatorConverter;
 import gang.lu.riskmanagementproject.domain.dto.RiskIndicatorDTO;
@@ -15,119 +12,205 @@ import gang.lu.riskmanagementproject.domain.vo.normal.PageVO;
 import gang.lu.riskmanagementproject.domain.vo.normal.RiskIndicatorVO;
 import gang.lu.riskmanagementproject.domain.vo.statistical.indicator.RiskLevelCountVO;
 import gang.lu.riskmanagementproject.domain.vo.statistical.indicator.RiskTimePeriodCountVO;
+import gang.lu.riskmanagementproject.helper.QueryWrapperHelper;
 import gang.lu.riskmanagementproject.mapper.RiskIndicatorMapper;
 import gang.lu.riskmanagementproject.mapper.WorkerMapper;
 import gang.lu.riskmanagementproject.service.RiskIndicatorService;
-import gang.lu.riskmanagementproject.util.EnumConvertUtil;
 import gang.lu.riskmanagementproject.util.MedicalUtil;
-import gang.lu.riskmanagementproject.helper.PageHelper;
 import gang.lu.riskmanagementproject.util.StatisticalUtil;
 import gang.lu.riskmanagementproject.validator.GeneralValidator;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
 import static gang.lu.riskmanagementproject.common.BusinessConstants.*;
-import static gang.lu.riskmanagementproject.common.FailedMessages.WORKER_NOT_EXIST;
+import static gang.lu.riskmanagementproject.common.FailedMessages.*;
 
 /**
  * <p>
- * 实时风险指标表 服务实现类
+ * 风险指标表 服务实现类
  * </p>
  *
  * @author Franz Liszt
  * @since 2026-01-31
  */
 @Service
-@RequiredArgsConstructor
-public class RiskIndicatorServiceImpl extends ServiceImpl<RiskIndicatorMapper, RiskIndicator> implements RiskIndicatorService {
+public class RiskIndicatorServiceImpl
+        extends BaseCrudServiceImpl<RiskIndicator, RiskIndicatorDTO, RiskIndicatorVO, RiskIndicatorQueryDTO, RiskIndicatorMapper, RiskIndicatorConverter>
+        implements RiskIndicatorService {
 
-    private final RiskIndicatorMapper riskIndicatorMapper;
-    private final RiskIndicatorConverter riskIndicatorConverter;
-    private final GeneralValidator generalValidator;
     private final WorkerMapper workerMapper;
 
-
-    /**
-     * 组合分页查询
-     *
-     * @param queryDTO 工人id
-     * @return 风险信息集合
-     */
-    @Override
-    @BusinessLog(value = GET_RISK_INDICATOR_BY_MULTIPLY_CONDITION, recordParams = true, logLevel = BusinessLog.LogLevel.INFO)
-    public PageVO<RiskIndicatorVO> searchRiskIndicators(RiskIndicatorQueryDTO queryDTO) {
-        // 1. 校验工人存在性（仅当传了workerId时）
-        if (queryDTO.getWorkerId() != null) {
-            generalValidator.validateIdExist(queryDTO.getWorkerId(), workerMapper, WORKER_NOT_EXIST);
-        }
-        // 校验时间
-        generalValidator.validateTimeRange(queryDTO.getRecordStartTime(), queryDTO.getRecordEndTime());
-        // 2. 构建分页对象（自动处理默认值/最大值）
-        Page<RiskIndicator> poPage = PageHelper.buildPage(queryDTO, GET_RISK_INDICATOR);
-        // 3. 构建多条件查询器
-        LambdaQueryWrapper<RiskIndicator> wrapper = buildRiskIndicatorQueryWrapper(queryDTO);
-        // 4. 分页查询
-        poPage = page(poPage, wrapper);
-        // 5. 转换为通用分页VO
-        return riskIndicatorConverter.pagePoToPageVO(poPage);
+    public RiskIndicatorServiceImpl(RiskIndicatorMapper riskIndicatorMapper,
+                                    RiskIndicatorConverter riskIndicatorConverter,
+                                    GeneralValidator generalValidator,
+                                    WorkerMapper workerMapper) {
+        super(riskIndicatorMapper, riskIndicatorConverter, generalValidator);
+        this.workerMapper = workerMapper;
     }
 
+    // ======================== 通用CRUD ========================
+
     /**
-     * 由后台算法生成，前端调用，插入风险指标信息
-     *
-     * @param riskIndicatorDTO 风险指标数据传输体
+     * 新增风险指标
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
     @BusinessLog(value = ADD_RISK_INDICATOR, recordParams = true, logLevel = BusinessLog.LogLevel.INFO)
-    public RiskIndicatorVO addRiskIndicator(RiskIndicatorDTO riskIndicatorDTO) {
-        // 1. 校验工人存在性（ID格式已由@ValidId校验）
-        generalValidator.validateIdExist(riskIndicatorDTO.getWorkerId(), workerMapper, WORKER_NOT_EXIST);
-        // 2. 业务参数校验（医疗参数合法性）
-        MedicalUtil.validateHeartRate(riskIndicatorDTO.getHeartRate());
-        MedicalUtil.validateRespiratoryRate(riskIndicatorDTO.getRespiratoryRate());
-        MedicalUtil.validateFatiguePercent(riskIndicatorDTO.getFatiguePercent());
-        // 3. 转换DTO→PO + 设置默认值
-        RiskIndicator riskIndicator = riskIndicatorConverter.dtoToPo(riskIndicatorDTO);
-        riskIndicator.setRecordTime(ObjectUtil.defaultIfNull(riskIndicator.getRecordTime(), LocalDateTime.now()));
-        // 4. 插入数据库并校验结果
-        generalValidator.validateDbOperateResult(riskIndicatorMapper.insert(riskIndicator));
-        // 5. PO→VO返回
-        return riskIndicatorConverter.poToVo(riskIndicator);
+    public RiskIndicatorVO add(RiskIndicatorDTO dto) {
+        return super.add(dto);
     }
 
     /**
-     * 由工人id查询最新一次的风险指标信息
-     *
-     * @param workerId 前端传来的工人id
-     * @return RiskIndicatorVO
+     * 删除风险指标
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    @BusinessLog(value = DELETE_RISK_INDICATOR, recordParams = true, logLevel = BusinessLog.LogLevel.WARN)
+    public void delete(Long id) {
+        super.delete(id);
+    }
+
+    /**
+     * 批量删除风险指标
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    @BusinessLog(value = BATCH_DELETE_RISK_INDICATOR, recordParams = true, logLevel = BusinessLog.LogLevel.WARN)
+    public void batchDelete(Iterable<Long> ids) {
+        super.batchDelete(ids);
+    }
+
+    /**
+     * 修改风险指标
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    @BusinessLog(value = UPDATE_RISK_INDICATOR, recordParams = true, logLevel = BusinessLog.LogLevel.INFO)
+    public RiskIndicatorVO update(Long id, RiskIndicatorDTO dto) {
+        return super.update(id, dto);
+    }
+
+    /**
+     * 根据ID查询风险指标
+     */
+    @Override
+    @BusinessLog(value = GET_RISK_INDICATOR, recordParams = true, logLevel = BusinessLog.LogLevel.INFO)
+    public RiskIndicatorVO getOneById(Long id) {
+        return super.getOneById(id);
+    }
+
+    /**
+     * 多条件分页查询风险指标
+     */
+    @Override
+    @BusinessLog(value = GET_RISK_INDICATOR_BY_MULTIPLY_CONDITION, recordParams = true, logLevel = BusinessLog.LogLevel.INFO)
+    public PageVO<RiskIndicatorVO> search(RiskIndicatorQueryDTO queryDTO) {
+        return super.search(queryDTO);
+    }
+
+    // ======================== 校验方法 ========================
+
+    /**
+     * 新增校验
+     */
+    @Override
+    public void validateAdd(RiskIndicatorDTO dto) {
+        generalValidator.validateIdExist(dto.getWorkerId(), workerMapper, WORKER_NOT_EXIST);
+        MedicalUtil.validateHeartRate(dto.getHeartRate());
+        MedicalUtil.validateRespiratoryRate(dto.getRespiratoryRate());
+        MedicalUtil.validateFatiguePercent(dto.getFatiguePercent());
+    }
+
+    /**
+     * 修改校验
+     */
+    @Override
+    public void validateUpdate(Long id, RiskIndicatorDTO dto) {
+        if (ObjectUtil.isNotNull(dto.getWorkerId())) {
+            generalValidator.validateIdExist(dto.getWorkerId(), workerMapper, WORKER_NOT_EXIST);
+        }
+        MedicalUtil.validateHeartRate(dto.getHeartRate());
+        MedicalUtil.validateRespiratoryRate(dto.getRespiratoryRate());
+        MedicalUtil.validateFatiguePercent(dto.getFatiguePercent());
+    }
+
+    /**
+     * 查询校验
+     */
+    @Override
+    public void validateSearch(RiskIndicatorQueryDTO queryDTO) {
+        generalValidator.validateTimeRange(queryDTO.getRecordStartTime(), queryDTO.getRecordEndTime());
+        generalValidator.validateMinMaxRange(queryDTO.getMinHeartRate(), queryDTO.getMaxHeartRate(), HEART_RATE);
+        generalValidator.validateMinMaxRange(queryDTO.getMinRespiratoryRate(), queryDTO.getMaxRespiratoryRate(), RESPIRATORY_RATE);
+        generalValidator.validateMinMaxRange(queryDTO.getMinFatiguePercent(), queryDTO.getMaxFatiguePercent(), FATIGUE_PERCENT);
+    }
+
+    /**
+     * 构建查询条件
+     */
+    @Override
+    public LambdaQueryWrapper<RiskIndicator> buildQueryWrapper(RiskIndicatorQueryDTO queryDTO) {
+        return QueryWrapperHelper.<RiskIndicator>create()
+                .eqIfPresent(RiskIndicator::getWorkerId, queryDTO.getWorkerId())
+                .eqEnumIfPresent(RiskIndicator::getRiskLevel, queryDTO.getRiskLevelValue(), RiskLevel.class)
+                .eqIfPresent(RiskIndicator::getAlertFlag, queryDTO.getAlertFlag())
+                .geIfPresent(RiskIndicator::getHeartRate, queryDTO.getMinHeartRate())
+                .leIfPresent(RiskIndicator::getHeartRate, queryDTO.getMaxHeartRate())
+                .geIfPresent(RiskIndicator::getRespiratoryRate, queryDTO.getMinRespiratoryRate())
+                .leIfPresent(RiskIndicator::getRespiratoryRate, queryDTO.getMaxRespiratoryRate())
+                .geIfPresent(RiskIndicator::getFatiguePercent, queryDTO.getMinFatiguePercent())
+                .leIfPresent(RiskIndicator::getFatiguePercent, queryDTO.getMaxFatiguePercent())
+                .geIfPresent(RiskIndicator::getRecordTime, queryDTO.getRecordStartTime())
+                .leIfPresent(RiskIndicator::getRecordTime, queryDTO.getRecordEndTime())
+                .orderByDesc(RiskIndicator::getRecordTime);
+    }
+
+    // ======================== 模板方法 ========================
+
+    @Override
+    protected String getNotFoundMsg() {
+        return RISK_INDICATOR_NOT_EXIST;
+    }
+
+    @Override
+    protected String getBatchIdEmptyMsg() {
+        return RISK_INDICATOR_DELETE_BATCH_ID_EMPTY;
+    }
+
+    @Override
+    protected String getBatchNotFoundMsg() {
+        return RISK_INDICATOR_DELETE_BATCH_ID_INVALID;
+    }
+
+    @Override
+    protected String getBusinessScene() {
+        return GET_RISK_INDICATOR;
+    }
+
+    // ======================== 个性化业务 ========================
+
+    /**
+     * 根据工人ID查询最新风险指标
      */
     @Override
     @BusinessLog(value = GET_LATEST_RISK_INDICATOR, recordParams = true, logLevel = BusinessLog.LogLevel.INFO)
     public RiskIndicatorVO getLatestRiskIndicatorByWorkerId(Long workerId) {
-        // 校验工人存在性
         generalValidator.validateIdExist(workerId, workerMapper, WORKER_NOT_EXIST);
-        // 查询最新记录
-        RiskIndicator latest = riskIndicatorMapper.selectLatestByWorkerId(workerId);
-        // 转换PO→VO（空值直接返回null）
-        return ObjectUtil.isNull(latest) ? null : riskIndicatorConverter.poToVo(latest);
+        RiskIndicator latest = baseMapper.selectLatestByWorkerId(workerId);
+        return ObjectUtil.isNull(latest) ? null : converter.poToVo(latest);
     }
 
     /**
-     * 统计去重工人的风险等级人数分布
-     *
-     * @return 各种风险的人数信息集合
+     * 统计去重工人风险等级人数分布
      */
     @Override
     @BusinessLog(value = GET_RISK_LEVEL_DISTRIBUTION, recordParams = false, logLevel = BusinessLog.LogLevel.INFO)
     public RiskLevelCountVO countDistinctWorkerByRiskLevel() {
-        Map<String, Map<String, Object>> riskCountMap = riskIndicatorMapper.countDistinctWorkerByRiskLevel();
+        Map<String, Map<String, Object>> riskCountMap = baseMapper.countDistinctWorkerByRiskLevel();
         RiskLevelCountVO vo = new RiskLevelCountVO();
         vo.setLowRiskCount(StatisticalUtil.getCountFromMap(riskCountMap, RiskLevel.LOW_RISK.getValue()));
         vo.setMediumRiskCount(StatisticalUtil.getCountFromMap(riskCountMap, RiskLevel.MEDIUM_RISK.getValue()));
@@ -138,78 +221,17 @@ public class RiskIndicatorServiceImpl extends ServiceImpl<RiskIndicatorMapper, R
     }
 
     /**
-     * 统计当日各4小时时间段高风险工人数
-     *
-     * @param statDate 统计日期（不传则默认当天）
-     * @return 时间段统计结果
+     * 统计当日各时间段高风险工人数
      */
     @Override
     @BusinessLog(value = GET_HIGH_RISK_DISTRIBUTION_IN_PERIOD, recordParams = true, logLevel = BusinessLog.LogLevel.INFO)
     public RiskTimePeriodCountVO countHighRiskWorkerByTimePeriod(LocalDate statDate) {
         LocalDate finalStatDate = ObjectUtil.defaultIfNull(statDate, LocalDate.now());
         String statDateStr = finalStatDate.toString();
-        List<Map<String, Object>> periodList = riskIndicatorMapper.countHighRiskWorkerByTimePeriod(statDateStr);
+        List<Map<String, Object>> periodList = baseMapper.countHighRiskWorkerByTimePeriod(statDateStr);
         RiskTimePeriodCountVO resultVO = new RiskTimePeriodCountVO();
         resultVO.setStatDate(statDateStr);
         resultVO.setPeriodItems(StatisticalUtil.buildTimePeriodItems(periodList));
         return resultVO;
     }
-
-    private LambdaQueryWrapper<RiskIndicator> buildRiskIndicatorQueryWrapper(RiskIndicatorQueryDTO queryDTO) {
-        LambdaQueryWrapper<RiskIndicator> wrapper = new LambdaQueryWrapper<>();
-
-        // 1. 工人ID（精确匹配，原按工人ID查历史的核心逻辑）
-        if (queryDTO.getWorkerId() != null) {
-            wrapper.eq(RiskIndicator::getWorkerId, queryDTO.getWorkerId());
-        }
-
-        // 2. 风险等级（枚举转换）
-        if (StrUtil.isNotBlank(queryDTO.getRiskLevelValue())) {
-            RiskLevel riskLevel = EnumConvertUtil.toEnum(queryDTO.getRiskLevelValue(), RiskLevel.class);
-            wrapper.eq(RiskIndicator::getRiskLevel, riskLevel);
-        }
-
-        // 3. 是否报警
-        if (queryDTO.getAlertFlag() != null) {
-            wrapper.eq(RiskIndicator::getAlertFlag, queryDTO.getAlertFlag());
-        }
-
-        // 4. 心率区间
-        if (queryDTO.getMinHeartRate() != null) {
-            wrapper.ge(RiskIndicator::getHeartRate, queryDTO.getMinHeartRate());
-        }
-        if (queryDTO.getMaxHeartRate() != null) {
-            wrapper.le(RiskIndicator::getHeartRate, queryDTO.getMaxHeartRate());
-        }
-
-        // 5. 呼吸率区间
-        if (queryDTO.getMinRespiratoryRate() != null) {
-            wrapper.ge(RiskIndicator::getRespiratoryRate, queryDTO.getMinRespiratoryRate());
-        }
-        if (queryDTO.getMaxRespiratoryRate() != null) {
-            wrapper.le(RiskIndicator::getRespiratoryRate, queryDTO.getMaxRespiratoryRate());
-        }
-
-        // 6. 疲劳百分比区间
-        if (queryDTO.getMinFatiguePercent() != null) {
-            wrapper.ge(RiskIndicator::getFatiguePercent, queryDTO.getMinFatiguePercent());
-        }
-        if (queryDTO.getMaxFatiguePercent() != null) {
-            wrapper.le(RiskIndicator::getFatiguePercent, queryDTO.getMaxFatiguePercent());
-        }
-
-        // 7. 记录时间区间（前端日历选择的核心逻辑）
-        if (queryDTO.getRecordStartTime() != null) {
-            wrapper.ge(RiskIndicator::getRecordTime, queryDTO.getRecordStartTime());
-        }
-        if (queryDTO.getRecordEndTime() != null) {
-            wrapper.le(RiskIndicator::getRecordTime, queryDTO.getRecordEndTime());
-        }
-
-        // 8. 排序（默认按记录时间降序，最新的在前）
-        wrapper.orderByDesc(RiskIndicator::getRecordTime);
-
-        return wrapper;
-    }
-
 }

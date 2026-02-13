@@ -8,7 +8,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.hibernate.validator.constraints.Length;
 
 
 /**
@@ -23,11 +22,9 @@ import org.hibernate.validator.constraints.Length;
 public class WorkAreaQueryDTO extends PageQueryDTO {
 
     @ApiModelProperty(value = "区域编码（模糊查询）", example = "AREA_001")
-    @Length(max = 20, message = "区域编码长度不能超过20个字符")
     private String areaCode;
 
     @ApiModelProperty(value = "区域名称（模糊查询）", example = "高空作业")
-    @Length(max = 100, message = "区域名称长度不能超过100个字符")
     private String areaName;
 
     @ApiModelProperty(value = "区域风险等级（低风险/中风险/高风险）", example = "低风险")
@@ -35,6 +32,5 @@ public class WorkAreaQueryDTO extends PageQueryDTO {
     private String areaRiskLevelValue;
 
     @ApiModelProperty(value = "描述（模糊查询）", example = "防坠落")
-    @Length(max = 200, message = "描述长度不能超过200个字符")
     private String description;
 }

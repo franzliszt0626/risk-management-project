@@ -8,6 +8,13 @@ spring:
     default-num: 1
     default-size: 10
     max-size: 100
+  medical:
+    min-fatigue-percent: 0.0
+    max-fatigue-percent: 100.0
+    min-heart-rate: 1
+    max-heart-rate: 100.0
+    min-respiratory-rate: 1
+    max-respiratory-rate: 60
 logging:
   level:
     com.itheima: debug

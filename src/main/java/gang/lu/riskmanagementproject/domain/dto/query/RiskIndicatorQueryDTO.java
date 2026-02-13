@@ -13,6 +13,8 @@ import org.hibernate.validator.constraints.Range;
 import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDateTime;
 
+import static gang.lu.riskmanagementproject.common.FailedMessages.*;
+
 /**
  * @author Franz Liszt
  * @version 1.0
@@ -34,36 +36,36 @@ public class RiskIndicatorQueryDTO extends PageQueryDTO {
     private Boolean alertFlag;
 
     @ApiModelProperty(value = "心率最小值（bpm）", example = "60")
-    @Range(min = 1, max = 300, message = "心率最小值需在1-300bpm范围内")
+    @Range(min = 1, max = 300, message = RISK_MIN_HEART_RATE_INVALID)
     private Integer minHeartRate;
 
     @ApiModelProperty(value = "心率最大值（bpm）", example = "120")
-    @Range(min = 1, max = 300, message = "心率最大值需在1-300bpm范围内")
+    @Range(min = 1, max = 300, message = RISK_MAX_HEART_RATE_INVALID)
     private Integer maxHeartRate;
 
     @ApiModelProperty(value = "呼吸率最小值（次/min）", example = "10")
-    @Range(min = 1, max = 60, message = "呼吸率最小值需在1-60次/min范围内")
+    @Range(min = 1, max = 60, message = RISK_MIN_RESPIRATORY_RATE_INVALID)
     private Integer minRespiratoryRate;
 
     @ApiModelProperty(value = "呼吸率最大值（次/min）", example = "30")
-    @Range(min = 1, max = 60, message = "呼吸率最大值需在1-60次/min范围内")
+    @Range(min = 1, max = 60, message = RISK_MAX_RESPIRATORY_RATE_INVALID)
     private Integer maxRespiratoryRate;
 
     @ApiModelProperty(value = "疲劳百分比最小值（%）", example = "50")
-    @Range(min = 0, max = 100, message = "疲劳百分比最小值需在0-100%范围内")
+    @Range(min = 0, max = 100, message = RISK_MIN_FATIGUE_PERCENT_INVALID)
     private Double minFatiguePercent;
 
     @ApiModelProperty(value = "疲劳百分比最大值（%）", example = "90")
-    @Range(min = 0, max = 100, message = "疲劳百分比最大值需在0-100%范围内")
+    @Range(min = 0, max = 100, message = RISK_MAX_FATIGUE_PERCENT_INVALID)
     private Double maxFatiguePercent;
 
     @ApiModelProperty(value = "记录开始时间（格式：yyyy-MM-dd HH:mm:ss）", example = "2026-02-01 00:00:00")
-    @PastOrPresent(message = "记录开始时间不能晚于当前时间")
+    @PastOrPresent(message = RISK_RECORD_START_TIME_INVALID)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime recordStartTime;
 
     @ApiModelProperty(value = "记录结束时间（格式：yyyy-MM-dd HH:mm:ss）", example = "2026-02-01 23:59:59")
-    @PastOrPresent(message = "记录结束时间不能晚于当前时间")
+    @PastOrPresent(message = RISK_RECORD_END_TIME_INVALID)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime recordEndTime;
 

@@ -1,10 +1,8 @@
 package gang.lu.riskmanagementproject.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
 import gang.lu.riskmanagementproject.domain.dto.RiskIndicatorDTO;
 import gang.lu.riskmanagementproject.domain.dto.query.RiskIndicatorQueryDTO;
 import gang.lu.riskmanagementproject.domain.po.RiskIndicator;
-import gang.lu.riskmanagementproject.domain.vo.normal.PageVO;
 import gang.lu.riskmanagementproject.domain.vo.normal.RiskIndicatorVO;
 import gang.lu.riskmanagementproject.domain.vo.statistical.indicator.RiskLevelCountVO;
 import gang.lu.riskmanagementproject.domain.vo.statistical.indicator.RiskTimePeriodCountVO;
@@ -19,22 +17,7 @@ import java.time.LocalDate;
  * @author Franz Liszt
  * @since 2026-01-31
  */
-public interface RiskIndicatorService extends IService<RiskIndicator> {
-
-    /**
-     * 多条件分页查询
-     * @param queryDTO 查询DTO
-     * @return PageVO
-     */
-    PageVO<RiskIndicatorVO> searchRiskIndicators(RiskIndicatorQueryDTO queryDTO);
-
-    /**
-     * 由后台算法调用，插入风险指标信息
-     *
-     * @param riskIndicatorDTO 风险指标数据传输体
-     * @return VO 把VO也返回给前端
-     */
-    RiskIndicatorVO addRiskIndicator(RiskIndicatorDTO riskIndicatorDTO);
+public interface RiskIndicatorService extends BaseCrudService<RiskIndicator, RiskIndicatorDTO, RiskIndicatorVO, RiskIndicatorQueryDTO> {
 
     /**
      * 由工人id查询对应工人最新一次的风险指标信息
