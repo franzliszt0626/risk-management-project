@@ -122,6 +122,5 @@ public interface BaseCrudService<PO, DTO, VO, Q extends PageQueryDTO> extends IS
      *
      */
     default void validateSearch(Q queryDTO) {
-
     }
 }

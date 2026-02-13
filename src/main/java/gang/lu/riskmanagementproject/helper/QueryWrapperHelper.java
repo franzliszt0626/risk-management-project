@@ -24,7 +24,7 @@ public class QueryWrapperHelper<T> extends LambdaQueryWrapper<T> {
     }
 
     /**
-     * 字符串非空 → like （链式）
+     * 字符串非空 → like
      */
     public QueryWrapperHelper<T> likeIfPresent(SFunction<T, ?> field, String value) {
         if (StrUtil.isNotBlank(value)) {
@@ -34,7 +34,7 @@ public class QueryWrapperHelper<T> extends LambdaQueryWrapper<T> {
     }
 
     /**
-     * 值非空 → eq （链式）
+     * 值非空 → eq
      */
     public QueryWrapperHelper<T> eqIfPresent(SFunction<T, ?> field, Object value) {
         if (ObjectUtil.isNotNull(value)) {
@@ -44,7 +44,7 @@ public class QueryWrapperHelper<T> extends LambdaQueryWrapper<T> {
     }
 
     /**
-     * 字符串转枚举 → eq （链式）
+     * 字符串转枚举 → eq
      */
     public <E extends Enum<E> & ValueEnum<String>> QueryWrapperHelper<T> eqEnumIfPresent(
             SFunction<T, E> field,
@@ -61,7 +61,7 @@ public class QueryWrapperHelper<T> extends LambdaQueryWrapper<T> {
     }
 
     /**
-     * 范围 ≥ （链式）
+     * 范围 ≥
      */
     public QueryWrapperHelper<T> geIfPresent(SFunction<T, ? extends Comparable<?>> field, Object value) {
         if (ObjectUtil.isNotNull(value)) {
@@ -71,7 +71,7 @@ public class QueryWrapperHelper<T> extends LambdaQueryWrapper<T> {
     }
 
     /**
-     * 范围 ≤ （链式）
+     * 范围 ≤
      */
     public QueryWrapperHelper<T> leIfPresent(SFunction<T, ? extends Comparable<?>> field, Object value) {
         if (ObjectUtil.isNotNull(value)) {
@@ -81,7 +81,7 @@ public class QueryWrapperHelper<T> extends LambdaQueryWrapper<T> {
     }
 
     /**
-     * 排序（链式）
+     * 排序
      */
     @Override
     public QueryWrapperHelper<T> orderByDesc(SFunction<T, ?> field) {
