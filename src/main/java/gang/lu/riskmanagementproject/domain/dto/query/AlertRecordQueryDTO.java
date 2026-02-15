@@ -1,6 +1,7 @@
 package gang.lu.riskmanagementproject.domain.dto.query;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import gang.lu.riskmanagementproject.annotation.ValidEnum;
 import gang.lu.riskmanagementproject.common.BusinessConstants;
 import gang.lu.riskmanagementproject.domain.enums.AlertLevel;
@@ -9,7 +10,10 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDateTime;
+
+import static gang.lu.riskmanagementproject.common.FailedMessages.*;
 
 /**
  * @author Franz Liszt
@@ -39,14 +43,22 @@ public class AlertRecordQueryDTO extends PageQueryDTO {
     private String handledBy;
 
     @ApiModelProperty(value = "创建时间开始（格式：yyyy-MM-dd HH:mm:ss）", example = "2026-02-01 00:00:00")
+    @PastOrPresent(message = ALERT_RECORD_START_TIME_INVALID)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime createdStartTime;
 
     @ApiModelProperty(value = "创建时间结束（格式：yyyy-MM-dd HH:mm:ss）", example = "2026-02-02 23:59:59")
+    @PastOrPresent(message = ALERT_RECORD_END_TIME_INVALID)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime createdEndTime;
 
     @ApiModelProperty(value = "处理时间开始（格式：yyyy-MM-dd HH:mm:ss）", example = "2026-02-01 00:00:00")
+    @PastOrPresent(message = ALERT_RECORD_HANDLE_START_TIME_INVALID)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime handleStartTime;
 
     @ApiModelProperty(value = "处理时间结束（格式：yyyy-MM-dd HH:mm:ss）", example = "2026-02-02 23:59:59")
+    @PastOrPresent(message = ALERT_RECORD_HANDLE_END_TIME_INVALID)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime handleEndTime;
 }

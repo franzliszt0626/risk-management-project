@@ -1,13 +1,11 @@
 package gang.lu.riskmanagementproject.domain.po;
 
 
-import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.annotation.TableName;
 import gang.lu.riskmanagementproject.domain.enums.RiskLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-
-import java.time.LocalDateTime;
 
 /**
  * @author Franz Liszt
@@ -51,7 +49,4 @@ public class RiskIndicator extends BasePO {
      * 是否警告
      */
     private Boolean alertFlag;
-
-    @TableField(fill = FieldFill.DEFAULT)
-    private LocalDateTime recordTime;
 }

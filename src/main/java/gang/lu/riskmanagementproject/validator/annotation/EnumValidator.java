@@ -1,4 +1,4 @@
-package gang.lu.riskmanagementproject.validator;
+package gang.lu.riskmanagementproject.validator.annotation;
 
 import cn.hutool.core.util.StrUtil;
 import gang.lu.riskmanagementproject.annotation.ValidEnum;

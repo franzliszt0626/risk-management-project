@@ -16,9 +16,9 @@ import gang.lu.riskmanagementproject.helper.QueryWrapperHelper;
 import gang.lu.riskmanagementproject.mapper.RiskIndicatorMapper;
 import gang.lu.riskmanagementproject.mapper.WorkerMapper;
 import gang.lu.riskmanagementproject.service.RiskIndicatorService;
-import gang.lu.riskmanagementproject.util.MedicalUtil;
 import gang.lu.riskmanagementproject.util.StatisticalUtil;
 import gang.lu.riskmanagementproject.validator.GeneralValidator;
+import gang.lu.riskmanagementproject.validator.MedicalValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,12 +43,15 @@ public class RiskIndicatorServiceImpl
         implements RiskIndicatorService {
 
     private final WorkerMapper workerMapper;
+    private final MedicalValidator medicalValidator;
 
     public RiskIndicatorServiceImpl(RiskIndicatorMapper riskIndicatorMapper,
                                     RiskIndicatorConverter riskIndicatorConverter,
                                     GeneralValidator generalValidator,
-                                    WorkerMapper workerMapper) {
+                                    WorkerMapper workerMapper,
+                                    MedicalValidator medicalValidator) {
         super(riskIndicatorMapper, riskIndicatorConverter, generalValidator);
+        this.medicalValidator = medicalValidator;
         this.workerMapper = workerMapper;
     }
 
@@ -120,9 +123,9 @@ public class RiskIndicatorServiceImpl
     @Override
     public void validateAdd(RiskIndicatorDTO dto) {
         generalValidator.validateIdExist(dto.getWorkerId(), workerMapper, WORKER_NOT_EXIST);
-        MedicalUtil.validateHeartRate(dto.getHeartRate());
-        MedicalUtil.validateRespiratoryRate(dto.getRespiratoryRate());
-        MedicalUtil.validateFatiguePercent(dto.getFatiguePercent());
+        medicalValidator.validateHeartRate(dto.getHeartRate());
+        medicalValidator.validateRespiratoryRate(dto.getRespiratoryRate());
+        medicalValidator.validateFatiguePercent(dto.getFatiguePercent());
     }
 
     /**
@@ -133,9 +136,9 @@ public class RiskIndicatorServiceImpl
         if (ObjectUtil.isNotNull(dto.getWorkerId())) {
             generalValidator.validateIdExist(dto.getWorkerId(), workerMapper, WORKER_NOT_EXIST);
         }
-        MedicalUtil.validateHeartRate(dto.getHeartRate());
-        MedicalUtil.validateRespiratoryRate(dto.getRespiratoryRate());
-        MedicalUtil.validateFatiguePercent(dto.getFatiguePercent());
+        medicalValidator.validateHeartRate(dto.getHeartRate());
+        medicalValidator.validateRespiratoryRate(dto.getRespiratoryRate());
+        medicalValidator.validateFatiguePercent(dto.getFatiguePercent());
     }
 
     /**
@@ -143,7 +146,7 @@ public class RiskIndicatorServiceImpl
      */
     @Override
     public void validateSearch(RiskIndicatorQueryDTO queryDTO) {
-        generalValidator.validateTimeRange(queryDTO.getRecordStartTime(), queryDTO.getRecordEndTime());
+        generalValidator.validateTimeRange(queryDTO.getCreateStartTime(), queryDTO.getCreateEndTime());
         generalValidator.validateMinMaxRange(queryDTO.getMinHeartRate(), queryDTO.getMaxHeartRate(), HEART_RATE);
         generalValidator.validateMinMaxRange(queryDTO.getMinRespiratoryRate(), queryDTO.getMaxRespiratoryRate(), RESPIRATORY_RATE);
         generalValidator.validateMinMaxRange(queryDTO.getMinFatiguePercent(), queryDTO.getMaxFatiguePercent(), FATIGUE_PERCENT);
@@ -164,9 +167,9 @@ public class RiskIndicatorServiceImpl
                 .leIfPresent(RiskIndicator::getRespiratoryRate, queryDTO.getMaxRespiratoryRate())
                 .geIfPresent(RiskIndicator::getFatiguePercent, queryDTO.getMinFatiguePercent())
                 .leIfPresent(RiskIndicator::getFatiguePercent, queryDTO.getMaxFatiguePercent())
-                .geIfPresent(RiskIndicator::getRecordTime, queryDTO.getRecordStartTime())
-                .leIfPresent(RiskIndicator::getRecordTime, queryDTO.getRecordEndTime())
-                .orderByDesc(RiskIndicator::getRecordTime);
+                .geIfPresent(RiskIndicator::getCreateTime, queryDTO.getCreateStartTime())
+                .leIfPresent(RiskIndicator::getCreateTime, queryDTO.getCreateEndTime())
+                .orderByDesc(RiskIndicator::getCreateTime);
     }
 
     // ======================== 模板方法 ========================

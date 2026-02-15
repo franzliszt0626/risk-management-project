@@ -8,8 +8,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
-import javax.validation.constraints.NotBlank;
-
 import static gang.lu.riskmanagementproject.common.FailedMessages.*;
 
 
@@ -23,12 +21,10 @@ import static gang.lu.riskmanagementproject.common.FailedMessages.*;
 @ApiModel(description = "工作区域 - 传输对象")
 public class WorkAreaDTO {
     @ApiModelProperty(value = "区域编码", required = true, example = "AREA_001")
-    @NotBlank(message = WORK_AREA_CODE_EMPTY)
     @Length(max = 20, message = WORK_AREA_CODE_INVALID)
     private String areaCode;
 
     @ApiModelProperty(value = "区域名称", required = true, example = "高空作业平台A")
-    @NotBlank(message = WORK_AREA_NAME_EMPTY)
     @Length(max = 100, message = WORK_AREA_NAME_INVALID)
     private String areaName;
 

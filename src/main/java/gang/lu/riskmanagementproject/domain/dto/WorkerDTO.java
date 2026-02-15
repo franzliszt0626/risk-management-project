@@ -24,12 +24,10 @@ import static gang.lu.riskmanagementproject.common.FailedMessages.*;
 @ApiModel(description = "工人信息 - 传输对象")
 public class WorkerDTO {
     @ApiModelProperty(value = "工号", required = true, example = "W1001")
-    @NotBlank(message = WORKER_CODE_EMPTY)
     @Length(max = 100, message = WORKER_CODE_INVALID)
     private String workerCode;
 
     @ApiModelProperty(value = "姓名", required = true, example = "张三")
-    @NotBlank(message = WORKER_NAME_EMPTY)
     @Length(max = 50, message = WORKER_NAME_INVALID)
     private String name;
 

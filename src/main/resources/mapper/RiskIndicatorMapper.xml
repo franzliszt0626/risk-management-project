@@ -2,23 +2,24 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="gang.lu.riskmanagementproject.mapper.RiskIndicatorMapper">
 
-    <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="gang.lu.riskmanagementproject.domain.po.RiskIndicator">
-        <id column="id" property="id"/>
+    <!-- 继承公共映射 -->
+    <resultMap id="BaseResultMap" type="gang.lu.riskmanagementproject.domain.po.RiskIndicator"
+               extends="gang.lu.riskmanagementproject.mapper.WorkerMapper.BasePOResultMap">
         <result column="worker_id" property="workerId"/>
         <result column="heart_rate" property="heartRate"/>
-        <result column="sdnn_ms" property="respiratoryRate"/>
+        <result column="respiratory_rate" property="respiratoryRate"/>
         <result column="fatigue_percent" property="fatiguePercent"/>
         <result column="risk_level" property="riskLevel"/>
         <result column="alert_flag" property="alertFlag"/>
-        <result column="record_time" property="recordTime"/>
     </resultMap>
-    <select id="selectLatestByWorkerId" resultType="gang.lu.riskmanagementproject.domain.po.RiskIndicator"
+
+
+    <select id="selectLatestByWorkerId" resultMap="BaseResultMap"
             parameterType="java.lang.Long">
         SELECT *
         FROM t_risk_indicator
         WHERE worker_id = #{workerId}
-        ORDER BY record_time DESC
+        ORDER BY create_time DESC
         LIMIT 1
     </select>
 
@@ -45,10 +46,10 @@
                  LEFT JOIN (
             -- 原统计逻辑
             SELECT
-                FLOOR(HOUR(record_time) / 4) * 4 AS period,
+                FLOOR(HOUR(create_time) / 4) * 4 AS period,
                 COUNT(DISTINCT worker_id) AS count
             FROM t_risk_indicator
-            WHERE DATE(record_time) = #{statDate} AND risk_level != '低风险'
+            WHERE DATE(create_time) = #{statDate} AND risk_level != '低风险'
             GROUP BY period
         ) c ON t.period = c.period
     </select>

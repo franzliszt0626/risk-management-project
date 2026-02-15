@@ -9,11 +9,9 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
-import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
 import static gang.lu.riskmanagementproject.common.FailedMessages.ALERT_RECORD_MESSAGE_INVALID;
-import static gang.lu.riskmanagementproject.common.FailedMessages.ALERT_TYPE_EMPTY;
 
 /**
  * @author Franz Liszt
@@ -29,7 +27,6 @@ public class AlertRecordDTO {
     private Long workerId;
 
     @ApiModelProperty(value = "预警类型", required = true, example = "心率异常")
-    @NotBlank(message = ALERT_TYPE_EMPTY)
     private String alertType;
 
     @ApiModelProperty(value = "预警级别", required = true, example = "警告")
@@ -48,7 +45,4 @@ public class AlertRecordDTO {
 
     @ApiModelProperty(value = "处理时间")
     private LocalDateTime handleTime;
-
-    @ApiModelProperty(value = "创建时间")
-    private LocalDateTime createdTime;
 }

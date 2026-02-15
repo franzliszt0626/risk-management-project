@@ -1,5 +1,6 @@
 package gang.lu.riskmanagementproject.service.impl;
 
+
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import gang.lu.riskmanagementproject.annotation.BusinessLog;
@@ -150,11 +151,11 @@ public class AlertRecordServiceImpl
                 .likeIfPresent(AlertRecord::getAlertType, queryDTO.getAlertType())
                 .eqIfPresent(AlertRecord::getIsHandled, queryDTO.getIsHandled())
                 .likeIfPresent(AlertRecord::getHandledBy, queryDTO.getHandledBy())
-                .geIfPresent(AlertRecord::getCreatedTime, queryDTO.getCreatedStartTime())
-                .leIfPresent(AlertRecord::getCreatedTime, queryDTO.getCreatedEndTime())
                 .geIfPresent(AlertRecord::getHandleTime, queryDTO.getHandleStartTime())
                 .leIfPresent(AlertRecord::getHandleTime, queryDTO.getHandleEndTime())
-                .orderByDesc(AlertRecord::getCreatedTime);
+                .geIfPresent(AlertRecord::getCreateTime, queryDTO.getCreatedStartTime())
+                .leIfPresent(AlertRecord::getCreateTime, queryDTO.getCreatedEndTime())
+                .orderByDesc(AlertRecord::getCreateTime);
     }
 
     // ======================== 模板方法 ========================
@@ -190,7 +191,12 @@ public class AlertRecordServiceImpl
     public void markAlertRecordAsHandled(Long id, String handledBy) {
         generalValidator.validateIdExist(id, baseMapper, ALERT_RECORD_NOT_EXIST);
         generalValidator.validateStringNotBlank(handledBy, BusinessConstants.HANDLED_BY, HANDLE_ALERT_RECORD);
-
+        // 拿到对应的记录
+        AlertRecord alertRecord = baseMapper.selectById(id);
+        // 如果已经标注为已处理
+        if (alertRecord.getIsHandled()) {
+            throw new BizException(HttpStatus.BAD_REQUEST, ALERT_RECORD_ALREADY_HANDLED_ERROR);
+        }
         int rows = baseMapper.markAsHandled(id, handledBy, LocalDateTime.now());
         if (rows == 0) {
             throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR, ALERT_RECORD_HANDLE_ERROR);

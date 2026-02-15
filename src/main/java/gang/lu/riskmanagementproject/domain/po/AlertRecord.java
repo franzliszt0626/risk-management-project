@@ -36,7 +36,4 @@ public class AlertRecord extends BasePO {
     private String handledBy;
 
     private LocalDateTime handleTime;
-
-    @TableField(fill = FieldFill.DEFAULT)
-    private LocalDateTime createdTime;
 }

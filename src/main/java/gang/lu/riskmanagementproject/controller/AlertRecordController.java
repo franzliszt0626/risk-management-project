@@ -103,7 +103,7 @@ public class AlertRecordController {
             @Valid @RequestBody AlertRecordQueryDTO queryDTO) {
         PageHelper.bindGlobalDefaultRule(queryDTO);
         PageVO<AlertRecordVO> pageVO = alertRecordService.search(queryDTO);
-        return Result.ok(ALERT_RECORD_GET_SUCCESS, pageVO);
+        return Result.ok(String.format(ALERT_RECORD_GET_COUNT_SUCCESS, pageVO.getTotal()), pageVO);
     }
 
     // ======================== 个性化业务接口 ========================

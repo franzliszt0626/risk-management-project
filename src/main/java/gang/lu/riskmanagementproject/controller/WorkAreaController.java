@@ -103,7 +103,7 @@ public class WorkAreaController {
             @Valid @RequestBody WorkAreaQueryDTO queryDTO) {
         PageHelper.bindGlobalDefaultRule(queryDTO);
         PageVO<WorkAreaVO> pageVO = workAreaService.search(queryDTO);
-        return Result.ok(WORK_AREA_GET_ALL_BY_PAGE_CONDITIONAL_SUCCESS, pageVO);
+        return Result.ok(String.format(WORK_AREA_GET_COUNT_SUCCESS, pageVO.getTotal()), pageVO);
     }
 
     // ======================== 个性化业务接口 ========================

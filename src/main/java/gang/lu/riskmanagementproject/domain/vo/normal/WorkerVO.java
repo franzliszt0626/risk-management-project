@@ -1,7 +1,6 @@
 package gang.lu.riskmanagementproject.domain.vo.normal;
 
 
-
 import gang.lu.riskmanagementproject.domain.enums.Status;
 import gang.lu.riskmanagementproject.domain.enums.WorkType;
 import io.swagger.annotations.ApiModel;

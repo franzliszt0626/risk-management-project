@@ -1,13 +1,11 @@
 package gang.lu.riskmanagementproject.domain.po;
 
-import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.annotation.TableName;
 import gang.lu.riskmanagementproject.domain.enums.Status;
 import gang.lu.riskmanagementproject.domain.enums.WorkType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-
-import java.time.LocalDateTime;
 
 /**
  * @author Franz Liszt
@@ -51,10 +49,5 @@ public class Worker extends BasePO {
      */
     private Status status;
 
-    @TableField(fill = FieldFill.DEFAULT)
-    private LocalDateTime createTime;
-
-    @TableField(fill = FieldFill.DEFAULT)
-    private LocalDateTime updateTime;
 }
 

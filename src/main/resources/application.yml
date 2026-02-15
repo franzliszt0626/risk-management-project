@@ -8,13 +8,6 @@ spring:
     default-num: 1
     default-size: 10
     max-size: 100
-  medical:
-    min-fatigue-percent: 0.0
-    max-fatigue-percent: 100.0
-    min-heart-rate: 1
-    max-heart-rate: 100.0
-    min-respiratory-rate: 1
-    max-respiratory-rate: 60
 logging:
   level:
     com.itheima: debug
@@ -27,10 +20,15 @@ mybatis-plus:
     db-config:
       id-type: auto
       logic-delete-field: deleted
+      # 全局更新策略：null 值字段不更新到数据库
+      update-strategy: not_null
+      # 插入策略：null 值字段不插入
+      insert-strategy: not_null
 
   configuration:
     default-enum-type-handler: com.baomidou.mybatisplus.core.handlers.MybatisEnumTypeHandler
     map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   type-enums-package: gang.lu.riskmanagementproject.domain.enums
 
 
@@ -48,3 +46,10 @@ knife4j:
         api-rule-resources:
           - gang.lu.riskmanagementproject.controller
 
+medical:
+  min-fatigue-percent: 0.0
+  max-fatigue-percent: 100.0
+  min-heart-rate: 1
+  max-heart-rate: 300
+  min-respiratory-rate: 1
+  max-respiratory-rate: 60

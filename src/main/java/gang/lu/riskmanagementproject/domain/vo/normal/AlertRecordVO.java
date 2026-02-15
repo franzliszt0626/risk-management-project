@@ -37,6 +37,4 @@ public class AlertRecordVO {
     @ApiModelProperty("处理时间")
     private LocalDateTime handleTime;
 
-    @ApiModelProperty("创建时间")
-    private LocalDateTime createdTime;
 }

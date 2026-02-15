@@ -10,6 +10,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.validator.constraints.Range;
 
+import javax.validation.constraints.DecimalMax;
+import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDateTime;
 
@@ -52,21 +54,23 @@ public class RiskIndicatorQueryDTO extends PageQueryDTO {
     private Integer maxRespiratoryRate;
 
     @ApiModelProperty(value = "疲劳百分比最小值（%）", example = "50")
-    @Range(min = 0, max = 100, message = RISK_MIN_FATIGUE_PERCENT_INVALID)
+    @DecimalMin(value = "0.0", message = RISK_MIN_FATIGUE_PERCENT_INVALID)
+    @DecimalMax(value = "100.0", message = RISK_MAX_FATIGUE_PERCENT_INVALID)
     private Double minFatiguePercent;
 
     @ApiModelProperty(value = "疲劳百分比最大值（%）", example = "90")
-    @Range(min = 0, max = 100, message = RISK_MAX_FATIGUE_PERCENT_INVALID)
+    @DecimalMin(value = "0.0", message = RISK_MIN_FATIGUE_PERCENT_INVALID)
+    @DecimalMax(value = "100.0", message = RISK_MAX_FATIGUE_PERCENT_INVALID)
     private Double maxFatiguePercent;
 
     @ApiModelProperty(value = "记录开始时间（格式：yyyy-MM-dd HH:mm:ss）", example = "2026-02-01 00:00:00")
     @PastOrPresent(message = RISK_RECORD_START_TIME_INVALID)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private LocalDateTime recordStartTime;
+    private LocalDateTime createStartTime;
 
     @ApiModelProperty(value = "记录结束时间（格式：yyyy-MM-dd HH:mm:ss）", example = "2026-02-01 23:59:59")
     @PastOrPresent(message = RISK_RECORD_END_TIME_INVALID)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private LocalDateTime recordEndTime;
+    private LocalDateTime createEndTime;
 
 }

@@ -1,7 +1,7 @@
 package gang.lu.riskmanagementproject.annotation;
 
 
-import gang.lu.riskmanagementproject.validator.IdValidator;
+import gang.lu.riskmanagementproject.validator.annotation.IdValidator;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;

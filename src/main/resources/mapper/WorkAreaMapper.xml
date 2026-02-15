@@ -3,14 +3,12 @@
 <mapper namespace="gang.lu.riskmanagementproject.mapper.WorkAreaMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="gang.lu.riskmanagementproject.domain.po.WorkArea">
-        <id column="id" property="id"/>
+    <resultMap id="BaseResultMap" type="gang.lu.riskmanagementproject.domain.po.WorkArea"
+               extends="gang.lu.riskmanagementproject.mapper.WorkerMapper.BasePOResultMap">
         <result column="area_code" property="areaCode"/>
         <result column="area_name" property="areaName"/>
-        <result column="risk_level" property="areaRiskLevel"/>
+        <result column="area_risk_level" property="areaRiskLevel"/>
         <result column="description" property="description"/>
-        <result column="create_time" property="createTime"/>
-        <result column="update_time" property="updateTime"/>
     </resultMap>
 
     <select id="countWorkAreaByRiskLevel" resultType="java.util.Map">

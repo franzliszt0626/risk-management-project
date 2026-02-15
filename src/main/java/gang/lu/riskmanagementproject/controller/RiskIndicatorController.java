@@ -105,7 +105,7 @@ public class RiskIndicatorController {
             @Valid @RequestBody RiskIndicatorQueryDTO queryDTO) {
         PageHelper.bindGlobalDefaultRule(queryDTO);
         PageVO<RiskIndicatorVO> pageVO = riskIndicatorService.search(queryDTO);
-        return Result.ok(RISK_INDICATOR_GET_HISTORY_SUCCESS, pageVO);
+        return Result.ok(String.format(RISK_INDICATOR_GET_COUNT_SUCCESS, pageVO.getTotal()), pageVO);
     }
 
     // ======================== 个性化业务接口 ========================

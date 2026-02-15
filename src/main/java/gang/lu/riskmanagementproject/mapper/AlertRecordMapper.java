@@ -6,7 +6,6 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * <p>
@@ -18,29 +17,6 @@ import java.util.List;
  */
 @Mapper
 public interface AlertRecordMapper extends BaseMapper<AlertRecord> {
-    /**
-     * 根据工人ID查询预警记录
-     *
-     * @param workerId 工人id
-     * @return 预警记录集合
-     */
-    List<AlertRecord> selectByWorkerId(@Param("workerId") Long workerId);
-
-    /**
-     * 根据预警级别查询
-     *
-     * @param alertLevel 级别
-     * @return 预警记录
-     */
-    List<AlertRecord> selectByAlertLevel(@Param("alertLevel") String alertLevel);
-
-    /**
-     * 根据预警类型模糊查询
-     *
-     * @param alertType 类型
-     * @return 信息集合
-     */
-    List<AlertRecord> selectByAlertTypeLike(@Param("alertType") String alertType);
 
     /**
      * 标记预警记录为已处理

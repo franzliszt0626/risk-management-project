@@ -18,6 +18,7 @@ public interface SuccessMessages {
     String ALERT_RECORD_BATCH_DELETE_SUCCESS = "批量删除预警记录成功！";
     String ALERT_RECORD_UPDATE_SUCCESS = "修改预警记录成功！";
     String ALERT_RECORD_GET_SUCCESS = "查询预警记录成功！";
+    String ALERT_RECORD_GET_COUNT_SUCCESS = "查询预警记录成功，共%s条！";
     String ALERT_RECORD_MARK_HANDLED_SUCCESS = "标记预警记录为已处理成功！";
 
     // ======================== 风险指标相关成功信息 ========================
@@ -28,7 +29,7 @@ public interface SuccessMessages {
     String RISK_INDICATOR_UPDATE_SUCCESS = "修改风险指标成功！";
     String RISK_INDICATOR_GET_SUCCESS = "查询风险指标成功！";
     String RISK_INDICATOR_GET_LATEST_SUCCESS = "查询工人最新风险指标成功！";
-    String RISK_INDICATOR_GET_HISTORY_SUCCESS = "查询风险指标历史记录成功，共%s条！";
+    String RISK_INDICATOR_GET_COUNT_SUCCESS = "查询风险指标记录成功，共%s条！";
     String RISK_INDICATOR_STATISTIC_RISK_LEVEL_COUNT_SUCCESS = "统计工人风险等级分布成功！";
     String RISK_INDICATOR_STATISTIC_HIGH_RISK_COUNT_SUCCESS = "统计当日高风险工人时段分布成功！";
 
@@ -40,9 +41,8 @@ public interface SuccessMessages {
     String WORK_AREA_UPDATE_SUCCESS = "修改工作区域成功！";
     String WORK_AREA_GET_SUCCESS = "查询工作区域成功！";
     String WORK_AREA_GET_BY_CODE_SUCCESS = "按编码查询工作区域成功，共%s条！";
-    String WORK_AREA_GET_ALL_BY_PAGE_CONDITIONAL_SUCCESS = "多条件分页查询工作区域成功！";
     String WORK_AREA_STATISTIC_RISK_LEVEL_COUNT_SUCCESS = "统计工作区域风险等级分布成功！";
-
+    String WORK_AREA_GET_COUNT_SUCCESS = "查询工作区域信息成功，共%s条！";
     // ======================== 工人管理相关成功信息 ========================
     @SuppressWarnings("AlibabaCommentsMustBeJavadocFormat")
     String WORKER_CREATE_SUCCESS = "新增工人信息成功！";

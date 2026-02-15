@@ -1,6 +1,6 @@
 package gang.lu.riskmanagementproject.annotation;
 
-import gang.lu.riskmanagementproject.validator.EnumValidator;
+import gang.lu.riskmanagementproject.validator.annotation.EnumValidator;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;

@@ -1,6 +1,7 @@
 package gang.lu.riskmanagementproject.domain.enums;
 
-import com.baomidou.mybatisplus.annotation.EnumValue;
+import com.baomidou.mybatisplus.annotation.IEnum;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
 /**
@@ -10,7 +11,7 @@ import lombok.Getter;
  * @description 工人的工作种类，前端需要提供下拉菜单，不可让用户自己输入
  */
 @Getter
-public enum WorkType implements ValueEnum<String> {
+public enum WorkType implements ValueEnum<String>, IEnum<String> {
 
     /*
      * 工人工作类型枚举
@@ -25,7 +26,7 @@ public enum WorkType implements ValueEnum<String> {
     /**
      * MyBatis-Plus 注解：指定存储到数据库的值
      */
-    @EnumValue
+    @JsonValue
     private final String value;
 
     WorkType(String value) {

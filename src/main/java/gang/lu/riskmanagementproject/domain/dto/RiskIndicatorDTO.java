@@ -9,7 +9,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.Range;
 
-import java.time.LocalDateTime;
+import javax.validation.constraints.DecimalMax;
+import javax.validation.constraints.DecimalMin;
 
 import static gang.lu.riskmanagementproject.common.FailedMessages.*;
 
@@ -35,7 +36,8 @@ public class RiskIndicatorDTO {
     private Integer respiratoryRate;
 
     @ApiModelProperty(value = "疲劳百分比 (%)", required = true, example = "78.5")
-    @Range(min = 0, max = 100, message = RISK_FATIGUE_PERCENT_INVALID)
+    @DecimalMin(value = "0.0", message = RISK_FATIGUE_PERCENT_INVALID)
+    @DecimalMax(value = "100.0", message = RISK_FATIGUE_PERCENT_INVALID)
     private Double fatiguePercent;
 
     @ApiModelProperty(value = "当前风险等级", required = true)
@@ -44,7 +46,4 @@ public class RiskIndicatorDTO {
 
     @ApiModelProperty(value = "是否触发报警", required = true, example = "true")
     private Boolean alertFlag;
-
-    @ApiModelProperty(value = "记录时间", example = "2026-02-09 14:30:00")
-    private LocalDateTime recordTime;
 }

@@ -1,6 +1,7 @@
 package gang.lu.riskmanagementproject.domain.enums;
 
-import com.baomidou.mybatisplus.annotation.EnumValue;
+import com.baomidou.mybatisplus.annotation.IEnum;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
 /**
@@ -10,14 +11,14 @@ import lombok.Getter;
  * @description 预警记录等级枚举
  */
 @Getter
-public enum AlertLevel implements ValueEnum<String> {
+public enum AlertLevel implements ValueEnum<String>, IEnum<String> {
     /**
      * 预警等级
      */
     WARNING("警告"),
     SERIOUS("严重");
 
-    @EnumValue
+    @JsonValue
     private final String value;
 
     AlertLevel(String value) {

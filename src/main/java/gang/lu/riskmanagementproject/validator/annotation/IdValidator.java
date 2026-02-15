@@ -1,4 +1,4 @@
-package gang.lu.riskmanagementproject.validator;
+package gang.lu.riskmanagementproject.validator.annotation;
 
 import gang.lu.riskmanagementproject.annotation.ValidId;
 

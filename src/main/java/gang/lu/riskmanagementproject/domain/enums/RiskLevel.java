@@ -1,6 +1,7 @@
 package gang.lu.riskmanagementproject.domain.enums;
 
-import com.baomidou.mybatisplus.annotation.EnumValue;
+import com.baomidou.mybatisplus.annotation.IEnum;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
 /**
@@ -10,7 +11,7 @@ import lombok.Getter;
  * @description 风险等级，前端需要提供下拉菜单，不可让用户自己输入
  */
 @Getter
-public enum RiskLevel implements ValueEnum<String> {
+public enum RiskLevel implements ValueEnum<String>, IEnum<String> {
     /*
       风险程度，默认低风险
      */
@@ -19,7 +20,7 @@ public enum RiskLevel implements ValueEnum<String> {
     HIGH_RISK("高风险"),
     VERY_HIGH_RISK("严重风险");
 
-    @EnumValue
+    @JsonValue
     private final String value;
 
     RiskLevel(String value) {

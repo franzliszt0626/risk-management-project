@@ -45,7 +45,6 @@ public class WorkerQueryDTO extends PageQueryDTO {
     @ValidEnum(enumClass = WorkType.class, bizName = BusinessConstants.WORK_TYPE)
     private String workTypeValue;
 
-
     @ApiModelProperty(value = "状态（枚举值：正常/异常/离线）", example = "正常")
     @ValidEnum(enumClass = Status.class, bizName = BusinessConstants.STATUS)
     private String statusValue;

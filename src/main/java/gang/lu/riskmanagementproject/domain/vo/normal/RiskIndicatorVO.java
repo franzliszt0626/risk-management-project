@@ -37,5 +37,5 @@ public class RiskIndicatorVO {
     private Boolean alertFlag;
 
     @ApiModelProperty("本次记录的时间")
-    private LocalDateTime recordTime;
+    private LocalDateTime createTime;
 }

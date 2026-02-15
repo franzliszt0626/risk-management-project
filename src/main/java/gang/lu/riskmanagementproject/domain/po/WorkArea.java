@@ -1,13 +1,11 @@
 package gang.lu.riskmanagementproject.domain.po;
 
 
-import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.annotation.TableName;
 import gang.lu.riskmanagementproject.domain.enums.AreaRiskLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-
-import java.time.LocalDateTime;
 
 
 /**
@@ -30,10 +28,4 @@ public class WorkArea extends BasePO {
     private AreaRiskLevel areaRiskLevel;
 
     private String description;
-
-    @TableField(fill = FieldFill.DEFAULT)
-    private LocalDateTime createTime;
-
-    @TableField(fill = FieldFill.DEFAULT)
-    private LocalDateTime updateTime;
 }

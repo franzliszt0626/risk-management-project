@@ -16,7 +16,6 @@ public interface BusinessConstants {
     String ID_LIST = "ID列表";
     String CREATE_TIME = "createTime";
     String UPDATE_TIME = "updateTime";
-    String BATCH_OPERATE = "批量操作";
 
     // ======================== 预警记录相关常量 ========================
     @SuppressWarnings("AlibabaCommentsMustBeJavadocFormat")

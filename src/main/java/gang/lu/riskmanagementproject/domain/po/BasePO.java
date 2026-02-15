@@ -1,10 +1,10 @@
 package gang.lu.riskmanagementproject.domain.po;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * @author Franz Liszt
@@ -19,4 +19,16 @@ public abstract class BasePO implements Serializable {
      */
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
+
+    /**
+     * 创建时间（仅插入时自动填充）
+     */
+    @TableField(fill = FieldFill.INSERT, updateStrategy = FieldStrategy.NEVER)
+    private LocalDateTime createTime;
+
+    /**
+     * 更新时间（不处理，靠数据库）
+     */
+    @TableField(updateStrategy = FieldStrategy.NEVER)
+    private LocalDateTime updateTime;
 }

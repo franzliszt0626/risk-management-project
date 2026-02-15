@@ -54,8 +54,10 @@ public abstract class BaseCrudServiceImpl<
         // 4. 插入数据库
         baseMapper.insert(po);
         generalValidator.validateDbOperateResult(1);
+        // 5. 重新查询（确保枚举字段正确）
+        PO inserted = baseMapper.selectById(po.getId());
         // 5. PO转VO返回
-        return converter.poToVo(po);
+        return converter.poToVo(inserted);
     }
 
     @Override
@@ -91,15 +93,14 @@ public abstract class BaseCrudServiceImpl<
         // 1. 业务特有校验
         this.validateUpdate(id, dto);
         // 2. 通用存在性校验
-        generalValidator.validateIdExist(id, baseMapper, getNotFoundMsg());
+        PO existingPO = generalValidator.validateIdExist(id, baseMapper, getNotFoundMsg());
         // 3. DTO更新PO（空值不覆盖）
-        PO updatePo = converter.dtoToPo(dto);
-        converter.updatePoFromDto(dto, updatePo);
-        updatePo.setId(id);
-        // 5. 更新数据库
-        baseMapper.updateById(updatePo);
+        converter.updatePoFromDto(dto, existingPO);
+        existingPO.setId(id);
+        // 4. 更新数据库
+        baseMapper.updateById(existingPO);
         generalValidator.validateDbOperateResult(1);
-        // 6. 返回最新VO
+        // 5. 返回最新VO
         PO updated = baseMapper.selectById(id);
         return converter.poToVo(updated);
     }

@@ -73,8 +73,8 @@ public interface FailedMessages {
     String RISK_LEVEL_INVALID = "【参数校验失败】无效的风险等级！允许值：低风险、中风险、高风险、严重风险！";
     String RISK_INDICATOR_DELETE_BATCH_ID_EMPTY = "【参数校验失败】批量删除的风险指标ID列表不能为空！";
     String RISK_INDICATOR_DELETE_BATCH_ID_INVALID = "【风险指标操作失败】批量删除风险指标失败，请检查ID合法性！";
-    String RISK_RECORD_START_TIME_INVALID = "【参数校验失败】记录开始时间不能晚于当前时间！";
-    String RISK_RECORD_END_TIME_INVALID = "【参数校验失败】记录结束时间不能晚于当前时间！";
+    String RISK_RECORD_START_TIME_INVALID = "【参数校验失败】风险指标记录开始时间不能晚于当前时间！";
+    String RISK_RECORD_END_TIME_INVALID = "【参数校验失败】风险指标记录结束时间不能晚于当前时间！";
 
     // ======================== 工作区域业务失败信息 ========================
     @SuppressWarnings("AlibabaCommentsMustBeJavadocFormat")
@@ -102,6 +102,11 @@ public interface FailedMessages {
     String ALERT_RECORD_DELETE_BATCH_ID_EMPTY = "【参数校验失败】批量删除的预警记录ID列表不能为空！";
     String ALERT_RECORD_DELETE_BATCH_ID_INVALID = "【预警记录操作失败】批量删除预警记录失败，请检查ID合法性！";
     String ALERT_RECORD_MESSAGE_INVALID = "【参数校验失败】预警信息长度不能超过200个字符！";
+    String ALERT_RECORD_START_TIME_INVALID = "【参数校验失败】预警记录开始时间不能晚于当前时间！";
+    String ALERT_RECORD_HANDLE_START_TIME_INVALID = "【参数校验失败】预警记录处理开始时间不能晚于当前时间！";
+    String ALERT_RECORD_END_TIME_INVALID = "【参数校验失败】预警记录结束时间不能晚于当前时间！";
+    String ALERT_RECORD_HANDLE_END_TIME_INVALID = "【参数校验失败】预警记录处理结束时间不能晚于当前时间！";
+    String ALERT_RECORD_ALREADY_HANDLED_ERROR = "【预警记录操作失败】该记录已经标记为已处理！";
 
     // ======================== 分页参数失败信息 ========================
     @SuppressWarnings("AlibabaCommentsMustBeJavadocFormat")

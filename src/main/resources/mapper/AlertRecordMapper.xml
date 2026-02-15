@@ -2,9 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="gang.lu.riskmanagementproject.mapper.AlertRecordMapper">
 
-    <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="gang.lu.riskmanagementproject.domain.po.AlertRecord">
-        <id column="id" property="id"/>
+    <!-- 继承WorkerMapper中的公共BasePOResultMap -->
+    <resultMap id="BaseResultMap" type="gang.lu.riskmanagementproject.domain.po.AlertRecord"
+               extends="gang.lu.riskmanagementproject.mapper.WorkerMapper.BasePOResultMap">
         <result column="worker_id" property="workerId"/>
         <result column="alert_type" property="alertType"/>
         <result column="alert_level" property="alertLevel"/>
@@ -12,32 +12,7 @@
         <result column="is_handled" property="isHandled"/>
         <result column="handled_by" property="handledBy"/>
         <result column="handle_time" property="handleTime"/>
-        <result column="created_time" property="createdTime"/>
     </resultMap>
-
-    <!-- 根据工人ID查询 -->
-    <select id="selectByWorkerId" resultType="gang.lu.riskmanagementproject.domain.po.AlertRecord">
-        SELECT *
-        FROM t_alert_record
-        WHERE worker_id = #{workerId}
-        ORDER BY created_time DESC
-    </select>
-
-    <!-- 根据预警级别查询 -->
-    <select id="selectByAlertLevel" resultType="gang.lu.riskmanagementproject.domain.po.AlertRecord">
-        SELECT *
-        FROM t_alert_record
-        WHERE alert_level = #{alertLevel}
-        ORDER BY created_time DESC
-    </select>
-
-    <!-- 根据预警类型模糊查询 -->
-    <select id="selectByAlertTypeLike" resultType="gang.lu.riskmanagementproject.domain.po.AlertRecord">
-        SELECT *
-        FROM t_alert_record
-        WHERE alert_type LIKE CONCAT('%', #{alertType}, '%')
-        ORDER BY created_time DESC
-    </select>
 
     <!-- 标记为已处理 -->
     <update id="markAsHandled">

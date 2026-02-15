@@ -1,6 +1,7 @@
 package gang.lu.riskmanagementproject.domain.enums;
 
-import com.baomidou.mybatisplus.annotation.EnumValue;
+import com.baomidou.mybatisplus.annotation.IEnum;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 
 /**
@@ -10,7 +11,7 @@ import lombok.Getter;
  * @description 工人状态类，前端需要提供下拉菜单，不可让用户自己输入
  */
 @Getter
-public enum Status implements ValueEnum<String> {
+public enum Status implements ValueEnum<String>, IEnum<String> {
     /**
      * 状态枚举
      */
@@ -18,7 +19,7 @@ public enum Status implements ValueEnum<String> {
     ABNORMAL("异常"),
     OFFLINE("离线");
 
-    @EnumValue
+    @JsonValue
     private final String value;
 
     Status(String value) {
