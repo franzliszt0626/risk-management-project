@@ -1,15 +1,11 @@
 package gang.lu.riskmanagementproject.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
 import gang.lu.riskmanagementproject.domain.dto.WorkerDTO;
 import gang.lu.riskmanagementproject.domain.dto.query.WorkerQueryDTO;
 import gang.lu.riskmanagementproject.domain.po.Worker;
-import gang.lu.riskmanagementproject.domain.vo.normal.PageVO;
 import gang.lu.riskmanagementproject.domain.vo.normal.WorkerVO;
 import gang.lu.riskmanagementproject.domain.vo.statistical.worker.WorkerStatusCountVO;
 import gang.lu.riskmanagementproject.domain.vo.statistical.worker.WorkerTypeCountVO;
-
-import java.util.List;
 
 /**
  * <p>
