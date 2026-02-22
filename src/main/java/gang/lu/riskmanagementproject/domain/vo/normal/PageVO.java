@@ -6,17 +6,21 @@ import lombok.Data;
 
 import java.util.List;
 
-
 /**
+ * 通用分页返回视图对象。
+ * <p>
+ * 泛型 {@code T} 为具体业务 VO 类型，字段与 MyBatis-Plus {@code IPage} 对齐，
+ * 方便直接从 {@code IPage} 转换。
+ *
+ * @param <T> 数据列表元素类型
  * @author Franz Liszt
- * @version 1.0
- * @date 2026/2/12 13:37
- * @description 通用分页VO
+ * @since 2026-02-12
  */
 @Data
-@ApiModel(description = "通用分页返回VO")
+@ApiModel(description = "通用分页返回结果")
 public class PageVO<T> {
-    @ApiModelProperty(value = "页码", example = "1")
+
+    @ApiModelProperty(value = "当前页码", example = "1")
     private Long current;
 
     @ApiModelProperty(value = "每页条数", example = "10")
@@ -28,6 +32,6 @@ public class PageVO<T> {
     @ApiModelProperty(value = "总页数", example = "10")
     private Long pages;
 
-    @ApiModelProperty(value = "数据列表")
+    @ApiModelProperty(value = "当前页数据列表")
     private List<T> records;
 }

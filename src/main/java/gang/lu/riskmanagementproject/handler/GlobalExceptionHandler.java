@@ -25,11 +25,19 @@ import java.util.stream.Collectors;
 import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 
 /**
- * <p>
  * 全局异常处理器
- * </p>
- * 统一捕获并处理系统所有异常，返回标准化的Result格式响应，便于前端统一解析
- * 异常处理优先级：自定义业务异常 > 框架校验异常 > 数据库异常 > 通用运行时异常 > 兜底异常
+ * <p>
+ * 统一捕获并处理系统所有异常，返回标准化 {@link Result} 格式响应，便于前端统一解析。
+ *
+ * <p><b>处理优先级（由高到低）：</b>
+ * <ol>
+ *   <li>自定义业务异常 {@link BizException}</li>
+ *   <li>参数校验 / 绑定异常</li>
+ *   <li>JSON 解析异常</li>
+ *   <li>数据库相关异常</li>
+ *   <li>通用运行时异常</li>
+ *   <li>兜底异常</li>
+ * </ol>
  *
  * @author Franz Liszt
  * @since 2026-01-31
@@ -38,145 +46,120 @@ import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // ======================== 常量定义 ========================
+    private static final String JACKSON_PROBLEM_DELIMITER = "problem: ";
+    private static final String PARAM_TYPE_ERROR_TEMPLATE = "参数【%s】格式错误，请传入有效的 %s 类型值（当前值：%s）";
 
-    private static final String PROBLEM = "problem: ";
-    private static final String PARAM_TYPE_ERROR_TEMPLATE = "参数【%s】格式错误，请传入有效的%s类型值（当前值：%s）";
-
-    // ======================== 私有工具方法 ========================
+    // ========================1. 自定义业务异常（最高优先级）==========================
 
     /**
-     * 提取字段校验异常的错误信息（仅保留自定义提示，去除冗余前缀）
-     *
-     * @param fieldErrors 字段错误列表
-     * @return 拼接后的错误信息
-     */
-    private String extractFieldErrorMsg(List<FieldError> fieldErrors) {
-        if (fieldErrors == null || fieldErrors.isEmpty()) {
-            return COMMON_PARAM_VERIFY_ERROR;
-        }
-        // 只取第一个错误，不再拼接所有错误
-        FieldError firstError = fieldErrors.get(0);
-        // 拼接统一前缀 + 第一个错误的具体信息
-        return firstError.getDefaultMessage();
-    }
-
-    /**
-     * 递归获取最底层的根异常（解耦，便于复用和测试）
-     *
-     * @param throwable 原始异常
-     * @return 根异常
-     */
-    private Throwable getRootCause(Throwable throwable) {
-        if (throwable == null) {
-            return null;
-        }
-        Throwable cause = throwable.getCause();
-        return cause == null ? throwable : getRootCause(cause);
-    }
-
-    // ======================== 1. 自定义业务异常（最高优先级） ========================
-
-    /**
-     * 处理自定义业务异常
+     * 处理自定义业务异常 {@link BizException}。
+     * <p>
+     * 4xx 客户端错误使用 WARN 级别；5xx 服务端错误使用 ERROR 级别，
+     * 避免将客户端传参错误误报为服务端故障。
      */
     @ExceptionHandler(BizException.class)
     public Result<?> handleBizException(BizException e) {
-        log.warn("【业务异常】{}", e.getMessage(), e);
+        if (e.getStatus().is5xxServerError()) {
+            log.error("【业务异常-服务端】{}", e.getMessage(), e);
+        } else {
+            log.warn("【业务异常-客户端】{}", e.getMessage(), e);
+        }
         return Result.error(e.getStatus(), e.getMessage());
     }
 
     /**
-     * 处理非法参数异常（如枚举转换失败、参数值不合法等）
+     * 处理非法参数异常（如枚举转换失败、参数值不合法等）。
      */
     @ExceptionHandler(IllegalArgumentException.class)
     public Result<?> handleIllegalArgumentException(IllegalArgumentException e) {
         log.warn("【参数不合法】{}", e.getMessage(), e);
-        String errorMsg = e.getMessage().contains("不合法") && e.getMessage().contains("允许值")
+        // 若异常信息本身已包含枚举合法值提示，直接透传；否则加通用前缀
+        String msg = (e.getMessage() != null
+                && e.getMessage().contains("不合法")
+                && e.getMessage().contains("允许值"))
                 ? e.getMessage()
                 : "参数不合法：" + e.getMessage();
-        return Result.error(HttpStatus.BAD_REQUEST, errorMsg);
+        return Result.error(HttpStatus.BAD_REQUEST, msg);
     }
 
-    // ======================== 2. 参数校验/绑定异常 ========================
+    // ==============================2. 参数校验 / 绑定异常===========================
 
     /**
-     * 处理@Validated（方法参数）的校验异常
+     * 处理路径参数 / 请求参数上 {@code @Validated} 注解触发的校验异常。
      */
     @ExceptionHandler(ConstraintViolationException.class)
     public Result<?> handleConstraintViolationException(ConstraintViolationException e) {
         Set<ConstraintViolation<?>> violations = e.getConstraintViolations();
-        String errorMsg = violations.stream()
+        String msg = violations.stream()
                 .map(ConstraintViolation::getMessage)
                 .collect(Collectors.joining("；"));
-        log.warn("【Controller层方法参数校验异常】{}", errorMsg, e);
-        return Result.error(HttpStatus.BAD_REQUEST, errorMsg);
+        log.warn("【方法参数校验失败】{}", msg, e);
+        return Result.error(HttpStatus.BAD_REQUEST, msg);
     }
 
     /**
-     * 处理请求体参数校验异常（@Valid/@Validated）
+     * 处理请求体 {@code @Valid / @Validated} 注解触发的校验异常。
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Result<?> handleValidationException(MethodArgumentNotValidException e) {
-        String errorMsg = extractFieldErrorMsg(e.getBindingResult().getFieldErrors());
-        log.warn("【请求体参数校验异常】{}", errorMsg, e);
-        return Result.error(HttpStatus.BAD_REQUEST, errorMsg);
+    public Result<?> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        String msg = extractFirstFieldError(e.getBindingResult().getFieldErrors());
+        log.warn("【请求体参数校验失败】{}", msg, e);
+        return Result.error(HttpStatus.BAD_REQUEST, msg);
     }
 
     /**
-     * 处理请求参数绑定异常（表单/路径参数）
+     * 处理表单 / 路径参数绑定异常。
      */
     @ExceptionHandler(BindException.class)
     public Result<?> handleBindException(BindException e) {
-        String errorMsg = extractFieldErrorMsg(e.getBindingResult().getFieldErrors());
-        log.warn("【参数绑定异常】{}", errorMsg, e);
-        return Result.error(HttpStatus.BAD_REQUEST, errorMsg);
+        String msg = extractFirstFieldError(e.getBindingResult().getFieldErrors());
+        log.warn("【参数绑定失败】{}", msg, e);
+        return Result.error(HttpStatus.BAD_REQUEST, msg);
     }
 
     /**
-     * 处理参数类型不匹配异常（路径/请求参数类型错误）
+     * 处理路径参数 / 请求参数类型不匹配异常（如期望 Long 却传入字符串）。
      */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public Result<?> handleTypeMismatchException(MethodArgumentTypeMismatchException e) {
         String paramName = e.getName();
         String invalidValue = e.getValue() == null ? "空值" : e.getValue().toString();
         String expectedType = e.getRequiredType() == null ? "数字" : e.getRequiredType().getSimpleName();
-        String errorMsg = String.format(PARAM_TYPE_ERROR_TEMPLATE, paramName, expectedType, invalidValue);
-
-        log.warn("【参数类型不匹配】{}", errorMsg, e);
-        return Result.error(HttpStatus.BAD_REQUEST, errorMsg);
+        String msg = String.format(PARAM_TYPE_ERROR_TEMPLATE, paramName, expectedType, invalidValue);
+        log.warn("【参数类型不匹配】{}", msg, e);
+        return Result.error(HttpStatus.BAD_REQUEST, msg);
     }
 
-    // ======================== 3. JSON解析异常 ========================
+    // =============================3. JSON 解析异常=============================
 
     /**
-     * 处理JSON解析异常（参数格式错误、枚举值不合法等）
+     * 处理 JSON 解析异常（参数格式错误、枚举值不合法等）。
+     * <p>
+     * 优先提取 Jackson {@code ValueInstantiationException} 中的 "problem:" 后的具体描述；
+     * 其次使用根因的 message；最后降级为通用提示。
      */
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public Result<?> handleJsonParseError(HttpMessageNotReadableException e) {
-        String message = COMMON_JSON_PARSE_ERROR;
-        Throwable rootCause = getRootCause(e);
+    public Result<?> handleJsonParseException(HttpMessageNotReadableException e) {
+        String msg = COMMON_JSON_PARSE_ERROR;
+        Throwable root = getRootCause(e);
 
-        // 枚举解析异常
-        if (rootCause instanceof IllegalArgumentException && StrUtil.isNotBlank(rootCause.getMessage())) {
-            message = rootCause.getMessage();
-        }
-        // Jackson实例化异常（提取具体错误信息）
-        else if (rootCause instanceof com.fasterxml.jackson.databind.exc.ValueInstantiationException) {
-            String causeMsg = rootCause.getMessage();
-            if (StrUtil.isNotBlank(causeMsg) && causeMsg.contains(PROBLEM)) {
-                message = causeMsg.split(PROBLEM)[1].split(";")[0].trim();
+        if (root instanceof com.fasterxml.jackson.databind.exc.ValueInstantiationException) {
+            String causeMsg = root.getMessage();
+            if (StrUtil.isNotBlank(causeMsg) && causeMsg.contains(JACKSON_PROBLEM_DELIMITER)) {
+                msg = causeMsg.split(JACKSON_PROBLEM_DELIMITER)[1].split(";")[0].trim();
             }
+        } else if (root instanceof IllegalArgumentException && StrUtil.isNotBlank(root.getMessage())) {
+            msg = root.getMessage();
         }
 
-        log.warn("【JSON解析异常】{}", message, e);
-        return Result.error(HttpStatus.BAD_REQUEST, message);
+        log.warn("【JSON 解析失败】{}", msg, e);
+        return Result.error(HttpStatus.BAD_REQUEST, msg);
     }
 
-    // ======================== 4. 数据库相关异常 ========================
+    // ==============================4. 数据库相关异常================================
 
     /**
-     * 处理主键/唯一索引冲突异常
+     * 处理主键 / 唯一索引冲突异常。
      */
     @ExceptionHandler(DuplicateKeyException.class)
     public Result<?> handleDuplicateKeyException(DuplicateKeyException e) {
@@ -185,16 +168,16 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 处理空结果集异常
+     * 处理空结果集异常。
      */
     @ExceptionHandler(EmptyResultDataAccessException.class)
-    public Result<?> handleEmptyResultException(EmptyResultDataAccessException e) {
+    public Result<?> handleEmptyResultDataAccessException(EmptyResultDataAccessException e) {
         log.warn("【数据库空结果集】{}", e.getMessage(), e);
         return Result.error(HttpStatus.NOT_FOUND, "未查询到相关数据！");
     }
 
     /**
-     * 处理通用数据库异常（兜底）
+     * 处理通用数据库异常（兜底，优先级低于以上两个数据库异常）。
      */
     @ExceptionHandler(DataAccessException.class)
     public Result<?> handleDataAccessException(DataAccessException e) {
@@ -202,10 +185,10 @@ public class GlobalExceptionHandler {
         return Result.error(HttpStatus.INTERNAL_SERVER_ERROR, COMMON_DATABASE_ERROR);
     }
 
-    // ======================== 5. 通用运行时异常 ========================
+    // ==================================5. 通用运行时异常================================
 
     /**
-     * 处理空指针异常
+     * 处理空指针异常。
      */
     @ExceptionHandler(NullPointerException.class)
     public Result<?> handleNullPointerException(NullPointerException e) {
@@ -214,23 +197,59 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 处理通用运行时异常（数组越界、类型转换等）
+     * 处理通用运行时异常（数组越界、类型转换等）。
+     * <p>
+     * <b>注意：</b>{@link BizException}、{@link IllegalArgumentException} 均是
+     * {@link RuntimeException} 的子类，但 Spring 会优先匹配更具体的处理器，
+     * 此处只会兜底处理上方未覆盖的运行时异常。
      */
     @ExceptionHandler(RuntimeException.class)
     public Result<?> handleRuntimeException(RuntimeException e) {
         log.error("【运行时异常】{}", e.getMessage(), e);
-        String message = String.format(COMMON_RUNTIME_ERROR, e.getMessage());
-        return Result.error(HttpStatus.INTERNAL_SERVER_ERROR, message);
+        return Result.error(HttpStatus.INTERNAL_SERVER_ERROR,
+                String.format(COMMON_RUNTIME_ERROR, e.getMessage()));
     }
 
-    // ======================== 6. 兜底异常（所有未捕获的异常） ========================
+
+    // =================6. 兜底异常（所有未捕获的 Checked Exception）=====================
 
     /**
-     * 处理所有未捕获的异常（最低优先级）
+     * 兜底处理所有未被前面覆盖的异常（最低优先级）。
      */
     @ExceptionHandler(Exception.class)
     public Result<?> handleUnexpectedException(Exception e) {
         log.error("【系统未知异常】{}", e.getMessage(), e);
         return Result.error(HttpStatus.INTERNAL_SERVER_ERROR, COMMON_SYSTEM_ERROR);
+    }
+
+    // =================================私有工具方法====================================
+
+    /**
+     * 提取字段校验异常列表中第一条错误的 defaultMessage。
+     * <p>
+     * 只取第一条，避免前端看到一长串错误文案。
+     *
+     * @param fieldErrors 字段错误列表
+     * @return 错误提示信息
+     */
+    private String extractFirstFieldError(List<FieldError> fieldErrors) {
+        if (fieldErrors == null || fieldErrors.isEmpty()) {
+            return COMMON_PARAM_VERIFY_ERROR;
+        }
+        return fieldErrors.get(0).getDefaultMessage();
+    }
+
+    /**
+     * 递归获取异常链最底层的根因。
+     *
+     * @param throwable 原始异常
+     * @return 根因异常
+     */
+    private Throwable getRootCause(Throwable throwable) {
+        if (throwable == null) {
+            return null;
+        }
+        Throwable cause = throwable.getCause();
+        return cause == null ? throwable : getRootCause(cause);
     }
 }

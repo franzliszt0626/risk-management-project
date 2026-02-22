@@ -2,6 +2,7 @@ package gang.lu.riskmanagementproject.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import gang.lu.riskmanagementproject.domain.po.AlertRecord;
+import gang.lu.riskmanagementproject.domain.vo.statistical.alert.AlertUnhandledCountVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -28,4 +29,10 @@ public interface AlertRecordMapper extends BaseMapper<AlertRecord> {
      */
     int markAsHandled(@Param("id") Long id, @Param("handledBy") String handledBy, @Param("handleTime") LocalDateTime handleTime);
 
+    /**
+     * 统计当前未处理的预警记录数量，按预警级别分组
+     *
+     * @return 各级别未处理数及总数
+     */
+    AlertUnhandledCountVO countUnhandled();
 }

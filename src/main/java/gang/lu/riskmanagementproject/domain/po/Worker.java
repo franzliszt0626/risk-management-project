@@ -8,39 +8,39 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 /**
+ * 工人信息实体，对应数据库表 {@code t_worker}。
+ *
  * @author Franz Liszt
- * @version 1.0
- * @date 2026/1/31 15:07
- * @description 工人信息实体
+ * @since 2026-01-31
  */
-@EqualsAndHashCode(callSuper = true)
 @Data
+@EqualsAndHashCode(callSuper = true)
 @Accessors(chain = true)
 @TableName("t_worker")
 public class Worker extends BasePO {
 
     /**
-     * 工人工号，唯一标识
+     * 工号，全局唯一
      */
     private String workerCode;
 
     /**
-     * 工人姓名
+     * 姓名
      */
     private String name;
 
     /**
-     * 工人岗位
+     * 岗位名称
      */
     private String position;
 
     /**
-     * 工龄
+     * 工龄（年）
      */
     private Integer workYears;
 
     /**
-     * 工作种类
+     * 工种
      */
     private WorkType workType;
 
@@ -48,6 +48,4 @@ public class Worker extends BasePO {
      * 当前状态
      */
     private Status status;
-
 }
-

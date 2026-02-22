@@ -6,6 +6,7 @@ import gang.lu.riskmanagementproject.domain.dto.AlertRecordDTO;
 import gang.lu.riskmanagementproject.domain.dto.query.AlertRecordQueryDTO;
 import gang.lu.riskmanagementproject.domain.vo.normal.AlertRecordVO;
 import gang.lu.riskmanagementproject.domain.vo.normal.PageVO;
+import gang.lu.riskmanagementproject.domain.vo.statistical.alert.AlertUnhandledCountVO;
 import gang.lu.riskmanagementproject.helper.PageHelper;
 import gang.lu.riskmanagementproject.service.AlertRecordService;
 import io.swagger.annotations.Api;
@@ -119,5 +120,15 @@ public class AlertRecordController {
             @NotBlank(message = ALERT_LEVEL_HANDLER_EMPTY) String handledBy) {
         alertRecordService.markAlertRecordAsHandled(id, handledBy);
         return Result.ok(ALERT_RECORD_MARK_HANDLED_SUCCESS);
+    }
+
+    @ApiOperation(
+            value = "统计未处理预警记录数量",
+            notes = "按预警级别（警告 / 严重）分别统计当前未处理的记录数，并返回总数。"
+    )
+    @GetMapping("/count/unhandled")
+    public Result<AlertUnhandledCountVO> countUnhandledAlerts() {
+        AlertUnhandledCountVO vo = alertRecordService.countUnhandledAlerts();
+        return Result.ok(ALERT_RECORD_COUNT_UNHANDLED_SUCCESS, vo);
     }
 }

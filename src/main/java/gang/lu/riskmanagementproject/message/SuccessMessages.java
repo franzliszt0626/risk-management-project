@@ -21,7 +21,7 @@ public interface SuccessMessages {
     String ALERT_RECORD_DELETE_SUCCESS = "删除预警记录成功！";
     String ALERT_RECORD_BATCH_DELETE_SUCCESS = "批量删除预警记录成功！";
     String ALERT_RECORD_MARK_HANDLED_SUCCESS = "标记预警记录为已处理成功！";
-
+    String ALERT_RECORD_COUNT_UNHANDLED_SUCCESS = "统计未处理预警记录成功！";
 
     /**
      * 风险指标

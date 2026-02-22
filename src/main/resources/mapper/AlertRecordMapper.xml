@@ -23,5 +23,15 @@
         WHERE id = #{id}
     </update>
 
+    <!-- 统计当前未处理（is_handled = 0）的预警记录数量，但是按等级分组 -->
+    <select id="countUnhandled"
+            resultType="gang.lu.riskmanagementproject.domain.vo.statistical.alert.AlertUnhandledCountVO">
+        SELECT COUNT(CASE WHEN alert_level = '警告' THEN 1 END) AS warning_count,
+               COUNT(CASE WHEN alert_level = '严重' THEN 1 END) AS critical_count,
+               COUNT(*)                                         AS total_unhandled_count
+        FROM t_alert_record
+        WHERE is_handled = 0
+    </select>
+
 
 </mapper>

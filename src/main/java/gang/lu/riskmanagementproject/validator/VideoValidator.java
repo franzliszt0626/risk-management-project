@@ -11,25 +11,45 @@ import static gang.lu.riskmanagementproject.common.BusinessConstants.MAX_FILE_SI
 import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 
 /**
+ * 视频文件校验器
+ * <p>
+ * 对上传的视频文件做三层校验：非空、文件大小、内容类型（MIME）。
+ * 合法类型列表由 {@link gang.lu.riskmanagementproject.common.BusinessConstants#ALLOWED_TYPES} 统一维护。
+ *
  * @author Franz Liszt
- * @version 1.0
- * @date 2026/2/22 14:37
+ * @since 2026-02-22
  */
 @Component
 public class VideoValidator {
 
+    /**
+     * 字节转 MB 的换算基数
+     */
+    private static final long BYTES_PER_MB = 1024L * 1024L;
+
+    /**
+     * 校验视频文件合法性，依次执行以下三层校验：
+     * <ol>
+     *   <li>文件不能为空；</li>
+     *   <li>文件大小不能超过 {@link gang.lu.riskmanagementproject.common.BusinessConstants#MAX_FILE_SIZE}（50 MB）；</li>
+     *   <li>Content-Type 必须在 {@link gang.lu.riskmanagementproject.common.BusinessConstants#ALLOWED_TYPES} 中。</li>
+     * </ol>
+     *
+     * @param video 上传的视频文件
+     * @throws BizException 任意一层校验不通过时抛出 400 异常
+     */
     public void validateVideoFile(MultipartFile video) {
         if (video == null || video.isEmpty()) {
             throw new BizException(HttpStatus.BAD_REQUEST, VIDEO_EMPTY);
         }
         if (video.getSize() > MAX_FILE_SIZE) {
-            throw new BizException(HttpStatus.BAD_REQUEST,
-                    String.format(VIDEO_SIZE_INVALID, video.getSize()));
+            // ★ 原代码直接传 bytes，单位显示有误；此处换算为 MB（保留一位小数）
+            String sizeMb = String.format("%.1f", (double) video.getSize() / BYTES_PER_MB);
+            throw new BizException(HttpStatus.BAD_REQUEST, String.format(VIDEO_SIZE_INVALID, sizeMb));
         }
         String contentType = video.getContentType();
         if (ObjectUtil.isNull(contentType) || !ALLOWED_TYPES.contains(contentType.toLowerCase())) {
-            throw new BizException(HttpStatus.BAD_REQUEST,
-                    VIDEO_TYPE_INVALID);
+            throw new BizException(HttpStatus.BAD_REQUEST, VIDEO_TYPE_INVALID);
         }
     }
 }

@@ -4,6 +4,7 @@ import gang.lu.riskmanagementproject.domain.dto.AlertRecordDTO;
 import gang.lu.riskmanagementproject.domain.dto.query.AlertRecordQueryDTO;
 import gang.lu.riskmanagementproject.domain.po.AlertRecord;
 import gang.lu.riskmanagementproject.domain.vo.normal.AlertRecordVO;
+import gang.lu.riskmanagementproject.domain.vo.statistical.alert.AlertUnhandledCountVO;
 
 /**
  * <p>
@@ -23,4 +24,9 @@ public interface AlertRecordService extends BaseCrudService<AlertRecord, AlertRe
      */
     void markAlertRecordAsHandled(Long id, String handledBy);
 
+    /**
+     * 统计未处理的预警记录个数
+     * @return 个数统计实体
+     */
+    AlertUnhandledCountVO countUnhandledAlerts();
 }

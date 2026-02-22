@@ -33,6 +33,8 @@ public interface BusinessConstants {
     String HANDLE_ALERT_RECORD = "标记预警记录已处理";
     String DELETE_ALERT_RECORD = "删除预警记录";
     String BATCH_DELETE_ALERT_RECORD = "批量删除预警记录";
+    String COUNT_UNHANDLED_ALERT = "统计未处理预警记录";
+
 
 
     /**

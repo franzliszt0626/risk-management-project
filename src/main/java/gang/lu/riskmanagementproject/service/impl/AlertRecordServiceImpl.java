@@ -12,6 +12,7 @@ import gang.lu.riskmanagementproject.domain.enums.field.AlertLevel;
 import gang.lu.riskmanagementproject.domain.po.AlertRecord;
 import gang.lu.riskmanagementproject.domain.vo.normal.AlertRecordVO;
 import gang.lu.riskmanagementproject.domain.vo.normal.PageVO;
+import gang.lu.riskmanagementproject.domain.vo.statistical.alert.AlertUnhandledCountVO;
 import gang.lu.riskmanagementproject.exception.BizException;
 import gang.lu.riskmanagementproject.helper.QueryWrapperHelper;
 import gang.lu.riskmanagementproject.mapper.AlertRecordMapper;
@@ -191,9 +192,7 @@ public class AlertRecordServiceImpl
     public void markAlertRecordAsHandled(Long id, String handledBy) {
         generalValidator.validateIdExist(id, baseMapper, ALERT_RECORD_NOT_EXIST);
         generalValidator.validateStringNotBlank(handledBy, BusinessConstants.HANDLED_BY, HANDLE_ALERT_RECORD);
-        // 拿到对应的记录
         AlertRecord alertRecord = baseMapper.selectById(id);
-        // 如果已经标注为已处理
         if (alertRecord.getIsHandled()) {
             throw new BizException(HttpStatus.BAD_REQUEST, ALERT_RECORD_ALREADY_HANDLED_ERROR);
         }
@@ -202,4 +201,14 @@ public class AlertRecordServiceImpl
             throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR, ALERT_RECORD_HANDLE_ERROR);
         }
     }
+
+    /**
+     * 统计当前未处理的预警记录数量（按预警级别分组）
+     */
+    @Override
+    @BusinessLog(value = COUNT_UNHANDLED_ALERT, recordResult = true, logLevel = BusinessLog.LogLevel.INFO)
+    public AlertUnhandledCountVO countUnhandledAlerts() {
+        return baseMapper.countUnhandled();
+    }
+
 }

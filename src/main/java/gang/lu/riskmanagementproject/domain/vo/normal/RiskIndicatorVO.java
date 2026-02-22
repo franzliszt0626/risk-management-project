@@ -8,34 +8,34 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
+ * 风险指标视图对象，用于前端展示单次监测记录。
+ *
  * @author Franz Liszt
- * @version 1.0
- * @date 2026/1/31 16:04
- * @description 风险数据前端展示类
+ * @since 2026-01-31
  */
-
-
 @Data
-@ApiModel(description = "实时风险指标 - 视图对象")
+@ApiModel(description = "风险指标 - 视图对象")
 public class RiskIndicatorVO {
-    @ApiModelProperty("工人id")
+
+    @ApiModelProperty(value = "关联工人 ID", example = "1")
     private Long workerId;
 
-    @ApiModelProperty("工人心率")
+    @ApiModelProperty(value = "心率（bpm）", example = "98")
     private Integer heartRate;
 
-    @ApiModelProperty("工人呼吸率")
+    @ApiModelProperty(value = "呼吸率（次/min）", example = "20")
     private Integer respiratoryRate;
 
-    @ApiModelProperty("工人综合疲劳指数")
+    @ApiModelProperty(value = "疲劳百分比（%）", example = "72.5")
     private Double fatiguePercent;
 
-    @ApiModelProperty(value = "工人的风险等级", allowableValues = "低风险、中风险、高风险、严重风险")
+    @ApiModelProperty(value = "综合风险等级（低风险 / 中风险 / 高风险 / 严重风险）",
+            allowableValues = "低风险,中风险,高风险,严重风险", example = "高风险")
     private RiskLevel riskLevel;
 
-    @ApiModelProperty("是否标注为紧急")
+    @ApiModelProperty(value = "是否触发报警", example = "true")
     private Boolean alertFlag;
 
-    @ApiModelProperty("本次记录的时间")
+    @ApiModelProperty(value = "记录创建时间", example = "2026-02-01 09:00:00")
     private LocalDateTime createTime;
 }
