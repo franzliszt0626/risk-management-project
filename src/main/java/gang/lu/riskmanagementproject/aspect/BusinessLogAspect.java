@@ -1,6 +1,5 @@
 package gang.lu.riskmanagementproject.aspect;
 
-
 import cn.hutool.json.JSONUtil;
 import gang.lu.riskmanagementproject.annotation.BusinessLog;
 import lombok.extern.slf4j.Slf4j;
@@ -19,114 +18,149 @@ import java.util.Arrays;
 import java.util.Objects;
 
 /**
+ * 业务操作日志切面。
+ * <p>
+ * 优化点：
+ * <ol>
+ *   <li>敏感字段过滤扩展为常量列表，方便维护。</li>
+ *   <li>返回值若为 {@code byte[]}（如 PDF 二进制），不打印内容，改为打印字节大小。</li>
+ *   <li>返回值若为 {@link String} 且超过 {@link #MAX_RESULT_LEN} 字符，截断后打印，
+ *       避免 AI 原始 JSON 撑爆日志。</li>
+ *   <li>统一日志前缀格式，与 {@link ValidateLogAspect} 风格对齐。</li>
+ * </ol>
+ *
  * @author Franz Liszt
  * @version 1.0
- * @date 2026/2/9 13:16
- * @description 业务操作日志切面
- * 自动记录方法执行的日志（成功/失败、参数、耗时、请求信息等）
+ * @date 2026/2/22
  */
 @Slf4j
 @Aspect
 @Component
 public class BusinessLogAspect {
 
-    public static final String PASSWORD = "password";
+    /**
+     * 敏感参数关键词（出现即脱敏）
+     */
+    private static final String[] SENSITIVE_KEYWORDS = {"password", "token", "secret", "apiKey"};
 
     /**
-     * 切点：拦截所有带有@BusinessLog注解的方法
+     * 字符串类型返回值最大打印长度（超出截断）—— 避免 AI 大段 JSON 撑爆日志
      */
+    private static final int MAX_RESULT_LEN = 500;
+
+    // ─────────────────────────────────────────────────────────────
+
     @Pointcut("@annotation(gang.lu.riskmanagementproject.annotation.BusinessLog)")
     public void businessLogPointcut() {
     }
 
-    /**
-     * 环绕通知：在方法执行前后记录日志
-     */
     @Around("businessLogPointcut()")
     public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
-        // 1. 获取方法元数据
+
+        // ── 1. 元数据 ──────────────────────────────────────────────
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
-        BusinessLog businessLog = method.getAnnotation(BusinessLog.class);
-        String businessName = businessLog.value();
-        String methodFullName = String.format("%s.%s", joinPoint.getTarget().getClass().getName(), method.getName());
-        BusinessLog.LogLevel logLevel = businessLog.logLevel();
-        // 2. 构建基础日志上下文
-        StringBuilder logContext = new StringBuilder();
-        logContext.append(String.format("【业务操作：%s】方法：%s", businessName, methodFullName));
-        // 3. 获取并记录请求上下文（Web环境）
-        if (businessLog.recordRequestContext()) {
+        BusinessLog annotation = method.getAnnotation(BusinessLog.class);
+
+        String bizName = annotation.value();
+        String fullName = joinPoint.getTarget().getClass().getName() + "." + method.getName();
+        BusinessLog.LogLevel level = annotation.logLevel();
+
+        // ── 2. 请求上下文 ──────────────────────────────────────────
+        StringBuilder ctx = new StringBuilder();
+        ctx.append(String.format("【%s】方法: %s", bizName, fullName));
+
+        if (annotation.recordRequestContext()) {
             try {
-                ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-                if (Objects.nonNull(attributes)) {
-                    HttpServletRequest request = attributes.getRequest();
-                    // 获取客户端IP（原生Servlet方式，不依赖hutool）
-                    String clientIp = request.getRemoteAddr();
-                    // 补充请求信息
-                    logContext.append(String.format(
-                            " | 请求IP：%s | 请求方式：%s | 请求路径：%s | 客户端浏览器：%s",
-                            clientIp,
-                            request.getMethod(),
-                            request.getRequestURI(),
-                            request.getHeader("User-Agent") != null ? request.getHeader("User-Agent") : "未知"
-                    ));
+                ServletRequestAttributes attrs =
+                        (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+                if (Objects.nonNull(attrs)) {
+                    HttpServletRequest req = attrs.getRequest();
+                    ctx.append(String.format(" | IP: %s | %s %s | UA: %s",
+                            req.getRemoteAddr(),
+                            req.getMethod(),
+                            req.getRequestURI(),
+                            req.getHeader("User-Agent") != null ? req.getHeader("User-Agent") : "未知"));
                 } else {
-                    logContext.append(" | 非Web环境（如定时任务）");
+                    ctx.append(" | 非Web环境");
                 }
-            } catch (Exception e) {
-                logContext.append(" | 请求上下文获取失败：").append(e.getMessage());
+            } catch (Exception ex) {
+                ctx.append(" | 请求上下文异常: ").append(ex.getMessage());
             }
         }
-        // 4. 记录方法开始执行日志
-        long startTime = System.currentTimeMillis();
-        logByLevel(logLevel, logContext.append(" | 执行开始").toString());
-        // 记录入参（如果开启）
-        // 5. 记录入参（过滤敏感信息）
-        if (businessLog.recordParams()) {
-            Object[] args = joinPoint.getArgs();
-            String paramsStr = Arrays.stream(args)
+
+        // ── 3. 开始日志 ────────────────────────────────────────────
+        long startMs = System.currentTimeMillis();
+        logByLevel(level, ctx + " | 开始执行");
+
+        // ── 4. 入参日志 ────────────────────────────────────────────
+        if (annotation.recordParams()) {
+            String params = Arrays.stream(joinPoint.getArgs())
                     .map(arg -> {
-                        // 过滤敏感参数（密码/令牌等）
-                        if (arg instanceof String && arg.toString().contains(PASSWORD)) {
-                            return "******";
+                        if (arg == null) {
+                            return "null";
                         }
-                        // 复杂对象转JSON（空值处理）
-                        return arg == null ? "null" : JSONUtil.toJsonStr(arg);
+                        String argStr = arg.toString();
+                        for (String keyword : SENSITIVE_KEYWORDS) {
+                            if (argStr.toLowerCase().contains(keyword.toLowerCase())) {
+                                return "******";
+                            }
+                        }
+                        return JSONUtil.toJsonStr(arg);
                     })
                     .reduce((a, b) -> a + ", " + b)
                     .orElse("无参数");
-            logByLevel(logLevel, String.format("【业务操作：%s】入参：%s", businessName, paramsStr));
+            logByLevel(level, String.format("【%s】入参: %s", bizName, params));
         }
-        Object result;
+
+        // ── 5. 执行目标方法 ────────────────────────────────────────
         try {
-            // 6. 执行目标方法
-            result = joinPoint.proceed();
+            Object result = joinPoint.proceed();
+            long costMs = System.currentTimeMillis() - startMs;
 
-            // 7. 记录方法执行成功日志
-            long costTime = System.currentTimeMillis() - startTime;
-            logByLevel(logLevel, String.format(
-                    "【业务操作：%s】执行成功 | 耗时：%dms | 方法：%s",
-                    businessName, costTime, methodFullName
-            ));
+            logByLevel(level, String.format("【%s】执行成功 | 耗时: %d ms | 方法: %s",
+                    bizName, costMs, fullName));
 
-            // 8. 记录返回值（按需开启）
-            if (businessLog.recordResult()) {
-                String resultStr = result == null ? "null" : JSONUtil.toJsonStr(result);
-                logByLevel(logLevel, String.format("【业务操作：%s】返回值：%s", businessName, resultStr));
+            // ── 6. 返回值日志（智能处理）─────────────────────────
+            if (annotation.recordResult() && result != null) {
+                logByLevel(level, String.format("【%s】返回值: %s", bizName, formatResult(result)));
             }
+
             return result;
+
         } catch (Exception e) {
-            // 9. 记录方法执行失败日志（ERROR级别强制输出）
-            long costTime = System.currentTimeMillis() - startTime;
-            log.error("【业务操作：{}】执行失败 | 耗时：{} ms | 方法：{} | 异常类型：{} | 异常信息：{}", businessName, costTime, methodFullName, e.getClass().getSimpleName(), e.getMessage());
-            // 异常继续抛出，让全局异常处理器处理
+            long costMs = System.currentTimeMillis() - startMs;
+            log.error("【{}】执行失败 | 耗时: {} ms | 方法: {} | 异常: {} - {}",
+                    bizName, costMs, fullName, e.getClass().getSimpleName(), e.getMessage());
             throw e;
         }
     }
+    
 
     /**
-     * 根据指定日志级别输出日志
+     * 智能格式化返回值：
+     * <ul>
+     *   <li>{@code byte[]} → 打印字节大小（PDF/文件场景）</li>
+     *   <li>超长字符串 → 截断并标注原始长度</li>
+     *   <li>其他 → JSON 序列化</li>
+     * </ul>
      */
+    private String formatResult(Object result) {
+        if (result instanceof byte[]) {
+            int sizeKb = ((byte[]) result).length / 1024;
+            return String.format("[byte[] 大小: %d KB (%d bytes)]",
+                    sizeKb, ((byte[]) result).length);
+        }
+        String json = result instanceof String
+                ? (String) result
+                : JSONUtil.toJsonStr(result);
+        if (json.length() > MAX_RESULT_LEN) {
+            return json.substring(0, MAX_RESULT_LEN)
+                    + String.format("... [已截断，原始长度: %d 字符]", json.length());
+        }
+        return json;
+    }
+
     private void logByLevel(BusinessLog.LogLevel level, String message) {
         switch (level) {
             case DEBUG:
@@ -138,9 +172,9 @@ public class BusinessLogAspect {
             case ERROR:
                 log.error(message);
                 break;
-            case INFO:
             default:
                 log.info(message);
+                break;
         }
     }
 }

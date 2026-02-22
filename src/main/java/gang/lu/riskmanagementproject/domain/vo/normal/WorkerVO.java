@@ -1,8 +1,8 @@
 package gang.lu.riskmanagementproject.domain.vo.normal;
 
 
-import gang.lu.riskmanagementproject.domain.enums.Status;
-import gang.lu.riskmanagementproject.domain.enums.WorkType;
+import gang.lu.riskmanagementproject.domain.enums.field.Status;
+import gang.lu.riskmanagementproject.domain.enums.field.WorkType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

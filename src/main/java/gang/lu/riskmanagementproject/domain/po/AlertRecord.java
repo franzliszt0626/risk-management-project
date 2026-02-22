@@ -3,7 +3,7 @@ package gang.lu.riskmanagementproject.domain.po;
 
 
 import com.baomidou.mybatisplus.annotation.*;
-import gang.lu.riskmanagementproject.domain.enums.AlertLevel;
+import gang.lu.riskmanagementproject.domain.enums.field.AlertLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;

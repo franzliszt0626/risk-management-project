@@ -3,7 +3,7 @@ package gang.lu.riskmanagementproject.domain.dto.query;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import gang.lu.riskmanagementproject.annotation.ValidEnum;
 import gang.lu.riskmanagementproject.common.BusinessConstants;
-import gang.lu.riskmanagementproject.domain.enums.RiskLevel;
+import gang.lu.riskmanagementproject.domain.enums.field.RiskLevel;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -15,7 +15,7 @@ import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDateTime;
 
-import static gang.lu.riskmanagementproject.common.FailedMessages.*;
+import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 
 /**
  * @author Franz Liszt

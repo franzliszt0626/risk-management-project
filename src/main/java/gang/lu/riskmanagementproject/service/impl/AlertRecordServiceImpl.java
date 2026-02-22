@@ -8,7 +8,7 @@ import gang.lu.riskmanagementproject.common.BusinessConstants;
 import gang.lu.riskmanagementproject.converter.AlertRecordConverter;
 import gang.lu.riskmanagementproject.domain.dto.AlertRecordDTO;
 import gang.lu.riskmanagementproject.domain.dto.query.AlertRecordQueryDTO;
-import gang.lu.riskmanagementproject.domain.enums.AlertLevel;
+import gang.lu.riskmanagementproject.domain.enums.field.AlertLevel;
 import gang.lu.riskmanagementproject.domain.po.AlertRecord;
 import gang.lu.riskmanagementproject.domain.vo.normal.AlertRecordVO;
 import gang.lu.riskmanagementproject.domain.vo.normal.PageVO;
@@ -25,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 import static gang.lu.riskmanagementproject.common.BusinessConstants.*;
-import static gang.lu.riskmanagementproject.common.FailedMessages.*;
+import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 
 /**
  * <p>

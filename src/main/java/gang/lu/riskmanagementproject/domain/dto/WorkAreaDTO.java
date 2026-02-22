@@ -2,13 +2,13 @@ package gang.lu.riskmanagementproject.domain.dto;
 
 import gang.lu.riskmanagementproject.annotation.ValidEnum;
 import gang.lu.riskmanagementproject.common.BusinessConstants;
-import gang.lu.riskmanagementproject.domain.enums.AreaRiskLevel;
+import gang.lu.riskmanagementproject.domain.enums.field.AreaRiskLevel;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
-import static gang.lu.riskmanagementproject.common.FailedMessages.*;
+import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 
 
 /**

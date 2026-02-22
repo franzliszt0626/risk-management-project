@@ -23,8 +23,8 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
-import static gang.lu.riskmanagementproject.common.FailedMessages.*;
-import static gang.lu.riskmanagementproject.common.SuccessMessages.*;
+import static gang.lu.riskmanagementproject.message.FailedMessages.*;
+import static gang.lu.riskmanagementproject.message.SuccessMessages.*;
 
 /**
  * <p>

@@ -2,8 +2,8 @@ package gang.lu.riskmanagementproject.domain.dto.query;
 
 import gang.lu.riskmanagementproject.annotation.ValidEnum;
 import gang.lu.riskmanagementproject.common.BusinessConstants;
-import gang.lu.riskmanagementproject.domain.enums.Status;
-import gang.lu.riskmanagementproject.domain.enums.WorkType;
+import gang.lu.riskmanagementproject.domain.enums.field.Status;
+import gang.lu.riskmanagementproject.domain.enums.field.WorkType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -11,7 +11,7 @@ import lombok.EqualsAndHashCode;
 
 import javax.validation.constraints.PositiveOrZero;
 
-import static gang.lu.riskmanagementproject.common.FailedMessages.WORKER_YEAR_NEGATIVE_INVALID;
+import static gang.lu.riskmanagementproject.message.FailedMessages.WORKER_YEAR_NEGATIVE_INVALID;
 
 /**
  * @author Franz Liszt

@@ -6,7 +6,7 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.Objects;
 
-import static gang.lu.riskmanagementproject.common.FailedMessages.*;
+import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 
 
 /**

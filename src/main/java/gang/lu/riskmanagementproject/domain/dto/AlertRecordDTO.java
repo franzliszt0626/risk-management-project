@@ -3,7 +3,7 @@ package gang.lu.riskmanagementproject.domain.dto;
 import gang.lu.riskmanagementproject.annotation.ValidEnum;
 import gang.lu.riskmanagementproject.annotation.ValidId;
 import gang.lu.riskmanagementproject.common.BusinessConstants;
-import gang.lu.riskmanagementproject.domain.enums.AlertLevel;
+import gang.lu.riskmanagementproject.domain.enums.field.AlertLevel;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -11,7 +11,7 @@ import org.hibernate.validator.constraints.Length;
 
 import java.time.LocalDateTime;
 
-import static gang.lu.riskmanagementproject.common.FailedMessages.ALERT_RECORD_MESSAGE_INVALID;
+import static gang.lu.riskmanagementproject.message.FailedMessages.ALERT_RECORD_MESSAGE_INVALID;
 
 /**
  * @author Franz Liszt

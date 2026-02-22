@@ -1,6 +1,6 @@
 package gang.lu.riskmanagementproject.domain.dto.query;
 
-import gang.lu.riskmanagementproject.config.PageConfig;
+import gang.lu.riskmanagementproject.property.PageProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -10,8 +10,8 @@ import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.Min;
 
-import static gang.lu.riskmanagementproject.common.FailedMessages.PAGE_NUMBER_INVALID;
-import static gang.lu.riskmanagementproject.common.FailedMessages.PAGE_SIZE_INVALID;
+import static gang.lu.riskmanagementproject.message.FailedMessages.PAGE_NUMBER_INVALID;
+import static gang.lu.riskmanagementproject.message.FailedMessages.PAGE_SIZE_INVALID;
 
 /**
  * @author Franz Liszt
@@ -28,15 +28,15 @@ public class PageQueryDTO {
     /**
      * 默认全局页码
      */
-    public static final Integer DEFAULT_PAGE_NUM = PageConfig.DEFAULT_NUM;
+    public static final Integer DEFAULT_PAGE_NUM = PageProperty.DEFAULT_NUM;
     /**
      * 默认全局页大小
      */
-    public static final Integer DEFAULT_PAGE_SIZE = PageConfig.DEFAULT_SIZE;
+    public static final Integer DEFAULT_PAGE_SIZE = PageProperty.DEFAULT_SIZE;
     /**
      * 默认全局最大页大小
      */
-    public static final Integer DEFAULT_MAX_PAGE_SIZE = PageConfig.MAX_SIZE;
+    public static final Integer DEFAULT_MAX_PAGE_SIZE = PageProperty.MAX_SIZE;
 
     @ApiModelProperty(value = "页码（默认1）", example = "1")
     @Min(value = 1, message = PAGE_NUMBER_INVALID)

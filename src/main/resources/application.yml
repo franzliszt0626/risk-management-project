@@ -1,4 +1,8 @@
 spring:
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
   datasource:
     url: jdbc:mysql://127.0.0.1:3306/risk-management-project?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai&rewriteBatchedStatements=true
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -10,7 +14,7 @@ spring:
     max-size: 100
 logging:
   level:
-    com.itheima: debug
+    gang.lu.riskmanagementproject: DEBUG
   pattern:
     dateformat: HH:mm:ss
 mybatis-plus:
@@ -53,3 +57,15 @@ medical:
   max-heart-rate: 300
   min-respiratory-rate: 1
   max-respiratory-rate: 60
+
+algorithm:
+  base-url: http://localhost:8000
+  connect-timeout: 10
+  read-timeout: 60
+  write-timeout: 30
+
+dashscope:
+  api-key: sk-2d09e91aff2f487a8375a6c251cf1d56
+  model: qwen-turbo
+  max-tokens: 1024
+  base-url: https://dashscope.aliyuncs.com/compatible-mode/v1

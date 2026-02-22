@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static gang.lu.riskmanagementproject.common.FailedMessages.*;
+import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 
 /**
  * <p>

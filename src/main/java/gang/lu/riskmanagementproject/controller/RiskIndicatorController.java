@@ -25,8 +25,8 @@ import javax.validation.constraints.NotEmpty;
 import java.time.LocalDate;
 import java.util.List;
 
-import static gang.lu.riskmanagementproject.common.FailedMessages.RISK_INDICATOR_ID_LIST_EMPTY;
-import static gang.lu.riskmanagementproject.common.SuccessMessages.*;
+import static gang.lu.riskmanagementproject.message.FailedMessages.RISK_INDICATOR_ID_LIST_EMPTY;
+import static gang.lu.riskmanagementproject.message.SuccessMessages.*;
 
 /**
  * <p>

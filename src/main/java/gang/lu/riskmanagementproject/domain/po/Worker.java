@@ -1,8 +1,8 @@
 package gang.lu.riskmanagementproject.domain.po;
 
 import com.baomidou.mybatisplus.annotation.TableName;
-import gang.lu.riskmanagementproject.domain.enums.Status;
-import gang.lu.riskmanagementproject.domain.enums.WorkType;
+import gang.lu.riskmanagementproject.domain.enums.field.Status;
+import gang.lu.riskmanagementproject.domain.enums.field.WorkType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;

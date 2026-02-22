@@ -8,7 +8,7 @@ import gang.lu.riskmanagementproject.common.BusinessConstants;
 import gang.lu.riskmanagementproject.converter.WorkAreaConverter;
 import gang.lu.riskmanagementproject.domain.dto.WorkAreaDTO;
 import gang.lu.riskmanagementproject.domain.dto.query.WorkAreaQueryDTO;
-import gang.lu.riskmanagementproject.domain.enums.AreaRiskLevel;
+import gang.lu.riskmanagementproject.domain.enums.field.AreaRiskLevel;
 import gang.lu.riskmanagementproject.domain.po.WorkArea;
 import gang.lu.riskmanagementproject.domain.vo.normal.PageVO;
 import gang.lu.riskmanagementproject.domain.vo.normal.WorkAreaVO;
@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import static gang.lu.riskmanagementproject.common.BusinessConstants.*;
-import static gang.lu.riskmanagementproject.common.FailedMessages.*;
+import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 
 /**
  * <p>

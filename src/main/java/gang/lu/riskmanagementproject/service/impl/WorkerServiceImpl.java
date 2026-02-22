@@ -8,8 +8,8 @@ import gang.lu.riskmanagementproject.common.BusinessConstants;
 import gang.lu.riskmanagementproject.converter.WorkerConverter;
 import gang.lu.riskmanagementproject.domain.dto.WorkerDTO;
 import gang.lu.riskmanagementproject.domain.dto.query.WorkerQueryDTO;
-import gang.lu.riskmanagementproject.domain.enums.Status;
-import gang.lu.riskmanagementproject.domain.enums.WorkType;
+import gang.lu.riskmanagementproject.domain.enums.field.Status;
+import gang.lu.riskmanagementproject.domain.enums.field.WorkType;
 import gang.lu.riskmanagementproject.domain.po.Worker;
 import gang.lu.riskmanagementproject.domain.vo.normal.PageVO;
 import gang.lu.riskmanagementproject.domain.vo.normal.WorkerVO;
@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import static gang.lu.riskmanagementproject.common.BusinessConstants.*;
-import static gang.lu.riskmanagementproject.common.FailedMessages.*;
+import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 
 /**
  * <p>

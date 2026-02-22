@@ -6,7 +6,7 @@ import gang.lu.riskmanagementproject.annotation.BusinessLog;
 import gang.lu.riskmanagementproject.converter.RiskIndicatorConverter;
 import gang.lu.riskmanagementproject.domain.dto.RiskIndicatorDTO;
 import gang.lu.riskmanagementproject.domain.dto.query.RiskIndicatorQueryDTO;
-import gang.lu.riskmanagementproject.domain.enums.RiskLevel;
+import gang.lu.riskmanagementproject.domain.enums.field.RiskLevel;
 import gang.lu.riskmanagementproject.domain.po.RiskIndicator;
 import gang.lu.riskmanagementproject.domain.vo.normal.PageVO;
 import gang.lu.riskmanagementproject.domain.vo.normal.RiskIndicatorVO;
@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import static gang.lu.riskmanagementproject.common.BusinessConstants.*;
-import static gang.lu.riskmanagementproject.common.FailedMessages.*;
+import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 
 /**
  * <p>

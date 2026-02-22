@@ -1,12 +1,12 @@
 package gang.lu.riskmanagementproject.validator;
 
 import cn.hutool.core.util.ObjectUtil;
-import gang.lu.riskmanagementproject.config.MedicalConfig;
+import gang.lu.riskmanagementproject.property.MedicalProperty;
 import gang.lu.riskmanagementproject.exception.BizException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import static gang.lu.riskmanagementproject.common.FailedMessages.*;
+import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 
 /**
  * @author Franz Liszt
@@ -18,7 +18,7 @@ import static gang.lu.riskmanagementproject.common.FailedMessages.*;
 @RequiredArgsConstructor
 public class MedicalValidator {
 
-    private final MedicalConfig medicalConfig;
+    private final MedicalProperty medicalProperty;
 
 
     /**
@@ -30,7 +30,7 @@ public class MedicalValidator {
         if (ObjectUtil.isNull(heartRate)) {
             throw new BizException(RISK_HEART_RATE_EMPTY);
         }
-        if (heartRate < medicalConfig.getMinHeartRate() || heartRate > medicalConfig.getMaxHeartRate()) {
+        if (heartRate < medicalProperty.getMinHeartRate() || heartRate > medicalProperty.getMaxHeartRate()) {
             throw new BizException(RISK_HEART_RATE_INVALID);
         }
     }
@@ -44,7 +44,7 @@ public class MedicalValidator {
         if (ObjectUtil.isNull(respiratoryRate)) {
             throw new BizException(RISK_RESPIRATORY_RATE_EMPTY);
         }
-        if (respiratoryRate < medicalConfig.getMinRespiratoryRate() || respiratoryRate > medicalConfig.getMaxRespiratoryRate()) {
+        if (respiratoryRate < medicalProperty.getMinRespiratoryRate() || respiratoryRate > medicalProperty.getMaxRespiratoryRate()) {
             throw new BizException(RISK_RESPIRATORY_RATE_INVALID);
         }
     }
@@ -59,7 +59,7 @@ public class MedicalValidator {
         if (ObjectUtil.isNull(fatiguePercent)) {
             throw new BizException(RISK_FATIGUE_PERCENT_EMPTY);
         }
-        if (fatiguePercent < medicalConfig.getMinFatiguePercent() || fatiguePercent > medicalConfig.getMaxFatiguePercent()) {
+        if (fatiguePercent < medicalProperty.getMinFatiguePercent() || fatiguePercent > medicalProperty.getMaxFatiguePercent()) {
             throw new BizException(RISK_FATIGUE_PERCENT_INVALID);
         }
     }

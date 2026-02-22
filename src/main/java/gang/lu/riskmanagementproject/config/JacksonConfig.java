@@ -21,6 +21,7 @@ import java.time.format.DateTimeFormatter;
  */
 @Configuration
 public class JacksonConfig {
+
     /**
      * 全局时间格式
      */

@@ -24,8 +24,8 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
-import static gang.lu.riskmanagementproject.common.FailedMessages.WORKER_DELETE_BATCH_ID_EMPTY;
-import static gang.lu.riskmanagementproject.common.SuccessMessages.*;
+import static gang.lu.riskmanagementproject.message.FailedMessages.WORKER_DELETE_BATCH_ID_EMPTY;
+import static gang.lu.riskmanagementproject.message.SuccessMessages.*;
 
 /**
  * <p>

@@ -3,7 +3,7 @@ package gang.lu.riskmanagementproject.domain.dto.query;
 
 import gang.lu.riskmanagementproject.annotation.ValidEnum;
 import gang.lu.riskmanagementproject.common.BusinessConstants;
-import gang.lu.riskmanagementproject.domain.enums.AreaRiskLevel;
+import gang.lu.riskmanagementproject.domain.enums.field.AreaRiskLevel;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
