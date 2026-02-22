@@ -330,7 +330,7 @@ GET /api/risk-ai/predict/1
 **Franz Liszt**
 
 [![Email](https://img.shields.io/badge/Email-franzliszt709@gmail.com-EA4335?style=for-the-badge&logo=gmail&logoColor=white)](mailto:franzliszt709@gmail.com)
-[![GitHub](https://img.shields.io/badge/GitHub-your--username-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/your-username)
+[![GitHub](https://img.shields.io/badge/GitHub-franzliszt0626-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/franzliszt0626)
 
 *欢迎提交 Issue / PR，一起把它做得更好 🚀*
 
