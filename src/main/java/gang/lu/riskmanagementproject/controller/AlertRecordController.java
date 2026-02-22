@@ -1,14 +1,13 @@
 package gang.lu.riskmanagementproject.controller;
 
 import gang.lu.riskmanagementproject.annotation.ValidId;
-import gang.lu.riskmanagementproject.common.BusinessConstants;
 import gang.lu.riskmanagementproject.common.Result;
 import gang.lu.riskmanagementproject.domain.dto.AlertRecordDTO;
 import gang.lu.riskmanagementproject.domain.dto.query.AlertRecordQueryDTO;
 import gang.lu.riskmanagementproject.domain.vo.normal.AlertRecordVO;
 import gang.lu.riskmanagementproject.domain.vo.normal.PageVO;
-import gang.lu.riskmanagementproject.service.AlertRecordService;
 import gang.lu.riskmanagementproject.helper.PageHelper;
+import gang.lu.riskmanagementproject.service.AlertRecordService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
@@ -22,6 +21,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
+import static gang.lu.riskmanagementproject.common.BusinessConstants.*;
 import static gang.lu.riskmanagementproject.message.FailedMessages.ALERT_LEVEL_HANDLER_EMPTY;
 import static gang.lu.riskmanagementproject.message.FailedMessages.ALERT_LEVEL_ID_LIST_EMPTY;
 import static gang.lu.riskmanagementproject.message.SuccessMessages.*;
@@ -48,7 +48,7 @@ public class AlertRecordController {
     @ApiOperation("新增预警记录")
     @PostMapping
     public Result<AlertRecordVO> addAlertRecord(
-            @ApiParam("预警记录新增数据")
+            @ApiParam(ADD_ALERT_RECORD)
             @Valid @RequestBody AlertRecordDTO dto) {
         AlertRecordVO vo = alertRecordService.add(dto);
         return Result.ok(ALERT_RECORD_ADD_SUCCESS, vo);
@@ -57,9 +57,9 @@ public class AlertRecordController {
     @ApiOperation("删除预警记录")
     @DeleteMapping("/{id}")
     public Result<Void> deleteAlertRecord(
-            @ApiParam("预警记录ID")
+            @ApiParam(ALERT_RECORD_ID)
             @PathVariable
-            @ValidId(bizName = BusinessConstants.ALERT_RECORD_ID) Long id) {
+            @ValidId(bizName = ALERT_RECORD_ID) Long id) {
         alertRecordService.delete(id);
         return Result.ok(ALERT_RECORD_DELETE_SUCCESS);
     }
@@ -67,7 +67,7 @@ public class AlertRecordController {
     @ApiOperation("批量删除预警记录")
     @DeleteMapping("/batch")
     public Result<Void> batchDeleteAlertRecord(
-            @ApiParam("预警记录ID列表")
+            @ApiParam(ALERT_RECORD_ID_LIST)
             @RequestBody
             @NotEmpty(message = ALERT_LEVEL_ID_LIST_EMPTY) List<Long> ids) {
         alertRecordService.batchDelete(ids);
@@ -77,9 +77,9 @@ public class AlertRecordController {
     @ApiOperation("修改预警记录")
     @PutMapping("/{id}")
     public Result<AlertRecordVO> updateAlertRecord(
-            @ApiParam("预警记录ID")
+            @ApiParam(ALERT_RECORD_ID)
             @PathVariable
-            @ValidId(bizName = BusinessConstants.ALERT_RECORD_ID) Long id,
+            @ValidId(bizName = ALERT_RECORD_ID) Long id,
             @ApiParam("预警记录修改数据")
             @Valid @RequestBody AlertRecordDTO dto) {
         AlertRecordVO vo = alertRecordService.update(id, dto);
@@ -89,9 +89,9 @@ public class AlertRecordController {
     @ApiOperation("根据ID查询预警记录")
     @GetMapping("/{id}")
     public Result<AlertRecordVO> getAlertRecordById(
-            @ApiParam("预警记录ID")
+            @ApiParam(ALERT_RECORD_ID)
             @PathVariable
-            @ValidId(bizName = BusinessConstants.ALERT_RECORD_ID) Long id) {
+            @ValidId(bizName = ALERT_RECORD_ID) Long id) {
         AlertRecordVO vo = alertRecordService.getOneById(id);
         return Result.ok(ALERT_RECORD_GET_SUCCESS, vo);
     }
@@ -111,10 +111,10 @@ public class AlertRecordController {
     @ApiOperation("标记预警记录为已处理")
     @PutMapping("/{id}/handle")
     public Result<Void> markAlertRecordAsHandled(
-            @ApiParam("预警记录ID")
+            @ApiParam(ALERT_RECORD_ID)
             @PathVariable
-            @ValidId(bizName = BusinessConstants.ALERT_RECORD_ID) Long id,
-            @ApiParam("处理人")
+            @ValidId(bizName = ALERT_RECORD_ID) Long id,
+            @ApiParam(HANDLED_BY)
             @RequestParam
             @NotBlank(message = ALERT_LEVEL_HANDLER_EMPTY) String handledBy) {
         alertRecordService.markAlertRecordAsHandled(id, handledBy);

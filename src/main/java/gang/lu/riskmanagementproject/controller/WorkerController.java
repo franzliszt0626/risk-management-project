@@ -24,6 +24,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
+import static gang.lu.riskmanagementproject.common.BusinessConstants.*;
 import static gang.lu.riskmanagementproject.message.FailedMessages.WORKER_DELETE_BATCH_ID_EMPTY;
 import static gang.lu.riskmanagementproject.message.SuccessMessages.*;
 
@@ -49,7 +50,7 @@ public class WorkerController {
     @ApiOperation("新增工人")
     @PostMapping
     public Result<WorkerVO> addWorker(
-            @ApiParam("工人新增数据")
+            @ApiParam(ADD_WORKER)
             @Valid @RequestBody WorkerDTO dto) {
         WorkerVO vo = workerService.add(dto);
         return Result.ok(WORKER_CREATE_SUCCESS, vo);
@@ -58,9 +59,9 @@ public class WorkerController {
     @ApiOperation("删除工人")
     @DeleteMapping("/{id}")
     public Result<Void> deleteWorker(
-            @ApiParam("工人ID")
+            @ApiParam(WORKER_ID)
             @PathVariable
-            @ValidId(bizName = BusinessConstants.WORKER_ID) Long id) {
+            @ValidId(bizName = WORKER_ID) Long id) {
         workerService.delete(id);
         return Result.ok(WORKER_DELETE_SUCCESS);
     }
@@ -68,7 +69,7 @@ public class WorkerController {
     @ApiOperation("批量删除工人")
     @DeleteMapping("/batch")
     public Result<Void> batchDeleteWorker(
-            @ApiParam("工人ID列表")
+            @ApiParam(WORKER_ID_LIST)
             @RequestBody
             @NotEmpty(message = WORKER_DELETE_BATCH_ID_EMPTY) List<Long> ids) {
         workerService.batchDelete(ids);
@@ -78,10 +79,10 @@ public class WorkerController {
     @ApiOperation("修改工人")
     @PutMapping("/{id}")
     public Result<WorkerVO> updateWorker(
-            @ApiParam("工人ID")
+            @ApiParam(WORKER_ID)
             @PathVariable
-            @ValidId(bizName = BusinessConstants.WORKER_ID) Long id,
-            @ApiParam("工人修改数据")
+            @ValidId(bizName = WORKER_ID) Long id,
+            @ApiParam(UPDATE_WORKER)
             @Valid @RequestBody WorkerDTO dto) {
         WorkerVO vo = workerService.update(id, dto);
         return Result.ok(WORKER_UPDATE_SUCCESS, vo);
@@ -90,9 +91,9 @@ public class WorkerController {
     @ApiOperation("根据ID查询工人")
     @GetMapping("/{id}")
     public Result<WorkerVO> getWorkerById(
-            @ApiParam("工人ID")
+            @ApiParam(WORKER_ID)
             @PathVariable
-            @ValidId(bizName = BusinessConstants.WORKER_ID) Long id) {
+            @ValidId(bizName = WORKER_ID) Long id) {
         WorkerVO vo = workerService.getOneById(id);
         return Result.ok(WORKER_GET_SUCCESS, vo);
     }
@@ -110,10 +111,10 @@ public class WorkerController {
     // ======================== 个性化业务接口 ========================
 
     @ApiOperation("根据工号查询工人")
-    @ApiImplicitParam(name = "workerCode", value = "工号", required = true, dataType = "String", paramType = "path", example = "W001")
+    @ApiImplicitParam(name = "workerCode", value = WORKER_CODE, required = true, dataType = "String", paramType = "path", example = "W001")
     @GetMapping("/code/{workerCode}")
     public Result<WorkerVO> getWorkerByCode(
-            @ApiParam("工号")
+            @ApiParam(WORKER_CODE)
             @PathVariable
             @NotBlank(message = "工号不能为空") String workerCode) {
         WorkerVO vo = workerService.getWorkerByCode(workerCode);

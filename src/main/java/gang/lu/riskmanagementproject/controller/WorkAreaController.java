@@ -23,6 +23,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
+import static gang.lu.riskmanagementproject.common.BusinessConstants.*;
 import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 import static gang.lu.riskmanagementproject.message.SuccessMessages.*;
 
@@ -48,7 +49,7 @@ public class WorkAreaController {
     @ApiOperation("新增工作区域")
     @PostMapping
     public Result<WorkAreaVO> addWorkArea(
-            @ApiParam("工作区域新增数据")
+            @ApiParam(ADD_WORK_AREA)
             @Valid @RequestBody WorkAreaDTO dto) {
         WorkAreaVO vo = workAreaService.add(dto);
         return Result.ok(WORK_AREA_ADD_SUCCESS, vo);
@@ -57,9 +58,9 @@ public class WorkAreaController {
     @ApiOperation("删除工作区域")
     @DeleteMapping("/{id}")
     public Result<Void> deleteWorkArea(
-            @ApiParam("工作区域ID")
+            @ApiParam(WORK_AREA_ID)
             @PathVariable
-            @ValidId(bizName = BusinessConstants.WORK_AREA_ID) Long id) {
+            @ValidId(bizName = WORK_AREA_ID) Long id) {
         workAreaService.delete(id);
         return Result.ok(WORK_AREA_DELETE_SUCCESS);
     }
@@ -67,7 +68,7 @@ public class WorkAreaController {
     @ApiOperation("批量删除工作区域")
     @DeleteMapping("/batch")
     public Result<Void> batchDeleteWorkArea(
-            @ApiParam("工作区域ID列表")
+            @ApiParam(WORK_AREA_ID_LIST)
             @RequestBody
             @NotEmpty(message = WORK_AREA_DELETE_BATCH_ID_EMPTY) List<Long> ids) {
         workAreaService.batchDelete(ids);
@@ -77,10 +78,10 @@ public class WorkAreaController {
     @ApiOperation("修改工作区域")
     @PutMapping("/{id}")
     public Result<WorkAreaVO> updateWorkArea(
-            @ApiParam("工作区域ID")
+            @ApiParam(WORK_AREA_ID)
             @PathVariable
-            @ValidId(bizName = BusinessConstants.WORK_AREA_ID) Long id,
-            @ApiParam("工作区域修改数据")
+            @ValidId(bizName = WORK_AREA_ID) Long id,
+            @ApiParam(UPDATE_WORK_AREA)
             @Valid @RequestBody WorkAreaDTO dto) {
         WorkAreaVO vo = workAreaService.update(id, dto);
         return Result.ok(WORK_AREA_UPDATE_SUCCESS, vo);
@@ -89,9 +90,9 @@ public class WorkAreaController {
     @ApiOperation("根据ID查询工作区域")
     @GetMapping("/{id}")
     public Result<WorkAreaVO> getWorkAreaById(
-            @ApiParam("工作区域ID")
+            @ApiParam(WORK_AREA_ID)
             @PathVariable
-            @ValidId(bizName = BusinessConstants.WORK_AREA_ID) Long id) {
+            @ValidId(bizName = WORK_AREA_ID) Long id) {
         WorkAreaVO vo = workAreaService.getOneById(id);
         return Result.ok(WORK_AREA_GET_SUCCESS, vo);
     }
@@ -109,10 +110,10 @@ public class WorkAreaController {
     // ======================== 个性化业务接口 ========================
 
     @ApiOperation("根据区域编码查询工作区域")
-    @ApiImplicitParam(name = "areaCode", value = "区域编码", required = true, dataType = "String", paramType = "path", example = "AREA_001")
+    @ApiImplicitParam(name = "areaCode", value = WORK_AREA_CODE, required = true, dataType = "String", paramType = "path", example = "AREA_001")
     @GetMapping("/code/{areaCode}")
     public Result<List<WorkAreaVO>> getWorkAreaByCode(
-            @ApiParam("区域编码")
+            @ApiParam(WORK_AREA_CODE)
             @PathVariable
             @NotBlank(message = WORK_AREA_CODE_EMPTY) String areaCode) {
         List<WorkAreaVO> areas = workAreaService.getWorkAreaByCode(areaCode);

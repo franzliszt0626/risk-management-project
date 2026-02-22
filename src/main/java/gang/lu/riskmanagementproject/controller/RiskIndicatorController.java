@@ -25,6 +25,7 @@ import javax.validation.constraints.NotEmpty;
 import java.time.LocalDate;
 import java.util.List;
 
+import static gang.lu.riskmanagementproject.common.BusinessConstants.*;
 import static gang.lu.riskmanagementproject.message.FailedMessages.RISK_INDICATOR_ID_LIST_EMPTY;
 import static gang.lu.riskmanagementproject.message.SuccessMessages.*;
 
@@ -50,7 +51,7 @@ public class RiskIndicatorController {
     @ApiOperation("新增风险指标")
     @PostMapping
     public Result<RiskIndicatorVO> addRiskIndicator(
-            @ApiParam("风险指标新增数据")
+            @ApiParam(ADD_RISK_INDICATOR)
             @Valid @RequestBody RiskIndicatorDTO dto) {
         RiskIndicatorVO vo = riskIndicatorService.add(dto);
         return Result.ok(RISK_INDICATOR_ADD_SUCCESS, vo);
@@ -59,9 +60,9 @@ public class RiskIndicatorController {
     @ApiOperation("删除风险指标")
     @DeleteMapping("/{id}")
     public Result<Void> deleteRiskIndicator(
-            @ApiParam("风险指标ID")
+            @ApiParam(RISK_INDICATOR_ID)
             @PathVariable
-            @ValidId(bizName = BusinessConstants.RISK_INDICATOR_ID) Long id) {
+            @ValidId(bizName = RISK_INDICATOR_ID) Long id) {
         riskIndicatorService.delete(id);
         return Result.ok(RISK_INDICATOR_DELETE_SUCCESS);
     }
@@ -69,7 +70,7 @@ public class RiskIndicatorController {
     @ApiOperation("批量删除风险指标")
     @DeleteMapping("/batch")
     public Result<Void> batchDeleteRiskIndicator(
-            @ApiParam("风险指标ID列表")
+            @ApiParam(RISK_INDICATOR_ID_LIST)
             @RequestBody
             @NotEmpty(message = RISK_INDICATOR_ID_LIST_EMPTY) List<Long> ids) {
         riskIndicatorService.batchDelete(ids);
@@ -79,10 +80,10 @@ public class RiskIndicatorController {
     @ApiOperation("修改风险指标")
     @PutMapping("/{id}")
     public Result<RiskIndicatorVO> updateRiskIndicator(
-            @ApiParam("风险指标ID")
+            @ApiParam(RISK_INDICATOR_ID)
             @PathVariable
-            @ValidId(bizName = BusinessConstants.RISK_INDICATOR_ID) Long id,
-            @ApiParam("风险指标修改数据")
+            @ValidId(bizName = RISK_INDICATOR_ID) Long id,
+            @ApiParam(UPDATE_RISK_INDICATOR)
             @Valid @RequestBody RiskIndicatorDTO dto) {
         RiskIndicatorVO vo = riskIndicatorService.update(id, dto);
         return Result.ok(RISK_INDICATOR_UPDATE_SUCCESS, vo);
@@ -91,9 +92,9 @@ public class RiskIndicatorController {
     @ApiOperation("根据ID查询风险指标")
     @GetMapping("/{id}")
     public Result<RiskIndicatorVO> getRiskIndicatorById(
-            @ApiParam("风险指标ID")
+            @ApiParam(RISK_INDICATOR_ID)
             @PathVariable
-            @ValidId(bizName = BusinessConstants.RISK_INDICATOR_ID) Long id) {
+            @ValidId(bizName = RISK_INDICATOR_ID) Long id) {
         RiskIndicatorVO vo = riskIndicatorService.getOneById(id);
         return Result.ok(RISK_INDICATOR_GET_SUCCESS, vo);
     }
@@ -111,10 +112,10 @@ public class RiskIndicatorController {
     // ======================== 个性化业务接口 ========================
 
     @ApiOperation("根据工人ID查询最新风险指标")
-    @ApiImplicitParam(name = "workerId", value = "工人ID", required = true, dataType = "Long", paramType = "path")
+    @ApiImplicitParam(name = "workerId", value = WORKER_ID, required = true, dataType = "Long", paramType = "path")
     @GetMapping("/latest/{workerId}")
     public Result<RiskIndicatorVO> getLatestRiskIndicatorByWorkerId(
-            @ApiParam("工人ID")
+            @ApiParam(WORKER_ID)
             @PathVariable
             @ValidId(bizName = BusinessConstants.WORKER_ID) Long workerId) {
         RiskIndicatorVO vo = riskIndicatorService.getLatestRiskIndicatorByWorkerId(workerId);
