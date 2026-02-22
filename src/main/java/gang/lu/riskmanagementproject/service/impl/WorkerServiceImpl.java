@@ -119,7 +119,6 @@ public class WorkerServiceImpl
     public void validateAdd(WorkerDTO dto) {
         generalValidator.validateStringNotBlank(dto.getWorkerCode(), BusinessConstants.WORKER_CODE, ADD_WORKER);
         generalValidator.validateStringNotBlank(dto.getName(), BusinessConstants.NAME, ADD_WORKER);
-
         if (lambdaQuery().eq(Worker::getWorkerCode, dto.getWorkerCode()).exists()) {
             throw new BizException(HttpStatus.CONFLICT,
                     String.format(WORKER_CODE_DUPLICATE, dto.getWorkerCode()));

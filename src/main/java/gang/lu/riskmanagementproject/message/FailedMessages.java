@@ -31,7 +31,7 @@ public interface FailedMessages {
     String COMMON_PARAM_VERIFY_ERROR = "【参数校验失败】请求参数校验不通过，请检查参数后重试！";
     String COMMON_SYSTEM_ERROR = "【系统内部错误】系统服务异常，请联系管理员处理！";
     String COMMON_INVALID_ID_ERROR = "【参数校验失败】无效的%sID，请确认ID是否正确！";
-    String COMMON_INVALID_ID_ERROR_WITHOUT_PREFIX = "无效的%sID，请确认ID是否正确！";
+    String COMMON_INVALID_ID_ERROR_WITHOUT_PREFIX = "无效的%s，请确认ID是否正确！";
     String COMMON_PARAM_EMPTY_ERROR = "【参数校验失败】%s不能为空！";
     String COMMON_PARAM_EMPTY_ERROR_WITHOUT_PREFIX = "%s不能为空！";
     String COMMON_JSON_PARSE_ERROR = "【参数解析失败】JSON格式解析异常，请检查请求参数格式！";
