@@ -1,314 +1,347 @@
-# 🛡️ 路港桥隧工程风险管理系统（后台）
+<div align="center">
 
-> 面向路港桥隧工程场景的工人安全风险监控与预警系统，基于 Spring Boot + MyBatis-Plus 构建，聚焦工程现场工人健康指标监测、风险等级评估、预警记录管理与工作区域风险管控，为工程安全管理提供全流程数字化支撑。
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=28&pause=1000&color=2E9EF7&center=true&vCenter=true&width=700&lines=%F0%9F%9B%A1%EF%B8%8F+%E8%B7%AF%E6%B8%AF%E6%A1%A5%E9%9A%A7%E5%B7%A5%E7%A8%8B%E9%A3%8E%E9%99%A9%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F;Worker+Safety+Risk+Management" alt="Typing SVG" />
 
-[![Java](https://img.shields.io/badge/Java-17+-ED8B00?logo=java&logoColor=white)](https://www.oracle.com/java/)
-[![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.x-6DB33F?logo=spring&logoColor=white)](https://spring.io/projects/spring-boot)
-[![MyBatis-Plus](https://img.shields.io/badge/MyBatis--Plus-3.5+-orange)](https://baomidou.com/)
-[![MySQL](https://img.shields.io/badge/MySQL-8.0+-4479A1?logo=mysql&logoColor=white)](https://www.mysql.com/)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+<br/>
 
----
+> **面向路港桥隧工程场景的工人安全风险监控与预警平台**  
+> 聚焦现场工人健康指标监测、风险等级评估、AI 辅助预测与预警记录全流程管理
 
-## 🌟 核心功能
+<br/>
 
-### 🧑‍🏭 工人管理模块
-- ✅ 工人基础信息全生命周期管理（增删改查）
-- ✅ 多维度精准查询：工号、姓名（模糊）、岗位、工种、状态（正常/异常/离线）
-- ✅ 工号唯一性校验、枚举参数合法性校验
-- ✅ 分页查询支持（默认20条/页，最大50条）
+[![Java](https://img.shields.io/badge/Java-17+-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://www.oracle.com/java/)
+[![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.x-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![MyBatis Plus](https://img.shields.io/badge/MyBatis--Plus-3.5+-FF6B35?style=for-the-badge&logo=mybatis&logoColor=white)](https://baomidou.com/)
+[![MySQL](https://img.shields.io/badge/MySQL-8.0+-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com/)
+[![License](https://img.shields.io/badge/License-MIT-22C55E?style=for-the-badge)](LICENSE)
 
-### 📊 风险指标模块
-- ✅ 实时风险指标录入（心率、呼吸频率、疲劳度、风险等级）
-- ✅ 工人最新风险指标查询、历史风险指标分页查询
-- ✅ 风险等级人数分布统计、当日各时段高风险工人数统计
-- ✅ 指标参数合法性校验（心率范围、疲劳度百分比等）
+<br/>
 
-### ⚠️ 预警记录模块
-- ✅ 预警记录新增、删除、修改、标记已处理
-- ✅ 多维度查询：工人ID、预警等级、预警类型（模糊）
-- ✅ 预警等级合法性校验、处理人非空校验
-
-### 🏗️ 工作区域模块
-- ✅ 工作区域基础信息管理（增删改查）
-- ✅ 按区域编码/名称/风险等级多条件分页查询
-- ✅ 工作区域风险等级数量统计
-- ✅ 区域编码唯一性校验、风险等级枚举校验
-
-### 🛡️ 通用能力
-- ✅ 统一响应格式：所有接口返回标准化 `Result<T>` 结构
-- ✅ 全局异常处理：自动捕获业务异常/数据库异常并返回友好提示
-- ✅ 枚举友好支持：风险等级/区域风险等级/工种/状态自动映射数据库字段
-- ✅ 标准化日志输出：关键操作日志可追溯、可审计
-- ✅ Swagger API 文档：自动生成 RESTful 接口文档，便于联调
+</div>
 
 ---
 
-## 🧰 技术栈选型
+## 📖 项目简介
 
-| 类别         | 技术/组件                          | 作用说明                     |
-|--------------|------------------------------------|------------------------------|
-| 核心框架     | Spring Boot 3.x                    | 快速构建企业级应用           |
-| ORM 框架     | MyBatis-Plus 3.5+                 | 简化数据库操作、分页查询     |
-| 数据库       | MySQL 8.0+                         | 关系型数据库存储业务数据     |
-| 工具库       | Hutool                             | 对象转换、参数校验、类型处理 |
-| 代码简化     | Lombok                             | 消除冗余代码（Getter/Setter）|
-| API 文档     | Swagger 3 (OpenAPI)                | 自动生成接口文档             |
-| 异常处理     | 自定义 BizException + 全局异常处理器 | 统一异常响应格式             |
-| 构建工具     | Maven                              | 项目构建、依赖管理           |
+本系统是面向**路港桥隧工程**场景构建的安全管理后台，支持工程现场工人的心率、呼吸率、疲劳百分比等生理指标实时录入，结合视频分析算法与 **Qwen AI 大模型**自动评估风险等级、生成健康建议，并通过预警记录模块实现事件全生命周期管理，为工程安全管理提供数字化支撑。
 
----
+<br/>
+
+## ✨ 核心亮点
+
+<table>
+<tr>
+<td width="50%">
+
+**🤖 AI 智能风险预测**
+- 接入 Qwen 大模型，基于历史风险指标分析工人未来风险趋势
+- 返回风险等级预测、趋势描述与具体改善建议
+- 支持自动生成 PDF 风险报告导出
+
+</td>
+<td width="50%">
+
+**🎥 视频算法集成**
+- 对接 Python 算法服务，分析上传视频中工人的生理状态
+- 算法结果自动入库，触发风险指标记录与预警流程
+- 支持 mp4 / avi / mov 格式，文件大小限制 50 MB
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+**🔍 全链路 AOP 日志**
+- 自定义 `@BusinessLog` / `@ValidateLog` 注解
+- AOP 切面自动记录操作入参、返回结果、耗时
+- 长字符串（>500 字符）自动截断，PDF/byte[] 智能格式化
+
+</td>
+<td width="50%">
+
+**🛡️ 多层参数校验**
+- `@ValidId`：ID 格式校验（非空 + 正整数）
+- `@ValidEnum`：枚举合法性校验（自动提示允许值）
+- Bean Validation 全面覆盖，错误信息统一中文化
+
+</td>
+</tr>
+</table>
+
+<br/>
+
+## 🗂️ 功能模块
+
+<details open>
+<summary><b>🧑‍🏭 工人管理</b></summary>
+
+- 工人信息增删改查，工号全局唯一校验
+- 多条件分页查询：工号、姓名（模糊）、岗位、工种、状态
+- 枚举参数合法性校验（工种 / 状态）
+- 统计接口：工人总数、工种分布、状态分布
+
+</details>
+
+<details open>
+<summary><b>📊 风险指标管理</b></summary>
+
+- 实时指标录入（心率、呼吸率、疲劳百分比、风险等级）
+- 多条件分页查询 + 范围过滤（心率区间、疲劳百分比区间）
+- 统计接口：风险等级人数分布、当日各 4 小时时段高风险工人数
+
+</details>
+
+<details open>
+<summary><b>⚠️ 预警记录管理</b></summary>
+
+- 预警记录 CRUD，支持标记已处理（处理人 + 处理时间）
+- 多条件查询：工人 ID、预警等级、预警类型（模糊）、处理状态
+- 统计接口：按预警级别统计当前未处理数量
+- 幂等保护：已处理记录不可重复标记
+
+</details>
+
+<details open>
+<summary><b>🏗️ 工作区域管理</b></summary>
+
+- 区域信息 CRUD，区域编码全局唯一校验
+- 多条件分页查询：编码、名称（模糊）、风险等级
+- 统计接口：各风险等级区域数量分布
+
+</details>
+
+<details open>
+<summary><b>🤖 AI 分析 & 视频分析</b></summary>
+
+- `POST /api/risk-ai/predict/{workerId}`：调用 Qwen 分析历史风险数据，返回预测结果
+- `GET /api/risk-report/export/{workerId}`：生成 PDF 风险评估报告
+- `POST /api/video-analysis/analyze/{workerId}`：上传视频 → 算法分析 → 自动入库
+
+</details>
+
+<br/>
+
+## 🧰 技术栈
+
+| 类别 | 技术 / 组件 | 说明 |
+|------|------------|------|
+| 核心框架 | Spring Boot 3.x | 应用脚手架 |
+| ORM | MyBatis-Plus 3.5+ | CRUD 简化 + 分页 |
+| 数据库 | MySQL 8.0+ | 主数据存储 |
+| AI 服务 | Qwen（通义千问） | 风险趋势预测 |
+| 工具库 | Hutool | 类型处理 / 反射 / 集合工具 |
+| 代码简化 | Lombok | 消除样板代码 |
+| 校验框架 | Bean Validation + 自定义注解 | 参数合法性校验 |
+| AOP | Spring AOP | 业务日志 / 校验日志切面 |
+| API 文档 | Swagger 3 (Springfox) | 接口文档自动生成 |
+| 构建工具 | Maven | 依赖管理 / 打包 |
+
+<br/>
 
 ## 🚀 快速启动
 
+### 前置条件
+
+- JDK 17+
+- MySQL 8.0+
+- Maven 3.8+
+
 ### 1. 克隆项目
+
 ```bash
 git clone https://github.com/your-username/lugangqiaosui-risk-management.git
 cd lugangqiaosui-risk-management
 ```
 
-### 2. 数据库配置
-#### 2.1 创建数据库
+### 2. 创建数据库
+
 ```sql
-CREATE DATABASE `lugangqiaosui_risk_management` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE `lugangqiaosui_risk_management`
+    CHARACTER SET utf8mb4
+    COLLATE utf8mb4_unicode_ci;
 ```
 
-#### 2.2 修改数据源配置
-编辑 `src/main/resources/application.yml`：
+### 3. 配置 `application.yml`
+
 ```yaml
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/lugangqiaosui_risk_management?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false
-    username: root  # 替换为你的数据库用户名
-    password: 123456  # 替换为你的数据库密码
+    username: your_username       # ← 替换
+    password: your_password       # ← 替换
     driver-class-name: com.mysql.cj.jdbc.Driver
+
 mybatis-plus:
   configuration:
-    map-underscore-to-camel-case: true  # 下划线转驼峰
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl  # 打印SQL日志（开发环境）
+    map-underscore-to-camel-case: true
   global-config:
     db-config:
-      id-type: auto  # 主键自增
-      table-prefix: t_  # 表名前缀
+      id-type: auto
+      table-prefix: t_
+
+# AI 服务配置（可选）
+ai:
+  qwen:
+    api-key: your_api_key         # ← 替换为通义千问 API Key
+    model: qwen-turbo
 ```
 
-### 3. 初始化表结构
-执行项目根目录下的 `sql/init_schema.sql` 脚本，创建核心业务表：
+### 4. 初始化表结构
+
 ```bash
 mysql -u root -p lugangqiaosui_risk_management < sql/init_schema.sql
 ```
 
-> 📌 核心表清单：
-> - `t_worker`：工人基础信息表
-> - `t_risk_indicator`：实时风险指标表
-> - `t_alert_record`：预警记录表
-> - `t_work_area`：工作区域表
+> 核心表：`t_worker` · `t_risk_indicator` · `t_alert_record` · `t_work_area`
 
-### 4. 启动应用
+### 5. 启动
+
 ```bash
-# 使用Maven启动
 ./mvnw spring-boot:run
-
-# 或打包后运行
-./mvnw clean package -DskipTests
-java -jar target/lugangqiaosui-risk-management-1.0.0.jar
 ```
 
-### 5. 访问服务
-- **接口根路径**：`http://localhost:8080/api`
-- **Swagger 文档**：`http://localhost:8080/swagger-ui/index.html`（接口调试/查看）
-- **健康检查**：`http://localhost:8080/actuator/health`
+| 地址 | 说明 |
+|------|------|
+| `http://localhost:8080/api` | 接口根路径 |
+| `http://localhost:8080/swagger-ui/index.html` | Swagger 接口文档 |
 
----
+<br/>
 
-## 📂 项目结构（DDD分层）
+## 📂 项目结构
 
 ```
 src/main/java/gang/lu/riskmanagementproject/
-├── common/                # 通用核心模块
-│   ├── Result.java        # 统一返回结果封装
-│   ├── FailureMessages.java # 错误消息常量
-│   ├── BusinessScene.java # 业务场景枚举
-│   ├── exception/         # 自定义异常（BizException）
-│   └── handler/           # 全局异常处理器（GlobalExceptionHandler）
-├── domain/                # 领域模型层
-│   ├── po/                # 持久化对象（与数据库表一一对应）
-│   │   ├── Worker.java
-│   │   ├── RiskIndicator.java
-│   │   ├── AlertRecord.java
-│   │   └── WorkArea.java
-│   ├── dto/               # 数据传输对象（前端入参）
-│   │   ├── WorkerDTO.java
-│   │   ├── RiskIndicatorDTO.java
-│   │   └── WorkAreaDTO.java
-│   ├── vo/                # 视图对象（返回前端）
-│   │   ├── WorkerVO.java
-│   │   ├── RiskLevelCountVO.java
-│   │   └── WorkAreaVO.java
-│   └── enums/             # 业务枚举
-│       ├── Status.java    # 工人状态（正常/异常/离线）
-│       ├── WorkType.java  # 工种（高空/焊接/普通作业等）
-│       ├── RiskLevel.java # 风险等级（低/中/高/严重）
-│       └── AreaRiskLevel.java # 区域风险等级
-├── util/                  # 工具类
-│   ├── BusinessVerifyUtil.java # 业务参数校验工具
-│   ├── ConvertUtil.java   # PO/DTO/VO转换工具
-│   └── ParameterVerifyUtil.java # 指标参数校验工具
-├── mapper/                # 数据访问层（MyBatis-Plus Mapper）
-│   ├── WorkerMapper.java
-│   ├── RiskIndicatorMapper.java
-│   └── WorkAreaMapper.java
-├── service/               # 业务层
-│   ├── impl/              # 业务实现类
-│   │   ├── WorkerServiceImpl.java
-│   │   ├── RiskIndicatorServiceImpl.java
-│   │   └── WorkAreaServiceImpl.java
-│   └── *.java             # 业务接口
-├── controller/            # 接口层（REST Controller）
-│   ├── WorkerController.java
-│   ├── RiskIndicatorController.java
-│   └── WorkAreaController.java
-└── RiskManagementProjectApplication.java # 应用启动类
+├── annotation/              # 自定义注解（@ValidId / @ValidEnum / @BusinessLog / @ValidateLog）
+├── aspect/                  # AOP 切面（业务日志 / 校验日志）
+├── common/                  # 通用核心（Result / BusinessConstants / AiConstants）
+├── controller/              # REST 接口层
+│   ├── WorkerController
+│   ├── RiskIndicatorController
+│   ├── AlertRecordController
+│   ├── WorkAreaController
+│   ├── RiskAiController
+│   ├── RiskReportController
+│   └── VideoAnalysisController
+├── domain/
+│   ├── po/                  # 持久化对象（对应数据库表）
+│   ├── dto/                 # 请求传输对象
+│   │   └── query/           # 多条件查询 DTO
+│   ├── vo/
+│   │   ├── normal/          # 标准业务 VO
+│   │   └── statistical/     # 统计结果 VO（alert / area / indicator / worker）
+│   └── enums/               # 业务枚举（RiskLevel / AlertLevel / WorkType / Status / AreaRiskLevel）
+├── exception/               # 自定义异常（BizException）
+├── handler/                 # 全局异常处理器（GlobalExceptionHandler）
+├── helper/                  # 业务辅助（AiHelper / PageHelper）
+├── mapper/                  # MyBatis-Plus Mapper 层
+├── message/                 # 消息常量（SuccessMessages / FailedMessages）
+├── property/                # 配置属性（MedicalProperty / PageProperty）
+├── service/                 # 业务接口 + 实现
+│   └── impl/
+├── util/                    # 工具类（BasicUtil / StatisticalUtil / EnumConvertUtil）
+├── validator/               # 校验器（GeneralValidator / MedicalValidator / VideoValidator）
+│   └── annotation/          # 校验注解实现（IdValidator / EnumValidator）
+└── converter/               # PO ↔ VO / DTO 转换器
 ```
 
----
+<br/>
 
-## 🧪 核心接口示例
+## 🧪 接口示例
 
-### 1. 工人管理
-#### 创建工人
+### 新增风险指标
 ```http
-POST /api/workers
-Content-Type: application/json
-
-{
-  "workerCode": "W2026001",
-  "name": "李四",
-  "position": "桥梁焊接工",
-  "workYears": 8,
-  "workType": "HIGH_ALTITUDE",
-  "status": "NORMAL"
-}
-```
-
-#### 分页查询所有工人
-```http
-GET /api/workers?pageNum=1&pageSize=10
-```
-
-### 2. 风险指标管理
-#### 新增工人风险指标
-```http
-POST /api/risk-indicators
+POST /api/risk-indicator
 Content-Type: application/json
 
 {
   "workerId": 1,
-  "heartRate": 85,
-  "respiratoryRate": 18,
-  "fatiguePercent": 75,
-  "riskLevel": "HIGH_RISK",
-  "recordTime": "2026-02-08 14:30:00"
+  "heartRate": 110,
+  "respiratoryRate": 28,
+  "fatiguePercent": 85.5,
+  "riskLevelValue": "高风险",
+  "alertFlag": true
 }
 ```
 
-#### 统计风险等级人数分布
+### AI 风险预测
 ```http
-GET /api/risk-indicators/count-by-level
+GET /api/risk-ai/predict/1
 ```
 
-### 3. 预警记录管理
-#### 标记预警记录为已处理
-```http
-PUT /api/alert-records/1/handle?handledBy=安全管理员
-```
-
-### 4. 统一响应格式示例
-✅ 成功响应：
 ```json
 {
   "code": 200,
-  "message": "操作成功",
+  "message": "风险预测成功！",
   "data": {
-    "workerCode": "W2026001",
-    "name": "李四",
-    "position": "桥梁焊接工",
-    "workType": "高空作业",
-    "status": "正常"
-  },
-  "timestamp": 1740000000000
+    "workerId": 1,
+    "recordCount": 20,
+    "predictedRiskLevel": "高风险",
+    "riskTrend": "上升",
+    "analysisSummary": "该工人心率持续偏高，疲劳指数上升趋势明显，建议安排轮换休息。",
+    "suggestions": ["每隔 2 小时安排 15 分钟休息", "增加现场巡视频率"],
+    "confidenceNote": "基于 20 条历史数据，置信度较高。"
+  }
 }
 ```
 
-❌ 业务异常响应：
+### 统一错误响应
 ```json
 {
   "code": 400,
-  "message": "【创建工人失败】工号重复：W2026001",
-  "data": null,
-  "timestamp": 1740000000000
+  "message": "【参数校验失败】无效的工种！允许值：高空作业、受限空间、设备操作、正常作业！",
+  "data": null
 }
 ```
 
----
+<br/>
 
-## 🛠️ 开发规范
+## 📐 开发规范
 
-### 1. 编码规范
-- 包名：全小写，多级包用 `.` 分隔（如 `gang.lu.riskmanagementproject`）
-- 类名：大驼峰（PascalCase），如 `WorkerServiceImpl`
-- 方法名：小驼峰（camelCase），如 `validateWorkerExist`
-- 常量：全大写，下划线分隔，如 `FAILURE_MESSAGES.WORKER_PARAM_DUPLICATE_CODE`
+| 层次 | 职责边界 |
+|------|---------|
+| **Controller** | 接收请求 / 返回响应，不处理业务逻辑，参数格式校验（`@ValidId` / `@ValidEnum`） |
+| **Service** | 核心业务逻辑，抛出 `BizException` 表达业务错误，调用 Validator 做语义校验 |
+| **Mapper** | 仅定义数据访问接口，复杂 SQL 写 XML，简单 CRUD 走 MyBatis-Plus |
+| **Util** | 无状态纯函数工具，不注入 Spring Bean，禁止包含业务逻辑 |
+| **Validator** | 封装跨模块复用的校验（ID 存在性 / 枚举合法性 / 生理指标范围） |
 
-### 2. 分层开发规范
-- **Controller 层**：仅负责接收请求、返回响应，不处理业务逻辑
-- **Service 层**：核心业务逻辑处理，抛出 `BizException` 表示业务异常
-- **Mapper 层**：仅定义数据库操作接口，使用 MyBatis-Plus 简化 CRUD
-- **Util 层**：通用工具类，无业务逻辑，保证幂等/无状态
+<br/>
 
-### 3. 异常处理规范
-- 业务异常：手动抛出 `BizException`，携带错误码和提示信息
-- 系统异常：由全局异常处理器自动捕获，返回通用错误提示
-- 数据库异常：统一转换为友好提示，避免暴露底层信息
+## 📈 后续规划
 
-### 4. 对象转换规范
-- PO → VO/DTO：使用 `ConvertUtil.convert()` 统一处理
-- 枚举转换：数据库存储字符串值，通过 `@EnumValue` 映射
+- [ ] 接入 Redis 缓存高频统计结果
+- [ ] 引入 WebSocket 实现预警实时推送
+- [ ] 增加接口权限控制（Spring Security + JWT）
+- [ ] 接入大屏可视化（ECharts）
+- [ ] 补充单元测试（JUnit 5 + Mockito）
 
----
-
-## 📈 扩展建议
-
-### 1. 功能扩展
-- 接入实时数据采集（如手环/传感器），自动录入风险指标
-- 增加风险预警推送（短信/钉钉/企业微信）
-- 新增工人健康报告生成（PDF/Excel）
-- 接入大屏可视化（ECharts/Quick BI）展示风险数据
-
-### 2. 技术扩展
-- 引入 Redis 缓存高频查询数据（如工人基础信息、风险统计结果）
-- 增加接口权限控制（Spring Security/Spring Cloud Gateway）
-- 接入分布式事务（Seata）处理跨表操作
-- 增加接口限流（Sentinel）防止高并发冲击
-
----
+<br/>
 
 ## 📜 许可证
 
-MIT License  
-允许自由使用、修改和分发，商业/非商业用途均可。
+本项目基于 [MIT License](LICENSE) 开源，允许自由使用、修改与分发。
 
----
+<br/>
 
 ## 👨‍💻 作者
 
-**Franz Liszt**  
-💬 反馈：欢迎提交 Issue/PR 优化系统功能
+<div align="center">
+
+**Franz Liszt**
+
+[![Email](https://img.shields.io/badge/Email-franzliszt709@gmail.com-EA4335?style=for-the-badge&logo=gmail&logoColor=white)](mailto:franzliszt709@gmail.com)
+[![GitHub](https://img.shields.io/badge/GitHub-your--username-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/your-username)
+
+*欢迎提交 Issue / PR，一起把它做得更好 🚀*
+
+</div>
+
+<br/>
 
 ---
 
-> 💡 部署提示：
-> 1. 生产环境建议关闭 SQL 日志、Swagger 文档
-> 2. 配置数据库连接池（HikariCP）参数优化性能
-> 3. 新增接口需补充单元测试（JUnit 5）
-> 4. 建议配置日志归档（Logback），避免日志文件过大
+<div align="center">
+
+<sub>💡 生产环境建议：关闭 Swagger 文档 · 关闭 SQL 打印日志 · 配置 HikariCP 连接池 · 启用 Logback 日志归档</sub>
+
+</div>

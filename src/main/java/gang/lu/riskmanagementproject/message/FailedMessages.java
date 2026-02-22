@@ -30,15 +30,12 @@ public interface FailedMessages {
     String COMMON_DATABASE_ERROR = "【数据库操作失败】数据库操作异常，请稍后重试！";
     String COMMON_PARAM_VERIFY_ERROR = "【参数校验失败】请求参数校验不通过，请检查参数后重试！";
     String COMMON_SYSTEM_ERROR = "【系统内部错误】系统服务异常，请联系管理员处理！";
-    String COMMON_INVALID_ID_ERROR = "【参数校验失败】无效的%sID，请确认ID是否正确！";
     String COMMON_INVALID_ID_ERROR_WITHOUT_PREFIX = "无效的%s，请确认ID是否正确！";
     String COMMON_PARAM_EMPTY_ERROR = "【参数校验失败】%s不能为空！";
     String COMMON_PARAM_EMPTY_ERROR_WITHOUT_PREFIX = "%s不能为空！";
     String COMMON_JSON_PARSE_ERROR = "【参数解析失败】JSON格式解析异常，请检查请求参数格式！";
     String COMMON_NULL_POINTER_ERROR = "【运行时异常】系统空指针异常，请联系管理员排查！";
     String COMMON_RUNTIME_ERROR = "【运行时异常】系统运行异常：%s！";
-    String COMMON_BIND_PARAM_ERROR = "【参数绑定失败】请求参数绑定异常，请检查参数格式！";
-    String COMMON_ENUM_CONVERT_ERROR = "【参数转换失败】枚举类型转换异常，请检查参数值！";
     String COMMON_TIME_INVALID_ERROR = "【参数校验失败】开始时间不能晚于结束时间！";
     String COMMON_MIN_MAX_INVALID_ERROR = "【参数校验失败】%s最小值不能大于最大值！";
 
@@ -46,13 +43,8 @@ public interface FailedMessages {
      * 工人业务失败信息
      * <p>覆盖工人的增删改查、工号唯一性、枚举合法性等校验场景。
      */
-    String WORKER_CREATE_ERROR = "【工人操作失败】创建工人信息失败，请稍后重试！";
-    String WORKER_UPDATE_ERROR = "【工人操作失败】更新工人信息失败，请稍后重试！";
-    String WORKER_DELETE_ERROR = "【工人操作失败】删除工人信息失败，请稍后重试！";
-    String WORKER_DELETE_BATCH_ERROR = "【工人操作失败】批量删除工人信息失败，请稍后重试！";
     String WORKER_NOT_EXIST = "【参数校验失败】工人信息不存在，请确认工人ID是否正确！";
     String WORKER_NOT_EXIST_BY_CODE = "【参数校验失败】工人信息不存在，请确认工人工号是否正确！";
-    String WORKER_NOT_EXIST_WITH_PARAM = "【参数校验失败】工人信息不存在，ID：%s！";
     String WORKER_NOT_EXIST_BATCH = "【工人操作失败】批量删除工人失败，请校验ID合法性！";
     String WORKER_CODE_DUPLICATE = "【参数校验失败】工号重复：%s，请更换工号！";
     String WORKER_CODE_EMPTY = "【参数校验失败】工号不能为空！";
@@ -63,9 +55,7 @@ public interface FailedMessages {
     String WORKER_YEAR_NEGATIVE_INVALID = "【参数校验失败】工龄不能为负数！";
     String WORKER_YEAR_INVALID = "【参数校验失败】工龄不能超过100年！";
     String WORKER_TYPE_EMPTY = "【参数校验失败】工种不能为空！";
-    String WORKER_TYPE_INVALID = "【参数校验失败】无效的工种！允许值：高空作业、受限空间、设备操作、正常作业！";
     String WORKER_STATUS_EMPTY = "【参数校验失败】工人状态不能为空！";
-    String WORKER_STATUS_INVALID = "【参数校验失败】无效的状态！允许值：正常、异常、离线！";
     String WORKER_DELETE_BATCH_ID_EMPTY = "【参数校验失败】批量删除的工人ID列表不能为空！";
 
     /**
@@ -85,8 +75,6 @@ public interface FailedMessages {
     String RISK_MIN_FATIGUE_PERCENT_INVALID = "【参数校验失败】疲劳百分比最小值无效！需在0～100%之间！";
     String RISK_MAX_FATIGUE_PERCENT_INVALID = "【参数校验失败】疲劳百分比最大值无效！需在0～100%之间！";
     String RISK_LEVEL_EMPTY = "【参数校验失败】风险等级不能为空！";
-    String RISK_LEVEL_INVALID = "【参数校验失败】无效的风险等级！允许值：低风险、中风险、高风险、严重风险！";
-    String RISK_CREATE_ERROR = "【风险指标操作失败】创建风险指标记录失败，请稍后重试！";
     String RISK_INDICATOR_NOT_EXIST = "【参数校验失败】风险指标记录不存在！";
     String RISK_INDICATOR_ID_LIST_EMPTY = "【参数校验失败】风险指标ID列表不能为空！";
     String RISK_INDICATOR_DELETE_BATCH_ID_EMPTY = "【参数校验失败】批量删除的风险指标ID列表不能为空！";
@@ -99,7 +87,6 @@ public interface FailedMessages {
      * <p>覆盖区域名称、编码、风险等级的格式校验及存在性、批量操作等场景。
      */
     String WORK_AREA_RISK_LEVEL_EMPTY = "【参数校验失败】区域风险等级不能为空！";
-    String WORK_AREA_RISK_LEVEL_INVALID = "【参数校验失败】无效的区域风险等级！允许值：低风险、中风险、高风险！";
     String WORK_AREA_CODE_EMPTY = "【参数校验失败】区域编码不能为空！";
     String WORK_AREA_CODE_INVALID = "【参数校验失败】区域编码长度不能超过20个字符！";
     String WORK_AREA_CODE_DUPLICATE = "【参数校验失败】工作区域编码重复：%s，请更换编码！";
@@ -118,7 +105,6 @@ public interface FailedMessages {
     String ALERT_RECORD_HANDLE_ERROR = "【预警记录操作失败】标记预警记录为已处理失败，请稍后重试！";
     String ALERT_RECORD_ALREADY_HANDLED_ERROR = "【预警记录操作失败】该记录已经标记为已处理！";
     String ALERT_LEVEL_EMPTY = "【参数校验失败】预警等级不能为空！";
-    String ALERT_LEVEL_INVALID = "【参数校验失败】无效的预警等级！允许值：警告、严重！";
     String ALERT_TYPE_EMPTY = "【参数校验失败】预警类型不能为空！";
     String ALERT_LEVEL_ID_LIST_EMPTY = "【参数校验失败】预警记录ID列表不能为空！";
     String ALERT_LEVEL_HANDLER_EMPTY = "【参数校验失败】预警记录处理人不能为空！";
