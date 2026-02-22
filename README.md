@@ -1,10 +1,10 @@
 <div align="center">
 
-<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=28&pause=1000&color=2E9EF7&center=true&vCenter=true&width=700&lines=%F0%9F%9B%A1%EF%B8%8F+%E8%B7%AF%E6%B8%AF%E6%A1%A5%E9%9A%A7%E5%B7%A5%E7%A8%8B%E9%A3%8E%E9%99%A9%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F;Worker+Safety+Risk+Management" alt="Typing SVG" />
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=28&pause=1000&color=2E9EF7&center=true&vCenter=true&width=720&lines=%F0%9F%9B%A1%EF%B8%8F+%E8%B7%AF%E6%B8%AF%E6%A1%A5%E9%9A%A7%E5%B7%A5%E7%A8%8B%E9%A3%8E%E9%99%A9%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F;Worker+Safety+Risk+Management+System" alt="Typing SVG" />
 
 <br/>
 
-> **面向路港桥隧工程场景的工人安全风险监控与预警平台**  
+> **面向路港桥隧工程场景的工人安全风险监控与预警平台**
 > 聚焦现场工人健康指标监测、风险等级评估、AI 辅助预测与预警记录全流程管理
 
 <br/>
@@ -33,40 +33,72 @@
 <tr>
 <td width="50%">
 
-**🤖 AI 智能风险预测**
-- 接入 Qwen 大模型，基于历史风险指标分析工人未来风险趋势
-- 返回风险等级预测、趋势描述与具体改善建议
-- 支持自动生成 PDF 风险报告导出
+**⚙️ 自研通用 CRUD 框架**
+
+基于泛型模板方法模式封装 `BaseCrudService<PO, DTO, VO, Q>` + `BaseCrudServiceImpl`，四个模块仅需实现差异化逻辑，消除了大量样板代码：
+
+- 统一处理增删改查、分页查询、批量删除
+- `validateAdd / validateUpdate / validateSearch` 默认空实现，按需覆盖
+- 内置存在性校验、数据库结果校验、分页构建
 
 </td>
 <td width="50%">
 
-**🎥 视频算法集成**
-- 对接 Python 算法服务，分析上传视频中工人的生理状态
-- 算法结果自动入库，触发风险指标记录与预警流程
-- 支持 mp4 / avi / mov 格式，文件大小限制 50 MB
+**🤖 AI 智能风险预测**
+
+接入 Qwen 大模型，基于历史风险指标分析工人未来风险趋势：
+
+- 返回风险等级预测、趋势描述（上升 / 平稳 / 下降）与改善建议
+- AI 原始响应自动清理 Markdown 代码块，稳定解析 JSON
+- 支持一键生成 PDF 风险评估报告导出
 
 </td>
 </tr>
 <tr>
 <td width="50%">
 
-**🔍 全链路 AOP 日志**
-- 自定义 `@BusinessLog` / `@ValidateLog` 注解
-- AOP 切面自动记录操作入参、返回结果、耗时
-- 长字符串（>500 字符）自动截断，PDF/byte[] 智能格式化
+**🎥 视频算法集成**
+
+对接 Python 算法服务，分析上传视频中工人的生理状态：
+
+- 算法结果自动入库，触发风险指标记录与预警流程
+- 支持 mp4 / avi / mov 格式，单文件限制 50 MB
+- 文件大小、MIME 类型双重校验
 
 </td>
 <td width="50%">
 
-**🛡️ 多层参数校验**
-- `@ValidId`：ID 格式校验（非空 + 正整数）
-- `@ValidEnum`：枚举合法性校验（自动提示允许值）
-- Bean Validation 全面覆盖，错误信息统一中文化
+**🔍 全链路 AOP 日志 & 多层校验**
+
+- 自定义 `@BusinessLog` / `@ValidateLog` 注解，切面自动记录入参、返回结果、耗时
+- 超长字符串（> 500 字符）自动截断，`byte[]` 智能格式化为 KB/MB
+- `@ValidId` + `@ValidEnum` 自定义注解，参数错误自动返回中文提示
 
 </td>
 </tr>
 </table>
+
+<br/>
+
+## 🏗️ 通用 CRUD 框架设计
+
+```
+BaseCrudService<PO, DTO, VO, Q>          ← 服务接口：定义标准 CRUD + 差异化钩子
+        │
+        ▼
+BaseCrudServiceImpl<PO,DTO,VO,Q,Mapper,Converter>  ← 模板实现：封装通用流程
+        │
+        ▼
+XxxServiceImpl                           ← 业务实现：只写差异化逻辑
+  ├── validateAdd(dto)                   → 新增前业务校验（如工号唯一性）
+  ├── validateUpdate(id, dto)            → 修改前业务校验
+  ├── validateSearch(queryDTO)           → 查询前业务校验（如时间范围）
+  ├── buildQueryWrapper(queryDTO)        → 构建多条件查询 Wrapper
+  ├── getNotFoundMsg()                   → 返回「记录不存在」提示文案
+  └── getBusinessScene()                 → 返回业务场景标识（用于分页日志）
+```
+
+**实际效果：** 四个核心模块（Worker / RiskIndicator / AlertRecord / WorkArea）的 CRUD 实现类代码量减少约 **60%**，新增模块只需继承并实现约 **6 个方法**即可获得完整的增删改查、分页、批量删除能力。
 
 <br/>
 
@@ -77,7 +109,6 @@
 
 - 工人信息增删改查，工号全局唯一校验
 - 多条件分页查询：工号、姓名（模糊）、岗位、工种、状态
-- 枚举参数合法性校验（工种 / 状态）
 - 统计接口：工人总数、工种分布、状态分布
 
 </details>
@@ -94,10 +125,9 @@
 <details open>
 <summary><b>⚠️ 预警记录管理</b></summary>
 
-- 预警记录 CRUD，支持标记已处理（处理人 + 处理时间）
+- 预警记录 CRUD，支持标记已处理（幂等保护，不可重复标记）
 - 多条件查询：工人 ID、预警等级、预警类型（模糊）、处理状态
 - 统计接口：按预警级别统计当前未处理数量
-- 幂等保护：已处理记录不可重复标记
 
 </details>
 
@@ -113,7 +143,7 @@
 <details open>
 <summary><b>🤖 AI 分析 & 视频分析</b></summary>
 
-- `POST /api/risk-ai/predict/{workerId}`：调用 Qwen 分析历史风险数据，返回预测结果
+- `GET /api/risk-ai/predict/{workerId}`：调用 Qwen 分析历史风险数据，返回预测结果
 - `GET /api/risk-report/export/{workerId}`：生成 PDF 风险评估报告
 - `POST /api/video-analysis/analyze/{workerId}`：上传视频 → 算法分析 → 自动入库
 
@@ -149,14 +179,14 @@
 ### 1. 克隆项目
 
 ```bash
-git clone https://github.com/your-username/lugangqiaosui-risk-management.git
-cd lugangqiaosui-risk-management
+git clone https://github.com/franzliszt0626/risk-management-project.git
+cd risk-management-project
 ```
 
 ### 2. 创建数据库
 
 ```sql
-CREATE DATABASE `lugangqiaosui_risk_management`
+CREATE DATABASE `risk-management-project`
     CHARACTER SET utf8mb4
     COLLATE utf8mb4_unicode_ci;
 ```
@@ -166,7 +196,7 @@ CREATE DATABASE `lugangqiaosui_risk_management`
 ```yaml
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/lugangqiaosui_risk_management?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false
+    url: jdbc:mysql://localhost:3306/risk-management-project?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false
     username: your_username       # ← 替换
     password: your_password       # ← 替换
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -179,7 +209,7 @@ mybatis-plus:
       id-type: auto
       table-prefix: t_
 
-# AI 服务配置（可选）
+# AI 服务配置
 ai:
   qwen:
     api-key: your_api_key         # ← 替换为通义千问 API Key
@@ -189,7 +219,7 @@ ai:
 ### 4. 初始化表结构
 
 ```bash
-mysql -u root -p lugangqiaosui_risk_management < sql/init_schema.sql
+mysql -u root -p risk-management-project < sql/init_schema.sql
 ```
 
 > 核心表：`t_worker` · `t_risk_indicator` · `t_alert_record` · `t_work_area`
@@ -200,10 +230,10 @@ mysql -u root -p lugangqiaosui_risk_management < sql/init_schema.sql
 ./mvnw spring-boot:run
 ```
 
-| 地址 | 说明 |
-|------|------|
-| `http://localhost:8080/api` | 接口根路径 |
-| `http://localhost:8080/swagger-ui/index.html` | Swagger 接口文档 |
+| 地址                               | 说明 |
+|----------------------------------|------|
+| `http://localhost:8080/api`      | 接口根路径 |
+| `http://localhost:8080/doc.html` | Swagger 接口文档 |
 
 <br/>
 
@@ -237,11 +267,17 @@ src/main/java/gang/lu/riskmanagementproject/
 ├── message/                 # 消息常量（SuccessMessages / FailedMessages）
 ├── property/                # 配置属性（MedicalProperty / PageProperty）
 ├── service/                 # 业务接口 + 实现
+│   ├── BaseCrudService      # ← 通用 CRUD 接口
 │   └── impl/
+│       ├── BaseCrudServiceImpl  # ← 通用 CRUD 模板实现
+│       ├── WorkerServiceImpl
+│       ├── RiskIndicatorServiceImpl
+│       ├── AlertRecordServiceImpl
+│       └── WorkAreaServiceImpl
 ├── util/                    # 工具类（BasicUtil / StatisticalUtil / EnumConvertUtil）
 ├── validator/               # 校验器（GeneralValidator / MedicalValidator / VideoValidator）
 │   └── annotation/          # 校验注解实现（IdValidator / EnumValidator）
-└── converter/               # PO ↔ VO / DTO 转换器
+└── converter/               # PO ↔ VO / DTO 转换器（含 PageConverter 基类）
 ```
 
 <br/>
@@ -249,6 +285,7 @@ src/main/java/gang/lu/riskmanagementproject/
 ## 🧪 接口示例
 
 ### 新增风险指标
+
 ```http
 POST /api/risk-indicator
 Content-Type: application/json
@@ -264,6 +301,7 @@ Content-Type: application/json
 ```
 
 ### AI 风险预测
+
 ```http
 GET /api/risk-ai/predict/1
 ```
@@ -285,6 +323,7 @@ GET /api/risk-ai/predict/1
 ```
 
 ### 统一错误响应
+
 ```json
 {
   "code": 400,
@@ -330,7 +369,7 @@ GET /api/risk-ai/predict/1
 **Franz Liszt**
 
 [![Email](https://img.shields.io/badge/Email-franzliszt709@gmail.com-EA4335?style=for-the-badge&logo=gmail&logoColor=white)](mailto:franzliszt709@gmail.com)
-[![GitHub](https://img.shields.io/badge/GitHub-your--username-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/your-username)
+[![GitHub](https://img.shields.io/badge/GitHub-franzliszt0626-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/franzliszt0626)
 
 *欢迎提交 Issue / PR，一起把它做得更好 🚀*
 
