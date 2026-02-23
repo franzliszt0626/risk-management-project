@@ -37,7 +37,7 @@ public class VideoAnalysisController {
     @ApiOperation(
             value = "上传视频进行风险分析",
             notes = "接收视频文件（≤ 50 MB，支持 mp4 / avi / mov），转发算法服务完成检测，" +
-                    "将分析结果写入风险指标表并返回。"
+                    "将分析结果写入风险指标表并返回"
     )
     @PostMapping(value = "/analyze/{workerId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Result<RiskIndicatorVO> analyzeVideo(

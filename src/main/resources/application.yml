@@ -1,22 +1,30 @@
+# spring config
 spring:
   servlet:
     multipart:
+      # video max size
       max-file-size: 50MB
       max-request-size: 50MB
+  # database config
   datasource:
     url: jdbc:mysql://127.0.0.1:3306/risk-management-project?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=Asia/Shanghai&rewriteBatchedStatements=true
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: WojiaGuoguo626
+  # paging parameters
   page:
     default-num: 1
     default-size: 10
     max-size: 100
+
+# log config
 logging:
   level:
     gang.lu.riskmanagementproject: DEBUG
   pattern:
     dateformat: HH:mm:ss
+
+# mybatis config
 mybatis-plus:
   type-aliases-package: gang.lu.riskmanagementproject.domain.po
   mapper-locations: classpath*:mapper/**/*.xml
@@ -24,23 +32,22 @@ mybatis-plus:
     db-config:
       id-type: auto
       logic-delete-field: deleted
-      # 全局更新策略：null 值字段不更新到数据库
+      # dto's null field will not be updated
       update-strategy: not_null
-      # 插入策略：null 值字段不插入
+      # dto's null field will not be inserted
       insert-strategy: not_null
-
   configuration:
     default-enum-type-handler: com.baomidou.mybatisplus.core.handlers.MybatisEnumTypeHandler
     map-underscore-to-camel-case: true
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   type-enums-package: gang.lu.riskmanagementproject.domain.enums
 
-
+# swagger config
 knife4j:
   enable: true
   openapi:
-    title: 路港风险管理系统接口文档
-    description: "路港风险管理系统接口文档"
+    title: Interface Document for LuGang Risk Management System
+    description: "Interface Document for LuGang Risk Management System"
     concat: Franz.Liszt
     version: v1.0.0
     group:
@@ -50,6 +57,7 @@ knife4j:
         api-rule-resources:
           - gang.lu.riskmanagementproject.controller
 
+# medical parameter's limitation
 medical:
   min-fatigue-percent: 0.0
   max-fatigue-percent: 100.0
@@ -58,12 +66,15 @@ medical:
   min-respiratory-rate: 1
   max-respiratory-rate: 60
 
+# algorithm config
 algorithm:
+  # TODO: Use actual algorithm address to replace it
   base-url: http://localhost:8000
   connect-timeout: 10
   read-timeout: 60
   write-timeout: 30
 
+# ai model config
 dashscope:
   api-key: sk-2d09e91aff2f487a8375a6c251cf1d56
   model: qwen-turbo

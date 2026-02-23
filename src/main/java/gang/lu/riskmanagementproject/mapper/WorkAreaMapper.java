@@ -7,6 +7,8 @@ import org.apache.ibatis.annotations.Mapper;
 
 import java.util.Map;
 
+import static gang.lu.riskmanagementproject.common.field.FieldEnglishConstants.AREA_RISK_LEVEL;
+
 /**
  * <p>
  * 工作区域表 Mapper 接口
@@ -24,6 +26,6 @@ public interface WorkAreaMapper extends BaseMapper<WorkArea> {
      * @return Map<风险等级, 子Map(包含risk_level和count)>
      * 指定外层Map的key为risk_level列
      */
-    @MapKey("area_risk_level")
+    @MapKey(AREA_RISK_LEVEL)
     Map<String, Map<String, Object>> countWorkAreaByRiskLevel();
 }

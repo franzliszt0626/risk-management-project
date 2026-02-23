@@ -1,6 +1,7 @@
 package gang.lu.riskmanagementproject.helper;
 
 import cn.hutool.core.io.IoUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.itextpdf.io.font.FontProgram;
 import com.itextpdf.io.font.FontProgramFactory;
 import com.itextpdf.io.font.PdfEncodings;
@@ -55,7 +56,7 @@ import static gang.lu.riskmanagementproject.message.FailedMessages.PDF_GENERATE_
 @RequiredArgsConstructor
 public class PdfHelper {
 
-    // ======================== PDF生成入口（核心修复：调整资源释放时机）========================
+    // ======================== PDF生成入口 ========================
 
     public void writePdfToResponse(Long workerId, List<RiskIndicatorVO> history,
                                    RiskPredictionVO prediction, HttpServletResponse response) {
@@ -80,7 +81,7 @@ public class PdfHelper {
             renderHistoryTable(doc, font, history);
             renderFooter(doc, font);
 
-            // 关键：手动关闭文档，确保内容刷入缓冲区
+            // 手动关闭文档，确保内容刷入缓冲区
             doc.close();
             pdf.close();
             writer.close();
@@ -104,7 +105,7 @@ public class PdfHelper {
         }
     }
 
-    // ======================== PDF各区块渲染（增加空数据兜底）========================
+    // ======================== PDF各区块渲染========================
 
     /**
      * 渲染标题区
@@ -163,13 +164,13 @@ public class PdfHelper {
         Table table = buildTwoColTable();
         // 空值兜底
         addInfoRow(table, font, LABEL_PREDICTED_LEVEL,
-                prediction.getPredictedRiskLevel() != null ? prediction.getPredictedRiskLevel() : LABEL_UNKNOWN);
+                ObjectUtil.isNotNull(prediction.getPredictedRiskLevel()) ? prediction.getPredictedRiskLevel() : LABEL_UNKNOWN);
         addInfoRow(table, font, LABEL_RISK_TREND,
-                prediction.getRiskTrend() != null ? prediction.getRiskTrend() : LABEL_UNKNOWN);
+                ObjectUtil.isNotNull(prediction.getRiskTrend()) ? prediction.getRiskTrend() : LABEL_UNKNOWN);
         addInfoRow(table, font, LABEL_SUMMARY,
-                prediction.getAnalysisSummary() != null ? prediction.getAnalysisSummary() : LABEL_UNKNOWN);
+                ObjectUtil.isNotNull(prediction.getAnalysisSummary()) ? prediction.getAnalysisSummary() : LABEL_UNKNOWN);
         addInfoRow(table, font, LABEL_CONFIDENCE,
-                prediction.getConfidenceNote() != null ? prediction.getConfidenceNote() : LABEL_UNKNOWN);
+                ObjectUtil.isNotNull(prediction.getConfidenceNote()) ? prediction.getConfidenceNote() : LABEL_UNKNOWN);
 
         doc.add(table);
         renderSuggestions(doc, font, prediction);
@@ -180,7 +181,7 @@ public class PdfHelper {
      * 渲染改善建议列表
      */
     public void renderSuggestions(Document doc, PdfFont font, RiskPredictionVO prediction) {
-        if (prediction.getSuggestions() == null || prediction.getSuggestions().isEmpty()) {
+        if (ObjectUtil.isNull(prediction.getSuggestions()) || prediction.getSuggestions().isEmpty()) {
             return;
         }
         doc.add(new Paragraph(LABEL_SUGGESTIONS)
@@ -209,7 +210,7 @@ public class PdfHelper {
         addHistoryTableHeader(table, font);
 
         // 空数据处理：显示无数据行
-        if (history == null || history.isEmpty()) {
+        if (ObjectUtil.isNull(history) || history.isEmpty()) {
             Cell emptyCell = new Cell(1, EMPTY_CELL_COLSPAN)
                     .add(new Paragraph(LABEL_NO_DATA)
                             .setFont(font).setFontSize(FONT_SIZE_TABLE)
@@ -256,13 +257,13 @@ public class PdfHelper {
 
             addHistoryCell(table, font, String.valueOf(i + 1), alt);
             addHistoryCell(table, font,
-                    r.getCreateTime() != null ? r.getCreateTime().format(fmt) : LABEL_UNKNOWN, alt);
+                    ObjectUtil.isNotNull(r.getCreateTime()) ? r.getCreateTime().format(fmt) : LABEL_UNKNOWN, alt);
             addHistoryCell(table, font,
-                    r.getHeartRate() != null ? String.valueOf(r.getHeartRate()) : LABEL_UNKNOWN, alt);
+                    ObjectUtil.isNotNull(r.getHeartRate()) ? String.valueOf(r.getHeartRate()) : LABEL_UNKNOWN, alt);
             addHistoryCell(table, font,
-                    r.getRespiratoryRate() != null ? String.valueOf(r.getRespiratoryRate()) : LABEL_UNKNOWN, alt);
+                    ObjectUtil.isNotNull(r.getRespiratoryRate()) ? String.valueOf(r.getRespiratoryRate()) : LABEL_UNKNOWN, alt);
             addHistoryCell(table, font,
-                    r.getFatiguePercent() != null ? String.format("%.2f", r.getFatiguePercent()) : LABEL_UNKNOWN, alt);
+                    ObjectUtil.isNotNull(r.getFatiguePercent()) ? String.format("%.2f", r.getFatiguePercent()) : LABEL_UNKNOWN, alt);
             addRiskLevelCell(table, font, r, alt);
             addHistoryCell(table, font,
                     Boolean.TRUE.equals(r.getAlertFlag()) ? LABEL_ALERT_YES : LABEL_ALERT_NO, alt);
@@ -273,7 +274,7 @@ public class PdfHelper {
      * 风险等级单元格（带颜色）
      */
     public void addRiskLevelCell(Table table, PdfFont font, RiskIndicatorVO r, boolean alt) {
-        String levelStr = r.getRiskLevel() != null ? r.getRiskLevel().getValue() : LABEL_UNKNOWN;
+        String levelStr = ObjectUtil.isNotNull(r.getRiskLevel()) ? r.getRiskLevel().getValue() : LABEL_UNKNOWN;
         Cell cell = new Cell()
                 .add(new Paragraph(levelStr)
                         .setFont(font).setFontSize(FONT_SIZE_TABLE).setBold()
@@ -307,7 +308,7 @@ public class PdfHelper {
                         .setFontColor(RISK_BLACK))
                 .setBackgroundColor(ROW_ALT));
         table.addCell(new Cell()
-                .add(new Paragraph(value != null ? value : LABEL_UNKNOWN)
+                .add(new Paragraph(ObjectUtil.isNotNull(value) ? value : LABEL_UNKNOWN)
                         .setFont(font).setFontSize(FONT_SIZE_BODY)
                         .setFontColor(RISK_BLACK)));
     }
@@ -328,7 +329,7 @@ public class PdfHelper {
 
     private PdfFont loadChineseFont() throws IOException {
         try (InputStream is = getClass().getResourceAsStream(FONT_PATH)) {
-            if (is == null) {
+            if (ObjectUtil.isNull(is)) {
                 throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR,
                         String.format(PDF_FONT_NOT_FOUND, FONT_PATH));
             }
@@ -364,7 +365,7 @@ public class PdfHelper {
     }
 
     public String resolveTimeSpan(List<RiskIndicatorVO> history) {
-        if (history == null || history.isEmpty()) {
+        if (ObjectUtil.isNull(history) || history.isEmpty()) {
             return LABEL_NO_DATA;
         }
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern(DEFAULT_DATE_TIME_FORMAT);
@@ -374,7 +375,7 @@ public class PdfHelper {
     }
 
     private DeviceRgb resolveRiskColor(String riskLevel) {
-        if (riskLevel == null) {
+        if (ObjectUtil.isNull(riskLevel)) {
             return RISK_BLACK;
         }
         switch (riskLevel) {

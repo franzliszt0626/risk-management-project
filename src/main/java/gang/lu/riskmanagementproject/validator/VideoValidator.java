@@ -21,7 +21,14 @@ import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 @Component
 public class VideoValidator {
 
+    /**
+     * video size limitation
+     */
     private static final long MAX_FILE_SIZE = 50 * 1024 * 1024L;
+
+    /**
+     * 1 mb = 1024 * 1024 bytes
+     */
     private static final long BYTES_PER_MB = 1024L * 1024L;
 
     /**
@@ -36,14 +43,16 @@ public class VideoValidator {
      * @throws BizException 任意一层校验不通过时抛出 400 异常
      */
     public void validateVideoFile(MultipartFile video) {
-        if (video == null || video.isEmpty()) {
+        // 1. video file cannot be empty or null
+        if (ObjectUtil.isNull(video) || video.isEmpty()) {
             throw new BizException(HttpStatus.BAD_REQUEST, VIDEO_EMPTY);
         }
+        // 2. video file cannot exceed the max size: 50MB
         if (video.getSize() > MAX_FILE_SIZE) {
-            // ★ 原代码直接传 bytes，单位显示有误；此处换算为 MB（保留一位小数）
             String sizeMb = String.format("%.1f", (double) video.getSize() / BYTES_PER_MB);
             throw new BizException(HttpStatus.BAD_REQUEST, String.format(VIDEO_SIZE_INVALID, sizeMb));
         }
+        // 3. the file must be a video
         String contentType = video.getContentType();
         if (ObjectUtil.isNull(contentType) || !ALLOWED_TYPES.contains(contentType.toLowerCase())) {
             throw new BizException(HttpStatus.BAD_REQUEST, VIDEO_TYPE_INVALID);

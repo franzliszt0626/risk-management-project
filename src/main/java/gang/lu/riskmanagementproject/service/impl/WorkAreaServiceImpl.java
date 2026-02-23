@@ -13,6 +13,7 @@ import gang.lu.riskmanagementproject.domain.vo.normal.PageVO;
 import gang.lu.riskmanagementproject.domain.vo.normal.WorkAreaVO;
 import gang.lu.riskmanagementproject.domain.vo.statistical.area.WorkAreaRiskCountVO;
 import gang.lu.riskmanagementproject.exception.BizException;
+import gang.lu.riskmanagementproject.helper.PageHelper;
 import gang.lu.riskmanagementproject.helper.QueryWrapperHelper;
 import gang.lu.riskmanagementproject.mapper.WorkAreaMapper;
 import gang.lu.riskmanagementproject.service.WorkAreaService;
@@ -46,8 +47,9 @@ public class WorkAreaServiceImpl
 
     public WorkAreaServiceImpl(WorkAreaMapper baseMapper,
                                WorkAreaConverter converter,
-                               GeneralValidator generalValidator) {
-        super(baseMapper, converter, generalValidator);
+                               GeneralValidator generalValidator,
+                               PageHelper pageHelper) {
+        super(baseMapper, converter, generalValidator, pageHelper);
     }
 
     // ======================== 通用CRUD ========================

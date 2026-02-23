@@ -41,6 +41,7 @@ import static gang.lu.riskmanagementproject.message.SuccessMessages.*;
 public class WorkAreaController {
 
     private final WorkAreaService workAreaService;
+    private final PageHelper pageHelper;
 
     // ======================== 通用CRUD接口 ========================
 
@@ -101,7 +102,7 @@ public class WorkAreaController {
     @PostMapping("/search")
     public Result<PageVO<WorkAreaVO>> searchWorkAreas(
             @Valid @RequestBody WorkAreaQueryDTO queryDTO) {
-        PageHelper.bindGlobalDefaultRule(queryDTO);
+        pageHelper.bindGlobalDefaultRule(queryDTO);
         PageVO<WorkAreaVO> pageVO = workAreaService.search(queryDTO);
         return Result.ok(String.format(WORK_AREA_GET_COUNT_SUCCESS, pageVO.getTotal()), pageVO);
     }
@@ -110,7 +111,7 @@ public class WorkAreaController {
 
     @ApiOperation(
             value = "根据区域编码查询工作区域",
-            notes = "区域编码精确匹配，编码全局唯一时返回单条记录。"
+            notes = "区域编码精确匹配，编码全局唯一时返回单条记录"
     )
     @ApiImplicitParam(name = "areaCode", value = WORK_AREA_CODE,
             required = true, dataType = "String", paramType = "path", example = "AREA_001")
@@ -125,7 +126,7 @@ public class WorkAreaController {
 
     @ApiOperation(
             value = "统计各风险等级工作区域数量",
-            notes = "按区域风险等级（低风险 / 中风险 / 高风险）分组统计，并返回总数。"
+            notes = "按区域风险等级（低风险 / 中风险 / 高风险）分组统计，并返回总数"
     )
     @GetMapping("/count/risk-level")
     public Result<WorkAreaRiskCountVO> countWorkAreaByRiskLevel() {

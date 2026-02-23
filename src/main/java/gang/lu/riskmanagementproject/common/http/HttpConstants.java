@@ -7,6 +7,14 @@ package gang.lu.riskmanagementproject.common.http;
  * @description Http常量
  */
 public interface HttpConstants {
+
+    /**
+     * 所有源
+     */
+    String ALL = "*";
+    String ALL_INTERFACES = "/**";
+    Long CORS_EXPIRATION_TIME = 3600L;
+
     /**
      * HTTP路径
      */
@@ -23,6 +31,7 @@ public interface HttpConstants {
     String MEDIA_TYPE_JSON = "application/json";
     String HEADER_AUTHORIZATION = "Authorization";
     String HEADER_CONTENT_TYPE = "Content-Type";
+    String HEADER_CONTENT_LENGTH = "Content-Length";
     String AUTHORIZATION_BEARER_PREFIX = "Bearer ";
     String CONTENT_TYPE = "application/pdf";
     String CONTENT_DISPOSITION_KEY = "Content-Disposition";

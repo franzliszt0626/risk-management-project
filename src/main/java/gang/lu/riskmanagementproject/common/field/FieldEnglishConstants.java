@@ -14,6 +14,8 @@ public interface FieldEnglishConstants {
     String UPCAST_ID = "ID";
     String CREATE_TIME = "createTime";
     String UPDATE_TIME = "updateTime";
+    String COUNT = "count";
+    String PERIOD = "period";
 
     /**
      * 工人
@@ -29,4 +31,9 @@ public interface FieldEnglishConstants {
     String FATIGUE_PERCENT = "fatigue_percent";
     String RISK_LEVEL = "risk_level";
     String ALERT_FLAG = "alert_flag";
+
+    /**
+     * 工作区域
+     */
+    String AREA_RISK_LEVEL = "area_risk_level";
 }

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "medical")
 public class MedicalProperty {
+
     @Value("${medical.min-fatigue-percent:0.0}")
     private Double minFatiguePercent;
 

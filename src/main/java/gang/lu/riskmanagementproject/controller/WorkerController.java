@@ -43,6 +43,7 @@ import static gang.lu.riskmanagementproject.message.SuccessMessages.*;
 public class WorkerController {
 
     private final WorkerService workerService;
+    private final PageHelper pageHelper;
 
     // ======================== 通用CRUD接口 ========================
 
@@ -103,7 +104,7 @@ public class WorkerController {
     @PostMapping("/search")
     public Result<PageVO<WorkerVO>> searchWorkers(
             @Valid @RequestBody WorkerQueryDTO queryDTO) {
-        PageHelper.bindGlobalDefaultRule(queryDTO);
+        pageHelper.bindGlobalDefaultRule(queryDTO);
         PageVO<WorkerVO> pageVO = workerService.search(queryDTO);
         return Result.ok(String.format(WORKER_GET_COUNT_SUCCESS, pageVO.getTotal()), pageVO);
     }
@@ -112,7 +113,7 @@ public class WorkerController {
 
     @ApiOperation(
             value = "根据工号查询工人",
-            notes = "工号全局唯一，精确匹配，返回单条记录。"
+            notes = "工号全局唯一，精确匹配，返回单条记录"
     )
     @ApiImplicitParam(name = "workerCode", value = WORKER_CODE,
             required = true, dataType = "String", paramType = "path", example = "W001")
@@ -127,7 +128,7 @@ public class WorkerController {
 
     @ApiOperation(
             value = "统计各状态工人数量",
-            notes = "按工人状态（正常 / 异常 / 离线）分组统计，并返回总数。"
+            notes = "按工人状态（正常 / 异常 / 离线）分组统计，并返回总数"
     )
     @GetMapping("/count/status")
     public Result<WorkerStatusCountVO> countWorkerByStatus() {
@@ -137,7 +138,7 @@ public class WorkerController {
 
     @ApiOperation(
             value = "统计各工种工人数量",
-            notes = "按工种（高空作业 / 受限空间 / 设备操作 / 正常作业）分组统计，并返回总数。"
+            notes = "按工种（高空作业 / 受限空间 / 设备操作 / 正常作业）分组统计，并返回总数"
     )
     @GetMapping("/count/work-type")
     public Result<WorkerTypeCountVO> countWorkerByWorkType() {

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 @Data
 @Component
 public class RecordLimitProperty {
+
     /**
      * 最小记录条数
      */

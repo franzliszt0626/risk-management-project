@@ -2,10 +2,13 @@ package gang.lu.riskmanagementproject.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import gang.lu.riskmanagementproject.domain.po.Worker;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.MapKey;
 
 import java.util.List;
 import java.util.Map;
+
+import static gang.lu.riskmanagementproject.common.field.FieldEnglishConstants.WORKER_STATUS;
+import static gang.lu.riskmanagementproject.common.field.FieldEnglishConstants.WORKER_TYPE;
 
 /**
  * <p>
@@ -23,7 +26,7 @@ public interface WorkerMapper extends BaseMapper<Worker> {
      *
      * @return 每条结果包含 status 和 count 字段
      */
-    @Select("SELECT status, COUNT(*) AS count FROM t_worker GROUP BY status")
+    @MapKey(WORKER_STATUS)
     List<Map<String, Object>> countWorkerByStatus();
 
     /**
@@ -31,7 +34,7 @@ public interface WorkerMapper extends BaseMapper<Worker> {
      *
      * @return 按状态统计的结果列表
      */
-    @Select("SELECT work_type, COUNT(*) AS count FROM t_worker GROUP BY work_type")
+    @MapKey(WORKER_TYPE)
     List<Map<String, Object>> countWorkerByWorkType();
 
 }

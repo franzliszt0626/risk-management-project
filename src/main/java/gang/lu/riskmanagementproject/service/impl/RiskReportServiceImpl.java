@@ -25,7 +25,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static gang.lu.riskmanagementproject.common.global.GlobalBusinessConstants.*;
+import static gang.lu.riskmanagementproject.common.global.GlobalLogConstants.*;
 import static gang.lu.riskmanagementproject.common.global.GlobalSimbolConstants.LIMIT;
+import static gang.lu.riskmanagementproject.common.http.HttpConstants.HEADER_CONTENT_LENGTH;
 import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 
 /**
@@ -75,25 +77,25 @@ public class RiskReportServiceImpl implements RiskReportService {
 
         // 3. 查历史数据
         List<RiskIndicatorVO> history = queryHistory(workerId, limit);
-        log.info("[RiskReport] workerId={} 查到 {} 条历史记录", workerId, history.size());
+        log.info(LOG_GET_HISTORY, workerId, history.size());
 
         // 4. 按需调 AI（AI 原始 JSON 响应在 RiskAiServiceImpl→AiHelper 中打印）
         RiskPredictionVO prediction = resolveAiPrediction(workerId, limit, includeAi, history);
 
         // 5. 生成 PDF 并写入响应流，同时打印 PDF 大小
-        log.info("[RiskReport] 开始生成 PDF | workerId={} | includeAi={}", workerId, includeAi);
+        log.info(LOG_START_GENERATE_PDF, workerId, includeAi);
         long before = System.currentTimeMillis();
 
         pdfHelper.writePdfToResponse(workerId, history, prediction, response);
 
         // ★ 通过 Content-Length Header 感知 PDF 大小（需 PdfHelper 设置该 Header）
-        String contentLength = response.getHeader("Content-Length");
+        String contentLength = response.getHeader(HEADER_CONTENT_LENGTH);
         if (contentLength != null) {
             long bytes = Long.parseLong(contentLength);
-            log.info("[RiskReport] PDF 生成完成 | 大小: {} KB ({} bytes) | 耗时: {} ms",
+            log.info(LOG_GENERATE_PDF_DONE,
                     bytes / 1024, bytes, System.currentTimeMillis() - before);
         } else {
-            log.info("[RiskReport] PDF 生成完成 | 耗时: {} ms（如需打印大小，请在 PdfHelper 中设置 Content-Length Header）",
+            log.info(LOG_GENERATE_PDF_DONE_AND_PRINT,
                     System.currentTimeMillis() - before);
         }
     }
@@ -118,7 +120,7 @@ public class RiskReportServiceImpl implements RiskReportService {
         if (!Boolean.TRUE.equals(includeAi) || history.isEmpty()) {
             return null;
         }
-        log.info("[RiskReport] 调用 AI 预测 | workerId={}", workerId);
+        log.info(LOG_INVOKE_AI, workerId);
         return riskAiService.predictRisk(workerId, limit);
     }
 }

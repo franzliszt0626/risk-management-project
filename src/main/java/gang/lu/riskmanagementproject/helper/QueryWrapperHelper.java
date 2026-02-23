@@ -53,7 +53,7 @@ public class QueryWrapperHelper<T> extends LambdaQueryWrapper<T> {
     ) {
         if (StrUtil.isNotBlank(value)) {
             E enumVal = EnumConvertUtil.toEnum(value, enumClass);
-            if (enumVal != null) {
+            if (ObjectUtil.isNotNull(enumVal)) {
                 super.eq(field, enumVal);
             }
         }

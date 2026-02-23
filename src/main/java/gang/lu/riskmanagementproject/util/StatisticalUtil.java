@@ -10,11 +10,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static gang.lu.riskmanagementproject.common.field.FieldChineseConstants.UNKNOWN_PERIOD;
+import static gang.lu.riskmanagementproject.common.field.FieldEnglishConstants.COUNT;
+import static gang.lu.riskmanagementproject.common.field.FieldEnglishConstants.PERIOD;
+
 /**
  * 统计数据处理工具类
  * <p>
  * 提供从 MyBatis 返回的 {@code Map} 结构中安全提取 count 值的方法，
- * 以及时间段统计 VO 的构建逻辑。
+ * 以及时间段统计 VO 的构建逻辑
  *
  * @author Franz Liszt
  * @since 2026-02-09
@@ -22,13 +26,9 @@ import java.util.stream.Collectors;
 @Slf4j
 public class StatisticalUtil {
 
-    private static final String COUNT = "count";
-    public static final String PERIOD = "period";
-    private static final String UNKNOWN_PERIOD = "未知时间段";
-
     /**
-     * 时间段起始小时 → 描述文本。
-     * 使用 Map 替代 switch，新增时间段只需在此处添加一行，不必修改方法体。
+     * 时间段起始小时 → 描述文本
+     * 使用 Map 替代 switch，新增时间段只需在此处添加一行，不必修改方法体
      */
     private static final Map<Integer, String> PERIOD_DESC_MAP;
 
@@ -48,9 +48,9 @@ public class StatisticalUtil {
     }
 
     /**
-     * 从双层 Map 中安全获取 count 值。
+     * 从双层 Map 中安全获取 count 值
      * <p>
-     * 适用于 MyBatis 返回 {@code Map<String, Map<String, Object>>} 的聚合查询结果。
+     * 适用于 MyBatis 返回 {@code Map<String, Map<String, Object>>} 的聚合查询结果
      *
      * @param dataMap 外层 Map（key 为分组字段值，value 为含 count 的内层 Map）
      * @param key     外层 Map 的查找 key
@@ -64,9 +64,9 @@ public class StatisticalUtil {
     }
 
     /**
-     * 从 {@code List<Map>} 中按指定字段匹配并获取 count 值。
+     * 从 {@code List<Map>} 中按指定字段匹配并获取 count 值
      * <p>
-     * 适用于 MyBatis 返回 {@code List<Map<String, Object>>} 的 GROUP BY 查询结果。
+     * 适用于 MyBatis 返回 {@code List<Map<String, Object>>} 的 GROUP BY 查询结果
      *
      * @param dataList   数据列表
      * @param fieldName  用于匹配的字段名
@@ -86,7 +86,7 @@ public class StatisticalUtil {
     }
 
     /**
-     * 将时间段原始数据列表转换为 {@link RiskTimePeriodCountVO.TimePeriodItem} 列表。
+     * 将时间段原始数据列表转换为 {@link RiskTimePeriodCountVO.TimePeriodItem} 列表
      *
      * @param periodList MyBatis 返回的时间段统计原始列表
      * @return 时间段统计 Item 列表，入参为空时返回空列表
@@ -109,16 +109,16 @@ public class StatisticalUtil {
     }
 
     /**
-     * 根据时间段起始小时数获取描述文本。
+     * 根据时间段起始小时数获取描述文本
      * <p>
      * 例如传入 {@code 8} 返回 {@code "08:00-12:00"}；
-     * 传入 null 或未知值时返回 {@value #UNKNOWN_PERIOD}。
+     * 传入 null 或未知值时返回 UNKNOWN_PERIOD。
      *
      * @param period 时间段起始小时数（0 / 4 / 8 / 12 / 16 / 20）
      * @return 时间段描述字符串
      */
     public static String getPeriodDesc(Integer period) {
-        if (period == null) {
+        if (ObjectUtil.isNull(period)) {
             return UNKNOWN_PERIOD;
         }
         return PERIOD_DESC_MAP.getOrDefault(period, UNKNOWN_PERIOD);
@@ -126,7 +126,7 @@ public class StatisticalUtil {
 
     /**
      * 从单个 Map 中提取 count 值，兼容 Integer / Long / BigDecimal 等 {@link Number} 子类
-     * 以及字符串格式的数字，统一转为 int 返回。
+     * 以及字符串格式的数字，统一转为 int 返回
      *
      * @param map 包含 {@code "count"} key 的 Map
      * @return count 值；count 字段缺失、为 null 或无法解析时返回 0
@@ -136,7 +136,7 @@ public class StatisticalUtil {
             return 0;
         }
         Object countObj = map.get(COUNT);
-        if (countObj == null) {
+        if (ObjectUtil.isNull(countObj)) {
             return 0;
         }
         if (countObj instanceof Number) {

@@ -12,6 +12,7 @@ import gang.lu.riskmanagementproject.domain.vo.normal.PageVO;
 import gang.lu.riskmanagementproject.domain.vo.normal.RiskIndicatorVO;
 import gang.lu.riskmanagementproject.domain.vo.statistical.indicator.RiskLevelCountVO;
 import gang.lu.riskmanagementproject.domain.vo.statistical.indicator.RiskTimePeriodCountVO;
+import gang.lu.riskmanagementproject.helper.PageHelper;
 import gang.lu.riskmanagementproject.helper.QueryWrapperHelper;
 import gang.lu.riskmanagementproject.mapper.RiskIndicatorMapper;
 import gang.lu.riskmanagementproject.mapper.WorkerMapper;
@@ -50,8 +51,9 @@ public class RiskIndicatorServiceImpl
                                     RiskIndicatorConverter riskIndicatorConverter,
                                     GeneralValidator generalValidator,
                                     WorkerMapper workerMapper,
-                                    MedicalValidator medicalValidator) {
-        super(riskIndicatorMapper, riskIndicatorConverter, generalValidator);
+                                    MedicalValidator medicalValidator,
+                                    PageHelper pageHelper) {
+        super(riskIndicatorMapper, riskIndicatorConverter, generalValidator, pageHelper);
         this.medicalValidator = medicalValidator;
         this.workerMapper = workerMapper;
     }

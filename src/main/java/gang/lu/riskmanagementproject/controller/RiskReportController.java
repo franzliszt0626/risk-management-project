@@ -32,7 +32,7 @@ public class RiskReportController {
 
     @ApiOperation(
             value = "导出工人风险报告 PDF",
-            notes = "包含该工人历史风险记录；includeAi=true 时附带 Qwen AI 预测分析建议（需联网）。"
+            notes = "包含该工人历史风险记录；includeAi=true 时附带 Qwen AI 预测分析建议（需联网）"
     )
     @GetMapping("/export/{workerId}")
     public void exportPdf(

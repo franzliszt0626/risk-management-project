@@ -43,7 +43,7 @@ public abstract class BaseCrudServiceImpl<
     protected final Mapper baseMapper;
     protected final Converter converter;
     protected final GeneralValidator generalValidator;
-
+    protected final PageHelper pageHelper;
 
     @Override
     public VO add(DTO dto) {
@@ -116,7 +116,7 @@ public abstract class BaseCrudServiceImpl<
         // 1. 业务特有校验（例如时间范围校验）
         this.validateSearch(queryDTO);
         // 2. 通用分页对象构建
-        Page<PO> poPage = PageHelper.buildPage(queryDTO, getBusinessScene());
+        Page<PO> poPage = pageHelper.buildPage(queryDTO, getBusinessScene());
         // 3. 子类构建查询条件
         LambdaQueryWrapper<PO> wrapper = buildQueryWrapper(queryDTO);
         // 4. 通用分页查询

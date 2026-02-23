@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="gang.lu.riskmanagementproject.mapper.RiskIndicatorMapper">
 
-    <!-- 继承公共映射 -->
+    <!-- extend from common BasePO -->
     <resultMap id="BaseResultMap" type="gang.lu.riskmanagementproject.domain.po.RiskIndicator"
                extends="gang.lu.riskmanagementproject.mapper.WorkerMapper.BasePOResultMap">
         <result column="worker_id" property="workerId"/>
@@ -35,7 +35,7 @@
             t.period,
             IFNULL(c.count, 0) AS count
         FROM (
-                 -- 生成6个固定时间段
+                 -- six fixed time-period
                  SELECT 0 AS period UNION ALL
                  SELECT 4 AS period UNION ALL
                  SELECT 8 AS period UNION ALL
@@ -44,7 +44,6 @@
                  SELECT 20 AS period
              ) t
                  LEFT JOIN (
-            -- 原统计逻辑
             SELECT
                 FLOOR(HOUR(create_time) / 4) * 4 AS period,
                 COUNT(DISTINCT worker_id) AS count

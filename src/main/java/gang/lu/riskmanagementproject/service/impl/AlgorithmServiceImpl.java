@@ -1,5 +1,6 @@
 package gang.lu.riskmanagementproject.service.impl;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gang.lu.riskmanagementproject.annotation.BusinessLog;
 import gang.lu.riskmanagementproject.domain.dto.AlgorithmResultDTO;
@@ -17,7 +18,8 @@ import java.io.IOException;
 
 import static gang.lu.riskmanagementproject.common.global.GlobalAllowTypeConstants.VIDEO;
 import static gang.lu.riskmanagementproject.common.global.GlobalAllowTypeConstants.VIDEO_MP_4;
-import static gang.lu.riskmanagementproject.common.global.GlobalBusinessConstants.*;
+import static gang.lu.riskmanagementproject.common.global.GlobalBusinessConstants.VIDEO_ANALYZING;
+import static gang.lu.riskmanagementproject.common.global.GlobalLogConstants.*;
 import static gang.lu.riskmanagementproject.common.http.HttpConstants.ANALYZE;
 import static gang.lu.riskmanagementproject.message.FailedMessages.ALGORITHM_ERROR;
 import static gang.lu.riskmanagementproject.message.FailedMessages.ALGORITHM_UNREACHABLE;
@@ -53,7 +55,7 @@ public class AlgorithmServiceImpl implements AlgorithmService {
         try {
             RequestBody fileBody = RequestBody.create(
                     video.getBytes(),
-                    MediaType.parse(video.getContentType() != null
+                    MediaType.parse(ObjectUtil.isNotNull(video.getContentType())
                             ? video.getContentType()
                             : VIDEO_MP_4)
             );
@@ -68,24 +70,24 @@ public class AlgorithmServiceImpl implements AlgorithmService {
                     .post(requestBody)
                     .build();
 
-            log.info("[Algorithm] 发送视频 [{}]（{} bytes）至算法服务",
+            log.info(LOG_SEND_REQUEST_TO_ALGORITHM,
                     video.getOriginalFilename(), video.getSize());
 
             try (Response response = okHttpClient.newCall(request).execute()) {
-                if (!response.isSuccessful() || response.body() == null) {
-                    log.error("[Algorithm] 算法服务返回非 2xx: {}", response.code());
+                if (!response.isSuccessful() || ObjectUtil.isNull(response.body())) {
+                    log.error(LOG_ALGORITHM_RETURN_NO_200, response.code());
                     throw new BizException(HttpStatus.BAD_GATEWAY, ALGORITHM_ERROR);
                 }
 
                 String json = response.body().string();
                 // 打印算法服务原始 JSON 响应
-                log.info("[Algorithm] 原始响应 ↓\n{}", json);
+                log.info(LOG_ALGORITHM_RAW_RESPONSE, json);
 
                 return objectMapper.readValue(json, AlgorithmResultDTO.class);
             }
 
         } catch (IOException e) {
-            log.error("[Algorithm] 连接算法服务失败", e);
+            log.error(LOG_FAIL_TO_CONNECT_TO_ALGORITHM, e);
             throw new BizException(HttpStatus.SERVICE_UNAVAILABLE, ALGORITHM_UNREACHABLE);
         }
     }

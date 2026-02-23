@@ -1,5 +1,6 @@
 package gang.lu.riskmanagementproject.property;
 
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
@@ -9,24 +10,26 @@ import org.springframework.context.annotation.Configuration;
  * @date 2026/2/12 19:58
  * @description 分页配置类
  */
+@Data
 @Configuration
 public class PageProperty {
-    public static Integer DEFAULT_NUM;
-    public static Integer DEFAULT_SIZE;
-    public static Integer MAX_SIZE;
 
+    /**
+     * 全局默认初始页码
+     */
     @Value("${spring.page.default-num:1}")
-    public void setDefaultNum(Integer defaultNum) {
-        PageProperty.DEFAULT_NUM = defaultNum;
-    }
+    public Integer DEFAULT_NUM;
 
+    /**
+     * 全局默认单页数据量
+     */
     @Value("${spring.page.default-size:10}")
-    public void setDefaultSize(Integer defaultSize) {
-        PageProperty.DEFAULT_SIZE = defaultSize;
-    }
+    public Integer DEFAULT_SIZE;
 
+    /**
+     * 全局默认单页最大数据量
+     */
     @Value("${spring.page.max-size:100}")
-    public void setMaxSize(Integer maxSize) {
-        PageProperty.MAX_SIZE = maxSize;
-    }
+    public Integer MAX_SIZE;
+
 }

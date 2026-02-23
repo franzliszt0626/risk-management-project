@@ -42,6 +42,7 @@ import static gang.lu.riskmanagementproject.message.SuccessMessages.*;
 public class AlertRecordController {
 
     private final AlertRecordService alertRecordService;
+    private final PageHelper pageHelper;
 
     // ======================== 通用CRUD接口 ========================
 
@@ -102,7 +103,7 @@ public class AlertRecordController {
     @PostMapping("/search")
     public Result<PageVO<AlertRecordVO>> searchAlertRecords(
             @Valid @RequestBody AlertRecordQueryDTO queryDTO) {
-        PageHelper.bindGlobalDefaultRule(queryDTO);
+        pageHelper.bindGlobalDefaultRule(queryDTO);
         PageVO<AlertRecordVO> pageVO = alertRecordService.search(queryDTO);
         return Result.ok(String.format(ALERT_RECORD_GET_COUNT_SUCCESS, pageVO.getTotal()), pageVO);
     }
@@ -111,7 +112,7 @@ public class AlertRecordController {
 
     @ApiOperation(
             value = "标记预警记录为已处理",
-            notes = "同一条记录已处理后不可重复标记（幂等保护）。"
+            notes = "同一条记录已处理后不可重复标记"
     )
     @PutMapping("/{id}/handle")
     public Result<Void> markAlertRecordAsHandled(
@@ -127,7 +128,7 @@ public class AlertRecordController {
 
     @ApiOperation(
             value = "统计未处理预警记录数量",
-            notes = "按预警级别（警告 / 严重）分别统计当前未处理的记录数，并返回总数。"
+            notes = "按预警级别（警告 / 严重）分别统计当前未处理的记录数，并返回总数"
     )
     @GetMapping("/count/unhandled")
     public Result<AlertUnhandledCountVO> countUnhandledAlerts() {

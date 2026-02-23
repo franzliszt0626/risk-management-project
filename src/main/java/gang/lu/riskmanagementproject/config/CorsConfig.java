@@ -6,6 +6,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import static gang.lu.riskmanagementproject.common.http.HttpConstants.*;
+
 /**
  * @author Franz Liszt
  * @version 1.0
@@ -19,19 +21,19 @@ public class CorsConfig {
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
         // TODO: 允许的源（开发阶段允许所有，生产环境指定前端域名）
-        config.addAllowedOriginPattern("*");
+        config.addAllowedOriginPattern(ALL);
         // 允许的请求头
-        config.addAllowedHeader("*");
+        config.addAllowedHeader(ALL);
         // 允许的请求方法
-        config.addAllowedMethod("*");
+        config.addAllowedMethod(ALL);
         // 允许携带 Cookie
         config.setAllowCredentials(true);
         // 预检请求缓存时间（秒）
-        config.setMaxAge(3600L);
+        config.setMaxAge(CORS_EXPIRATION_TIME);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         // 对所有接口生效
-        source.registerCorsConfiguration("/**", config);
+        source.registerCorsConfiguration(ALL_INTERFACES, config);
         return new CorsFilter(source);
     }
 }

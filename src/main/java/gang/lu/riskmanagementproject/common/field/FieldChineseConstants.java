@@ -33,6 +33,7 @@ public interface FieldChineseConstants {
     String RISK_VERY_HIGH = "严重风险";
     String RISK_HIGH = "高风险";
     String RISK_MEDIUM = "中风险";
+    String UNKNOWN_PERIOD = "未知时间段";
 
     /**
      * 工作区域字段

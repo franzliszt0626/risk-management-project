@@ -21,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import static gang.lu.riskmanagementproject.common.global.GlobalBusinessConstants.VIDEO_SAVE;
+import static gang.lu.riskmanagementproject.common.global.GlobalLogConstants.LOG_UNKNOWN_RISK_LEVEL;
+import static gang.lu.riskmanagementproject.common.global.GlobalLogConstants.LOG_VIDEO_SAVE;
 import static gang.lu.riskmanagementproject.message.FailedMessages.WORKER_NOT_EXIST;
 
 /**
@@ -71,7 +73,7 @@ public class VideoAnalysisServiceImpl implements VideoAnalysisService {
 
         // 5. 回查，获取完整记录（含 DB 生成的时间戳）
         RiskIndicator saved = riskIndicatorMapper.selectById(indicator.getId());
-        log.info("[VideoAnalysis] 已保存 workerId={}, riskLevel={}", workerId, saved.getRiskLevel());
+        log.info(LOG_VIDEO_SAVE, workerId, saved.getRiskLevel());
 
         return riskIndicatorConverter.poToVo(saved);
     }
@@ -84,7 +86,7 @@ public class VideoAnalysisServiceImpl implements VideoAnalysisService {
             if (ObjectUtil.isNotNull(parsed)) {
                 riskLevel = parsed;
             } else {
-                log.warn("[VideoAnalysis] 未知风险等级 '{}', 默认使用 LOW_RISK",
+                log.warn(LOG_UNKNOWN_RISK_LEVEL,
                         result.getRiskLevel());
             }
         }

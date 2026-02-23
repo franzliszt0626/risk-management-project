@@ -45,6 +45,7 @@ import static gang.lu.riskmanagementproject.message.SuccessMessages.*;
 public class RiskIndicatorController {
 
     private final RiskIndicatorService riskIndicatorService;
+    private final PageHelper pageHelper;
 
     // ======================== 通用CRUD接口 ========================
 
@@ -105,7 +106,7 @@ public class RiskIndicatorController {
     @PostMapping("/search")
     public Result<PageVO<RiskIndicatorVO>> searchRiskIndicators(
             @Valid @RequestBody RiskIndicatorQueryDTO queryDTO) {
-        PageHelper.bindGlobalDefaultRule(queryDTO);
+        pageHelper.bindGlobalDefaultRule(queryDTO);
         PageVO<RiskIndicatorVO> pageVO = riskIndicatorService.search(queryDTO);
         return Result.ok(String.format(RISK_INDICATOR_GET_COUNT_SUCCESS, pageVO.getTotal()), pageVO);
     }

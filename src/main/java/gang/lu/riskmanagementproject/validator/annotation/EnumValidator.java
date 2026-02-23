@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * {@link ValidEnum} 注解对应的约束校验器。
+ * {@link ValidEnum} 注解对应的约束校验器
  * <p>
  * 在初始化阶段通过反射读取目标枚举类的所有合法值（基于 {@link ValueEnum#getValue()}），
  * 在校验阶段判断传入的字符串是否属于合法枚举值集合，并将格式化后的错误信息回写到
@@ -31,7 +31,7 @@ public class EnumValidator implements ConstraintValidator<ValidEnum, String> {
     private List<String> enumValues;
 
     /**
-     * 初始化：读取注解属性并预加载枚举合法值列表。
+     * 初始化：读取注解属性并预加载枚举合法值列表
      *
      * @param annotation {@link ValidEnum} 注解实例
      */

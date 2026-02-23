@@ -15,6 +15,7 @@ import gang.lu.riskmanagementproject.domain.vo.normal.WorkerVO;
 import gang.lu.riskmanagementproject.domain.vo.statistical.worker.WorkerStatusCountVO;
 import gang.lu.riskmanagementproject.domain.vo.statistical.worker.WorkerTypeCountVO;
 import gang.lu.riskmanagementproject.exception.BizException;
+import gang.lu.riskmanagementproject.helper.PageHelper;
 import gang.lu.riskmanagementproject.helper.QueryWrapperHelper;
 import gang.lu.riskmanagementproject.mapper.WorkerMapper;
 import gang.lu.riskmanagementproject.service.WorkerService;
@@ -48,8 +49,9 @@ public class WorkerServiceImpl
 
     public WorkerServiceImpl(WorkerMapper baseMapper,
                              WorkerConverter converter,
-                             GeneralValidator generalValidator) {
-        super(baseMapper, converter, generalValidator);
+                             GeneralValidator generalValidator,
+                             PageHelper pageHelper) {
+        super(baseMapper, converter, generalValidator, pageHelper);
     }
 
     // ======================== 通用CRUD ========================

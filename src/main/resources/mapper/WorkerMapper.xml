@@ -2,14 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="gang.lu.riskmanagementproject.mapper.WorkerMapper">
 
-    <!-- 1. 公共BasePOResultMap：所有子类共享的父字段映射 -->
+    <!-- Common BasePOResultMap -->
     <resultMap id="BasePOResultMap" type="gang.lu.riskmanagementproject.domain.po.BasePO">
         <id column="id" property="id"/>
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
     </resultMap>
 
-    <!-- 2. Worker自身的ResultMap：继承公共映射，只写子类字段 -->
+    <!-- Worker's special field -->
     <resultMap id="BaseResultMap" type="gang.lu.riskmanagementproject.domain.po.Worker"
                extends="gang.lu.riskmanagementproject.mapper.WorkerMapper.BasePOResultMap">
         <result column="worker_code" property="workerCode"/>
@@ -19,5 +19,17 @@
         <result column="work_type" property="workType"/>
         <result column="status" property="status"/>
     </resultMap>
+
+    <select id="countWorkerByStatus" resultType="java.util.Map">
+        SELECT status, COUNT(*) AS count
+        FROM t_worker
+        GROUP BY status
+    </select>
+
+    <select id="countWorkerByWorkType" resultType="java.util.Map">
+        SELECT work_type, COUNT(*) AS count
+        FROM t_worker
+        GROUP BY work_type
+    </select>
 
 </mapper>

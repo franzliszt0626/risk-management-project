@@ -23,5 +23,4 @@ public class OkHttpConfig {
                 .writeTimeout(props.getWRITE_TIMEOUT(), TimeUnit.SECONDS)
                 .build();
     }
-
 }

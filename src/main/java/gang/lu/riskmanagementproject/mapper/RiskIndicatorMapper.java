@@ -9,6 +9,9 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 import java.util.Map;
 
+import static gang.lu.riskmanagementproject.common.field.FieldEnglishConstants.PERIOD;
+import static gang.lu.riskmanagementproject.common.field.FieldEnglishConstants.RISK_LEVEL;
+
 /**
  * <p>
  * 实时风险指标表 Mapper 接口
@@ -33,7 +36,7 @@ public interface RiskIndicatorMapper extends BaseMapper<RiskIndicator> {
      *
      * @return Map<风险等级, 子Map(包含risk_level和count)>
      */
-    @MapKey("risk_level")
+    @MapKey(RISK_LEVEL)
     Map<String, Map<String, Object>> countDistinctWorkerByRiskLevel();
 
     /**
@@ -42,6 +45,6 @@ public interface RiskIndicatorMapper extends BaseMapper<RiskIndicator> {
      * @param statDate 统计日期（yyyy-MM-dd）
      * @return Map<时间段标识(0/4/8/12/16/20), 子Map(period=时间段标识, count=人数)>
      */
-    @MapKey("period")
+    @MapKey(PERIOD)
     List<Map<String, Object>> countHighRiskWorkerByTimePeriod(@Param("statDate") String statDate);
 }

@@ -9,7 +9,7 @@ import java.util.Objects;
 import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 
 /**
- * {@link ValidId} 注解对应的约束校验器。
+ * {@link ValidId} 注解对应的约束校验器
  * <p>
  * 对 {@code Long} 类型的 ID 做两层校验：
  * <ol>
@@ -17,7 +17,7 @@ import static gang.lu.riskmanagementproject.message.FailedMessages.*;
  *   <li>正整数：ID 必须大于 0（数据库自增主键不允许 0 或负数）。</li>
  * </ol>
  * 校验不通过时使用 {@link ConstraintValidatorContext} 回写自定义错误信息，
- * 替换默认的 Bean Validation 模板提示。
+ * 替换默认的 Bean Validation 模板提示
  *
  * @author Franz Liszt
  * @since 2026-02-11

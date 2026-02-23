@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 @Data
 @Component
 public class DashScopeProperty {
+
     @Value("${dashscope.api-key}")
     private String apiKey;
 

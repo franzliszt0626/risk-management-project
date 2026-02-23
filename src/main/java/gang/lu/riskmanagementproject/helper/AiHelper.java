@@ -1,5 +1,6 @@
 package gang.lu.riskmanagementproject.helper;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gang.lu.riskmanagementproject.domain.vo.normal.RiskIndicatorVO;
@@ -38,9 +39,6 @@ import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 @Component
 public class AiHelper {
 
-    int HASH_MAP_CAPACITY_REQUEST = 3;
-    int HASH_MAP_CAPACITY_MESSAGE = 2;
-
     private final OkHttpClient okHttpClient;
     private final DashScopeProperty dashScopeProperty;
     private final ObjectMapper objectMapper;
@@ -65,11 +63,11 @@ public class AiHelper {
             RiskIndicatorVO r = history.get(i);
             sb.append(String.format(PROMPT_ROW_FORMAT,
                     i + 1,
-                    r.getCreateTime() != null ? r.getCreateTime().toString() : PROMPT_UNKNOWN,
-                    r.getHeartRate() != null ? r.getHeartRate() : 0,
-                    r.getRespiratoryRate() != null ? r.getRespiratoryRate() : 0,
-                    r.getFatiguePercent() != null ? r.getFatiguePercent() : 0.0,
-                    r.getRiskLevel() != null ? r.getRiskLevel().getValue() : PROMPT_UNKNOWN,
+                    ObjectUtil.isNotNull(r.getCreateTime()) ? r.getCreateTime().toString() : PROMPT_UNKNOWN,
+                    ObjectUtil.isNotNull(r.getHeartRate()) ? r.getHeartRate() : 0,
+                    ObjectUtil.isNotNull(r.getRespiratoryRate()) ? r.getRespiratoryRate() : 0,
+                    ObjectUtil.isNotNull(r.getFatiguePercent()) ? r.getFatiguePercent() : 0.0,
+                    ObjectUtil.isNotNull(r.getRiskLevel()) ? r.getRiskLevel().getValue() : PROMPT_UNKNOWN,
                     Boolean.TRUE.equals(r.getAlertFlag()) ? PROMPT_ALERT_YES : PROMPT_ALERT_NO
             ));
         }
@@ -96,12 +94,13 @@ public class AiHelper {
      */
     public String callQwen(String userPrompt) {
         try {
-            // 使用常量定义HashMap初始容量，避免魔法值
-            Map<String, Object> requestMap = new HashMap<>(HASH_MAP_CAPACITY_REQUEST);
+            int initialRequestSize = 3;
+            Map<String, Object> requestMap = new HashMap<>(initialRequestSize);
             requestMap.put(MODEL, dashScopeProperty.getModel());
             requestMap.put(MAX_TOKENS, dashScopeProperty.getMaxTokens());
+            int initialMessageSize = 2;
             requestMap.put(MESSAGES, new Object[]{
-                    new HashMap<String, Object>(HASH_MAP_CAPACITY_MESSAGE) {{
+                    new HashMap<String, Object>(initialMessageSize) {{
                         put(ROLE, USER);
                         put(CONTENT, userPrompt);
                     }}

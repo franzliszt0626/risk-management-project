@@ -13,6 +13,7 @@ import gang.lu.riskmanagementproject.domain.vo.normal.AlertRecordVO;
 import gang.lu.riskmanagementproject.domain.vo.normal.PageVO;
 import gang.lu.riskmanagementproject.domain.vo.statistical.alert.AlertUnhandledCountVO;
 import gang.lu.riskmanagementproject.exception.BizException;
+import gang.lu.riskmanagementproject.helper.PageHelper;
 import gang.lu.riskmanagementproject.helper.QueryWrapperHelper;
 import gang.lu.riskmanagementproject.mapper.AlertRecordMapper;
 import gang.lu.riskmanagementproject.mapper.WorkerMapper;
@@ -46,8 +47,9 @@ public class AlertRecordServiceImpl
     public AlertRecordServiceImpl(AlertRecordMapper alertRecordMapper,
                                   AlertRecordConverter alertRecordConverter,
                                   GeneralValidator generalValidator,
-                                  WorkerMapper workerMapper) {
-        super(alertRecordMapper, alertRecordConverter, generalValidator);
+                                  WorkerMapper workerMapper,
+                                  PageHelper pageHelper) {
+        super(alertRecordMapper, alertRecordConverter, generalValidator, pageHelper);
         this.workerMapper = workerMapper;
     }
 

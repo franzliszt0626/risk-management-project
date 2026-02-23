@@ -18,4 +18,9 @@ public interface GlobalSimbolConstants {
      * 拼接前缀
      */
     String LIMIT = "LIMIT ";
+
+    /**
+     * Spring
+     */
+    String SPRING = "spring";
 }

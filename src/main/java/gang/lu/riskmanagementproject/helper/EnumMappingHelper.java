@@ -1,5 +1,6 @@
 package gang.lu.riskmanagementproject.helper;
 
+import cn.hutool.core.util.ObjectUtil;
 import gang.lu.riskmanagementproject.domain.enums.ValueEnum;
 
 /**
@@ -15,6 +16,6 @@ public class EnumMappingHelper {
     }
 
     public static <T extends Enum<T> & ValueEnum<?>> String enumToStr(T e) {
-        return e == null ? null : e.getValue().toString();
+        return ObjectUtil.isNull(e) ? null : e.getValue().toString();
     }
 }

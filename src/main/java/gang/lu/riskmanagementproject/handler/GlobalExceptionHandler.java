@@ -1,5 +1,6 @@
 package gang.lu.riskmanagementproject.handler;
 
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import gang.lu.riskmanagementproject.common.Result;
 import gang.lu.riskmanagementproject.exception.BizException;
@@ -233,7 +234,7 @@ public class GlobalExceptionHandler {
      * @return 错误提示信息
      */
     private String extractFirstFieldError(List<FieldError> fieldErrors) {
-        if (fieldErrors == null || fieldErrors.isEmpty()) {
+        if (ObjectUtil.isNull(fieldErrors) || fieldErrors.isEmpty()) {
             return COMMON_PARAM_VERIFY_ERROR;
         }
         return fieldErrors.get(0).getDefaultMessage();
@@ -246,10 +247,10 @@ public class GlobalExceptionHandler {
      * @return 根因异常
      */
     private Throwable getRootCause(Throwable throwable) {
-        if (throwable == null) {
+        if (ObjectUtil.isNull(throwable)) {
             return null;
         }
         Throwable cause = throwable.getCause();
-        return cause == null ? throwable : getRootCause(cause);
+        return ObjectUtil.isNull(cause) ? throwable : getRootCause(cause);
     }
 }

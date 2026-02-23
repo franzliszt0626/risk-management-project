@@ -8,6 +8,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 
+import static gang.lu.riskmanagementproject.common.global.GlobalSimbolConstants.SPRING;
+
 /**
  * @author Franz Liszt
  * @version 1.0
@@ -16,7 +18,7 @@ import org.mapstruct.ReportingPolicy;
  */
 @Mapper(
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
-        componentModel = "spring",
+        componentModel = SPRING,
         unmappedTargetPolicy = ReportingPolicy.IGNORE,
         uses = EnumMappingHelper.class
 )

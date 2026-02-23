@@ -22,7 +22,6 @@ public interface PageConverter<PO, DTO, VO> extends ClassConverter<PO, DTO, VO> 
         pageVO.setSize(poPage.getSize());
         pageVO.setTotal(poPage.getTotal());
         pageVO.setPages(poPage.getPages());
-        // 复用ClassConverter的poListToVoList方法
         pageVO.setRecords(poListToVoList(poPage.getRecords()));
         return pageVO;
     }

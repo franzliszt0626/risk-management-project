@@ -33,7 +33,7 @@ public class RiskAiController {
 
     @ApiOperation(
             value = "预测工人未来风险",
-            notes = "读取工人历史风险记录，调用 Qwen 大模型分析，返回风险等级预测、趋势描述与健康建议。"
+            notes = "读取工人历史风险记录，调用 Qwen 大模型分析，返回风险等级预测、趋势描述与健康建议"
     )
     @GetMapping("/predict/{workerId}")
     public Result<RiskPredictionVO> predictRisk(

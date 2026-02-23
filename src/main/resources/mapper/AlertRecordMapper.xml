@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="gang.lu.riskmanagementproject.mapper.AlertRecordMapper">
 
-    <!-- 继承WorkerMapper中的公共BasePOResultMap -->
+    <!-- extend from common BasePO -->
     <resultMap id="BaseResultMap" type="gang.lu.riskmanagementproject.domain.po.AlertRecord"
                extends="gang.lu.riskmanagementproject.mapper.WorkerMapper.BasePOResultMap">
         <result column="worker_id" property="workerId"/>
@@ -14,7 +14,6 @@
         <result column="handle_time" property="handleTime"/>
     </resultMap>
 
-    <!-- 标记为已处理 -->
     <update id="markAsHandled">
         UPDATE t_alert_record
         SET is_handled  = 1,
@@ -23,7 +22,6 @@
         WHERE id = #{id}
     </update>
 
-    <!-- 统计当前未处理（is_handled = 0）的预警记录数量，但是按等级分组 -->
     <select id="countUnhandled"
             resultType="gang.lu.riskmanagementproject.domain.vo.statistical.alert.AlertUnhandledCountVO">
         SELECT COUNT(CASE WHEN alert_level = '警告' THEN 1 END) AS warning_count,
