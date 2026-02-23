@@ -48,7 +48,6 @@ public class BusinessLogAspect {
      */
     private static final int MAX_RESULT_LEN = 500;
 
-    // ─────────────────────────────────────────────────────────────
 
     @Pointcut("@annotation(gang.lu.riskmanagementproject.annotation.BusinessLog)")
     public void businessLogPointcut() {
@@ -57,7 +56,7 @@ public class BusinessLogAspect {
     @Around("businessLogPointcut()")
     public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
 
-        // ── 1. 元数据 ──────────────────────────────────────────────
+        // 1. 元数据
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
         BusinessLog annotation = method.getAnnotation(BusinessLog.class);
@@ -66,7 +65,7 @@ public class BusinessLogAspect {
         String fullName = joinPoint.getTarget().getClass().getName() + "." + method.getName();
         BusinessLog.LogLevel level = annotation.logLevel();
 
-        // ── 2. 请求上下文 ──────────────────────────────────────────
+        // 2. 请求上下文
         StringBuilder ctx = new StringBuilder();
         ctx.append(String.format("【%s】方法: %s", bizName, fullName));
 
@@ -89,11 +88,11 @@ public class BusinessLogAspect {
             }
         }
 
-        // ── 3. 开始日志 ────────────────────────────────────────────
+        // 3. 开始日志
         long startMs = System.currentTimeMillis();
         logByLevel(level, ctx + " | 开始执行");
 
-        // ── 4. 入参日志 ────────────────────────────────────────────
+        // 4. 入参日志
         if (annotation.recordParams()) {
             String params = Arrays.stream(joinPoint.getArgs())
                     .map(arg -> {
