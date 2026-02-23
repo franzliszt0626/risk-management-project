@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Map;
 
 import static gang.lu.riskmanagementproject.common.ai.AiFieldConstants.*;
-import static gang.lu.riskmanagementproject.common.ai.AiLogConstants.*;
 import static gang.lu.riskmanagementproject.common.ai.AiPromptConstants.*;
+import static gang.lu.riskmanagementproject.common.global.GlobalLogConstants.*;
 import static gang.lu.riskmanagementproject.common.global.GlobalSimbolConstants.AI_TEXT_JSON_PATTERN;
 import static gang.lu.riskmanagementproject.common.global.GlobalSimbolConstants.AI_TEXT_TICK_PATTERN;
 import static gang.lu.riskmanagementproject.common.http.HttpConstants.*;

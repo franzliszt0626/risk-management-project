@@ -22,6 +22,8 @@ import gang.lu.riskmanagementproject.common.pdf.PdfColors;
 import gang.lu.riskmanagementproject.domain.vo.normal.RiskIndicatorVO;
 import gang.lu.riskmanagementproject.domain.vo.normal.RiskPredictionVO;
 import gang.lu.riskmanagementproject.exception.BizException;
+import gang.lu.riskmanagementproject.mapper.WorkerMapper;
+import gang.lu.riskmanagementproject.validator.GeneralValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -35,16 +37,15 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import static gang.lu.riskmanagementproject.common.field.FieldChineseConstants.*;
 import static gang.lu.riskmanagementproject.common.global.GlobalFormatConstants.DEFAULT_DATE_TIME_FORMAT;
 import static gang.lu.riskmanagementproject.common.global.GlobalFormatConstants.DEFAULT_DATE_TIME_FORMAT_WITHOUT_COLON;
+import static gang.lu.riskmanagementproject.common.global.GlobalLogConstants.*;
 import static gang.lu.riskmanagementproject.common.http.HttpConstants.*;
 import static gang.lu.riskmanagementproject.common.pdf.PdfBasicConstants.*;
 import static gang.lu.riskmanagementproject.common.pdf.PdfColors.*;
-import static gang.lu.riskmanagementproject.common.pdf.PdfLogConstants.*;
 import static gang.lu.riskmanagementproject.common.pdf.PdfTextConstants.*;
-import static gang.lu.riskmanagementproject.common.field.FieldChineseConstants.*;
-import static gang.lu.riskmanagementproject.message.FailedMessages.PDF_FONT_NOT_FOUND;
-import static gang.lu.riskmanagementproject.message.FailedMessages.PDF_GENERATE_FAILED;
+import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 
 /**
  * @author Franz Liszt
@@ -55,6 +56,9 @@ import static gang.lu.riskmanagementproject.message.FailedMessages.PDF_GENERATE_
 @Slf4j
 @RequiredArgsConstructor
 public class PdfHelper {
+
+    private final WorkerMapper workerMapper;
+    private final GeneralValidator generalValidator;
 
     // ======================== PDF生成入口 ========================
 
@@ -132,19 +136,21 @@ public class PdfHelper {
     }
 
     /**
-     * 渲染基本信息区（增加空值判断）
+     * 渲染基本信息区
      */
     public void renderWorkerInfo(Document doc, PdfFont font,
                                  Long workerId, List<RiskIndicatorVO> history) {
         doc.add(buildSectionTitle(LABEL_SECTION_INFO, font));
 
         Table table = buildTwoColTable();
+        // 先校验id
+        generalValidator.validateIdExist(workerId, workerMapper, WORKER_NOT_EXIST);
         // 空值兜底
-        String workerIdStr = workerId != null ? String.valueOf(workerId) : LABEL_UNKNOWN;
+        String workerCodeStr = workerMapper.selectById(workerId).getWorkerCode();
         String recordCountStr = history != null ? String.valueOf(history.size()) : "0";
         String timeSpanStr = history != null ? resolveTimeSpan(history) : LABEL_NO_DATA;
 
-        addInfoRow(table, font, LABEL_WORKER_ID, workerIdStr);
+        addInfoRow(table, font, LABEL_WORKER_CODE, workerCodeStr);
         addInfoRow(table, font, LABEL_RECORD_COUNT, recordCountStr);
         addInfoRow(table, font, LABEL_TIME_SPAN, timeSpanStr);
 

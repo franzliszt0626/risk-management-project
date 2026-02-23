@@ -20,6 +20,7 @@ public interface WorkerService extends BaseCrudService<Worker, WorkerDTO, Worker
 
     /**
      * 根据工号查询（精确）
+     *
      * @param workerCode 工号
      * @return WorkerVO
      */
@@ -28,6 +29,7 @@ public interface WorkerService extends BaseCrudService<Worker, WorkerDTO, Worker
 
     /**
      * 按工人状态统计数量
+     *
      * @return 状态统计结果VO
      */
     WorkerStatusCountVO countWorkerByStatus();
@@ -35,9 +37,16 @@ public interface WorkerService extends BaseCrudService<Worker, WorkerDTO, Worker
 
     /**
      * 按工人工种统计数量
+     *
      * @return 状态统计结果VO
      */
     WorkerTypeCountVO countWorkerByWorkType();
 
-
+    /**
+     * 根据工号查询（没有校验版）拿到的还是PO
+     *
+     * @param workerCode 工号
+     * @return WorkerPO
+     */
+    Worker getWorkerByCodeWithOutVerify(String workerCode);
 }

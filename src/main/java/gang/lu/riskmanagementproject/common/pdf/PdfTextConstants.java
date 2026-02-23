@@ -24,7 +24,7 @@ public interface PdfTextConstants {
     String LABEL_SECTION_INFO = "基本信息";
     String LABEL_SECTION_AI = "AI风险预测结果";
     String LABEL_SECTION_HISTORY = "历史风险记录明细";
-    String LABEL_WORKER_ID = "工人ID";
+    String LABEL_WORKER_CODE = "工号";
     String LABEL_RECORD_COUNT = "历史记录条数";
     String LABEL_TIME_SPAN = "分析记录时间跨度";
     String LABEL_PREDICTED_LEVEL = "预测风险等级";

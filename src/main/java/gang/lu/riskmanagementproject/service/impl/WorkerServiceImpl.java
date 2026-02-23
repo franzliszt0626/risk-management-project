@@ -246,12 +246,11 @@ public class WorkerServiceImpl
         return vo;
     }
 
-    // ======================== 内部方法 ========================
-
     /**
-     * 内部复用：根据工号查询（无校验）
+     * 根据工号查询（无校验）
      */
-    private Worker getWorkerByCodeWithOutVerify(String workerCode) {
+    @Override
+    public Worker getWorkerByCodeWithOutVerify(String workerCode) {
         if (StrUtil.isBlank(workerCode)) {
             return null;
         }

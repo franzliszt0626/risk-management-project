@@ -13,9 +13,9 @@ public interface VideoAnalysisService {
     /**
      * 返回算法数据给前端
      *
-     * @param workerId 对应的工人id
+     * @param workerCode 对应的工号
      * @param video    视频
      * @return 算法分析的数据
      */
-    RiskIndicatorVO analyzeAndSave(Long workerId, MultipartFile video);
+    RiskIndicatorVO analyzeAndSave(String workerCode, MultipartFile video);
 }
