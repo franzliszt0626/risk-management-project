@@ -13,7 +13,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import static gang.lu.riskmanagementproject.common.BusinessConstants.WORKER_ID;
+import static gang.lu.riskmanagementproject.common.field.FieldChineseConstants.WORKER_ID;
+import static gang.lu.riskmanagementproject.common.global.GlobalAllowTypeConstants.VIDEO;
 import static gang.lu.riskmanagementproject.message.SuccessMessages.VIDEO_ANALYZE_SUCCESS;
 
 /**
@@ -44,7 +45,7 @@ public class VideoAnalysisController {
             @PathVariable
             @ValidId(bizName = WORKER_ID) Long workerId,
             @ApiParam(value = "待分析的视频文件（mp4 / avi / mov，≤ 50 MB）", required = true)
-            @RequestPart("video") MultipartFile video) {
+            @RequestPart(VIDEO) MultipartFile video) {
         RiskIndicatorVO vo = videoAnalysisService.analyzeAndSave(workerId, video);
         return Result.ok(VIDEO_ANALYZE_SUCCESS, vo);
     }

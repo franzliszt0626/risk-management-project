@@ -9,6 +9,7 @@ import gang.lu.riskmanagementproject.exception.BizException;
 import gang.lu.riskmanagementproject.helper.PdfHelper;
 import gang.lu.riskmanagementproject.mapper.RiskIndicatorMapper;
 import gang.lu.riskmanagementproject.mapper.WorkerMapper;
+import gang.lu.riskmanagementproject.property.RecordLimitProperty;
 import gang.lu.riskmanagementproject.service.RiskAiService;
 import gang.lu.riskmanagementproject.service.RiskReportService;
 import gang.lu.riskmanagementproject.converter.RiskIndicatorConverter;
@@ -23,7 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static gang.lu.riskmanagementproject.common.BusinessConstants.*;
+import static gang.lu.riskmanagementproject.common.global.GlobalBusinessConstants.*;
 import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 
 /**
@@ -42,6 +43,7 @@ public class RiskReportServiceImpl implements RiskReportService {
     private final RiskAiService riskAiService;
     private final GeneralValidator generalValidator;
     private final PdfHelper pdfHelper;
+    private final RecordLimitProperty recordLimitProperty;
 
     /**
      * 导出 PDF 报告。
@@ -66,7 +68,7 @@ public class RiskReportServiceImpl implements RiskReportService {
         generalValidator.validateIdExist(workerId, workerMapper, WORKER_NOT_EXIST);
 
         // 2. 校验 limit
-        if (limit < MIN_RECORDS || limit > MAX_PDF_RECORDS) {
+        if (limit < recordLimitProperty.getMIN_RECORDS() || limit > recordLimitProperty.getMAX_RECORDS()) {
             throw new BizException(HttpStatus.BAD_REQUEST, PDF_LIMIT_INVALID);
         }
 

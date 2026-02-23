@@ -1,7 +1,6 @@
 package gang.lu.riskmanagementproject.domain.dto.query;
 
 import gang.lu.riskmanagementproject.annotation.ValidEnum;
-import gang.lu.riskmanagementproject.common.BusinessConstants;
 import gang.lu.riskmanagementproject.domain.enums.field.Status;
 import gang.lu.riskmanagementproject.domain.enums.field.WorkType;
 import io.swagger.annotations.ApiModel;
@@ -12,6 +11,8 @@ import lombok.EqualsAndHashCode;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.PositiveOrZero;
 
+import static gang.lu.riskmanagementproject.common.field.FieldChineseConstants.STATUS;
+import static gang.lu.riskmanagementproject.common.field.FieldChineseConstants.WORK_TYPE;
 import static gang.lu.riskmanagementproject.message.FailedMessages.WORKER_YEAR_INVALID;
 import static gang.lu.riskmanagementproject.message.FailedMessages.WORKER_YEAR_NEGATIVE_INVALID;
 
@@ -47,10 +48,10 @@ public class WorkerQueryDTO extends PageQueryDTO {
     private Integer maxWorkYears;
 
     @ApiModelProperty(value = "工种（高空作业 / 受限空间 / 设备操作 / 正常作业）", example = "高空作业")
-    @ValidEnum(enumClass = WorkType.class, bizName = BusinessConstants.WORK_TYPE)
+    @ValidEnum(enumClass = WorkType.class, bizName = WORK_TYPE)
     private String workTypeValue;
 
     @ApiModelProperty(value = "当前状态（正常 / 异常 / 离线）", example = "正常")
-    @ValidEnum(enumClass = Status.class, bizName = BusinessConstants.STATUS)
+    @ValidEnum(enumClass = Status.class, bizName = STATUS)
     private String statusValue;
 }

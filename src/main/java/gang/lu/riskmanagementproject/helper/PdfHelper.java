@@ -4,7 +4,6 @@ import cn.hutool.core.io.IoUtil;
 import com.itextpdf.io.font.FontProgram;
 import com.itextpdf.io.font.FontProgramFactory;
 import com.itextpdf.io.font.PdfEncodings;
-import com.itextpdf.kernel.colors.DeviceGray;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
@@ -18,6 +17,7 @@ import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
+import gang.lu.riskmanagementproject.common.pdf.PdfColors;
 import gang.lu.riskmanagementproject.domain.vo.normal.RiskIndicatorVO;
 import gang.lu.riskmanagementproject.domain.vo.normal.RiskPredictionVO;
 import gang.lu.riskmanagementproject.exception.BizException;
@@ -34,8 +34,15 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import static gang.lu.riskmanagementproject.common.global.GlobalFormatConstants.DEFAULT_DATE_TIME_FORMAT;
+import static gang.lu.riskmanagementproject.common.global.GlobalFormatConstants.DEFAULT_DATE_TIME_FORMAT_WITHOUT_COLON;
+import static gang.lu.riskmanagementproject.common.http.HttpConstants.*;
+import static gang.lu.riskmanagementproject.common.pdf.PdfBasicConstants.*;
 import static gang.lu.riskmanagementproject.common.pdf.PdfColors.*;
-import static gang.lu.riskmanagementproject.common.pdf.PdfConstants.*;
+import static gang.lu.riskmanagementproject.common.pdf.PdfLogConstants.*;
+import static gang.lu.riskmanagementproject.common.pdf.PdfTextConstants.*;
+import static gang.lu.riskmanagementproject.common.field.FieldChineseConstants.*;
+import static gang.lu.riskmanagementproject.message.FailedMessages.PDF_FONT_NOT_FOUND;
 import static gang.lu.riskmanagementproject.message.FailedMessages.PDF_GENERATE_FAILED;
 
 /**
@@ -52,7 +59,7 @@ public class PdfHelper {
 
     public void writePdfToResponse(Long workerId, List<RiskIndicatorVO> history,
                                    RiskPredictionVO prediction, HttpServletResponse response) {
-        log.info("响应是否已提交: {}", response.isCommitted());
+        log.info(LOG_RESPONSE_COMMITTED, response.isCommitted());
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         try {
             // 第一步：加载字体
@@ -86,10 +93,10 @@ public class PdfHelper {
             buffer.writeTo(response.getOutputStream());
             response.getOutputStream().flush();
 
-            log.info("PDF导出成功 workerId={}, size={}KB", workerId, buffer.size() / 1024);
+            log.info(LOG_PDF_EXPORT_SUCCESS, workerId, buffer.size() / 1024);
 
         } catch (IOException e) {
-            log.error("PDF生成失败 workerId={}", workerId, e);
+            log.error(LOG_PDF_GENERATE_FAILED, workerId, e);
             throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR, PDF_GENERATE_FAILED);
         } finally {
             // 关闭缓冲区，释放资源
@@ -112,10 +119,10 @@ public class PdfHelper {
 
         // 生成时间
         Paragraph timePara = new Paragraph(LABEL_GENERATE_TIME
-                + LocalDateTime.now().format(DateTimeFormatter.ofPattern(DISPLAY_DATE_FMT)))
+                + LocalDateTime.now().format(DateTimeFormatter.ofPattern(DEFAULT_DATE_TIME_FORMAT)))
                 .setFont(font).setFontSize(FONT_SIZE_SUBTITLE)
                 .setTextAlignment(TextAlignment.CENTER)
-                .setFontColor(new DeviceGray(0.5f))
+                .setFontColor(GRAY_50)
                 .setMarginBottom(MARGIN_BOTTOM_BLOCK);
 
         // 强制添加，确保至少有基础内容
@@ -155,10 +162,14 @@ public class PdfHelper {
 
         Table table = buildTwoColTable();
         // 空值兜底
-        addInfoRow(table, font, LABEL_PREDICTED_LEVEL, prediction.getPredictedRiskLevel() != null ? prediction.getPredictedRiskLevel() : LABEL_UNKNOWN);
-        addInfoRow(table, font, LABEL_RISK_TREND, prediction.getRiskTrend() != null ? prediction.getRiskTrend() : LABEL_UNKNOWN);
-        addInfoRow(table, font, LABEL_SUMMARY, prediction.getAnalysisSummary() != null ? prediction.getAnalysisSummary() : LABEL_UNKNOWN);
-        addInfoRow(table, font, LABEL_CONFIDENCE, prediction.getConfidenceNote() != null ? prediction.getConfidenceNote() : LABEL_UNKNOWN);
+        addInfoRow(table, font, LABEL_PREDICTED_LEVEL,
+                prediction.getPredictedRiskLevel() != null ? prediction.getPredictedRiskLevel() : LABEL_UNKNOWN);
+        addInfoRow(table, font, LABEL_RISK_TREND,
+                prediction.getRiskTrend() != null ? prediction.getRiskTrend() : LABEL_UNKNOWN);
+        addInfoRow(table, font, LABEL_SUMMARY,
+                prediction.getAnalysisSummary() != null ? prediction.getAnalysisSummary() : LABEL_UNKNOWN);
+        addInfoRow(table, font, LABEL_CONFIDENCE,
+                prediction.getConfidenceNote() != null ? prediction.getConfidenceNote() : LABEL_UNKNOWN);
 
         doc.add(table);
         renderSuggestions(doc, font, prediction);
@@ -199,7 +210,7 @@ public class PdfHelper {
 
         // 空数据处理：显示无数据行
         if (history == null || history.isEmpty()) {
-            Cell emptyCell = new Cell(1, HISTORY_COL_WIDTHS.length)
+            Cell emptyCell = new Cell(1, EMPTY_CELL_COLSPAN)
                     .add(new Paragraph(LABEL_NO_DATA)
                             .setFont(font).setFontSize(FONT_SIZE_TABLE)
                             .setTextAlignment(TextAlignment.CENTER))
@@ -220,7 +231,7 @@ public class PdfHelper {
     public void renderFooter(Document doc, PdfFont font) {
         doc.add(new Paragraph(LABEL_FOOTER)
                 .setFont(font).setFontSize(FONT_SIZE_FOOTER)
-                .setFontColor(new DeviceGray(0.5f))
+                .setFontColor(GRAY_50)
                 .setTextAlignment(TextAlignment.CENTER));
     }
 
@@ -231,14 +242,14 @@ public class PdfHelper {
             table.addHeaderCell(new Cell()
                     .add(new Paragraph(header)
                             .setFont(font).setFontSize(FONT_SIZE_TABLE).setBold()
-                            .setFontColor(new DeviceRgb(255, 255, 255)))
+                            .setFontColor(PdfColors.WHITE))
                     .setBackgroundColor(THEME_BLUE)
                     .setTextAlignment(TextAlignment.CENTER));
         }
     }
 
     public void addHistoryTableRows(Table table, PdfFont font, List<RiskIndicatorVO> history) {
-        DateTimeFormatter fmt = DateTimeFormatter.ofPattern(DISPLAY_DATE_FMT);
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern(DEFAULT_DATE_TIME_FORMAT);
         for (int i = 0; i < history.size(); i++) {
             RiskIndicatorVO r = history.get(i);
             boolean alt = (i % 2 == 1);
@@ -280,12 +291,12 @@ public class PdfHelper {
         return new Paragraph(title)
                 .setFont(font).setFontSize(FONT_SIZE_SECTION).setBold()
                 .setFontColor(THEME_BLUE)
-                .setBorderBottom(new SolidBorder(new DeviceRgb(41, 128, 185), 1f))
+                .setBorderBottom(new SolidBorder(THEME_BLUE, BORDER_WIDTH_1))
                 .setMarginBottom(MARGIN_BOTTOM_SECTION);
     }
 
     public Table buildTwoColTable() {
-        return new Table(UnitValue.createPercentArray(new float[]{3, 7}))
+        return new Table(UnitValue.createPercentArray(new float[]{TWO_COL_TABLE_LABEL_WIDTH, TWO_COL_TABLE_VALUE_WIDTH}))
                 .setWidth(UnitValue.createPercentValue(100));
     }
 
@@ -319,35 +330,35 @@ public class PdfHelper {
         try (InputStream is = getClass().getResourceAsStream(FONT_PATH)) {
             if (is == null) {
                 throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR,
-                        "字体文件未找到: " + FONT_PATH);
+                        String.format(PDF_FONT_NOT_FOUND, FONT_PATH));
             }
             byte[] fontBytes = IoUtil.readBytes(is);
 
             // 从内存字节加载TTC字体（指定index=0），避免临时文件问题
-            FontProgram fontProgram = FontProgramFactory.createFont(fontBytes, 0, false);
+            FontProgram fontProgram = FontProgramFactory.createFont(fontBytes, FONT_TTC_INDEX, false);
 
             PdfFont font = PdfFontFactory.createFont(
                     fontProgram,
                     PdfEncodings.IDENTITY_H,
                     PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED
             );
-            log.info("字体加载成功，字体名: {}", font.getFontProgram().getFontNames().getFontName());
+            log.info(LOG_FONT_LOAD_SUCCESS, font.getFontProgram().getFontNames().getFontName());
             return font;
         }
     }
 
     private void setResponseHeaders(Long workerId, HttpServletResponse response) throws IOException {
         String timestamp = LocalDateTime.now()
-                .format(DateTimeFormatter.ofPattern(FILENAME_DATE_FMT));
+                .format(DateTimeFormatter.ofPattern(DEFAULT_DATE_TIME_FORMAT_WITHOUT_COLON));
         String filename = FILENAME_PREFIX + workerId + FILENAME_MIDDLE + timestamp + FILENAME_SUFFIX;
 
         // 完善响应头，兼容各浏览器
         response.reset();
         response.setContentType(CONTENT_TYPE);
-        response.setCharacterEncoding("UTF-8");
-        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-        response.setHeader("Pragma", "no-cache");
-        response.setHeader("Expires", "0");
+        response.setCharacterEncoding(CHARSET_UTF8);
+        response.setHeader("Cache-Control", CACHE_CONTROL_HEADER);
+        response.setHeader("Pragma", PRAGMA_HEADER);
+        response.setHeader("Expires", EXPIRES_HEADER);
         response.setHeader(CONTENT_DISPOSITION_KEY,
                 "attachment; filename=\"" + filename + "\"");
     }
@@ -356,7 +367,7 @@ public class PdfHelper {
         if (history == null || history.isEmpty()) {
             return LABEL_NO_DATA;
         }
-        DateTimeFormatter fmt = DateTimeFormatter.ofPattern(DISPLAY_DATE_FMT);
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern(DEFAULT_DATE_TIME_FORMAT);
         return history.get(0).getCreateTime().format(fmt)
                 + LABEL_TIME_SPAN_CONNECTOR
                 + history.get(history.size() - 1).getCreateTime().format(fmt);

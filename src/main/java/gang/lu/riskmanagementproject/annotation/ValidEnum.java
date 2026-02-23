@@ -6,6 +6,9 @@ import javax.validation.Constraint;
 import javax.validation.Payload;
 import java.lang.annotation.*;
 
+import static gang.lu.riskmanagementproject.common.field.FieldChineseConstants.ENUM;
+import static gang.lu.riskmanagementproject.message.FailedMessages.COMMON_ENUM_VALIDATE_ERROR;
+
 /**
  * @author Franz Liszt
  * @version 1.0
@@ -26,11 +29,11 @@ public @interface ValidEnum {
     /**
      * 业务标识（用于提示）
      */
-    String bizName() default "枚举值";
+    String bizName() default ENUM;
 
     boolean allowBlank() default true;
 
-    String message() default "【参数校验失败】无效的{bizName}（当前值：{currentValue}）！允许值为：{enumValues}";
+    String message() default COMMON_ENUM_VALIDATE_ERROR;
 
     Class<?>[] groups() default {};
 

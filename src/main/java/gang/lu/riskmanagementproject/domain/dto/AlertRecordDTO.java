@@ -2,7 +2,6 @@ package gang.lu.riskmanagementproject.domain.dto;
 
 import gang.lu.riskmanagementproject.annotation.ValidEnum;
 import gang.lu.riskmanagementproject.annotation.ValidId;
-import gang.lu.riskmanagementproject.common.BusinessConstants;
 import gang.lu.riskmanagementproject.domain.enums.field.AlertLevel;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -13,6 +12,8 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
+import static gang.lu.riskmanagementproject.common.field.FieldChineseConstants.ALERT_LEVEL;
+import static gang.lu.riskmanagementproject.common.field.FieldChineseConstants.WORKER_ID;
 import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 
 /**
@@ -27,7 +28,7 @@ public class AlertRecordDTO {
 
     @ApiModelProperty(value = "关联工人 ID", required = true, example = "1")
     @NotNull(message = WORKER_NOT_EXIST)
-    @ValidId(bizName = BusinessConstants.WORKER_ID)
+    @ValidId(bizName = WORKER_ID)
     private Long workerId;
 
     @ApiModelProperty(value = "预警类型（如：心率异常、疲劳超标）", required = true, example = "心率异常")
@@ -36,7 +37,7 @@ public class AlertRecordDTO {
 
     @ApiModelProperty(value = "预警级别（警告 / 严重）", required = true, example = "警告")
     @NotBlank(message = ALERT_LEVEL_EMPTY)
-    @ValidEnum(enumClass = AlertLevel.class, bizName = BusinessConstants.ALERT_LEVEL)
+    @ValidEnum(enumClass = AlertLevel.class, bizName = ALERT_LEVEL)
     private String alertLevelValue;
 
     @ApiModelProperty(value = "预警消息内容", example = "工人心率超过 120 次/分钟")

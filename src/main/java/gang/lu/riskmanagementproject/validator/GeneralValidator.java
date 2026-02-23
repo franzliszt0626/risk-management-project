@@ -15,7 +15,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static gang.lu.riskmanagementproject.common.BusinessConstants.*;
+import static gang.lu.riskmanagementproject.common.global.GlobalBusinessConstants.*;
+import static gang.lu.riskmanagementproject.common.field.FieldChineseConstants.ID_LIST;
+import static gang.lu.riskmanagementproject.common.field.FieldEnglishConstants.ID;
 import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 
 /**

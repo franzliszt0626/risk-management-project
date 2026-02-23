@@ -1,7 +1,6 @@
 package gang.lu.riskmanagementproject.domain.dto;
 
 import gang.lu.riskmanagementproject.annotation.ValidEnum;
-import gang.lu.riskmanagementproject.common.BusinessConstants;
 import gang.lu.riskmanagementproject.domain.enums.field.Status;
 import gang.lu.riskmanagementproject.domain.enums.field.WorkType;
 import io.swagger.annotations.ApiModel;
@@ -13,6 +12,8 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.PositiveOrZero;
 
+import static gang.lu.riskmanagementproject.common.field.FieldChineseConstants.STATUS;
+import static gang.lu.riskmanagementproject.common.field.FieldChineseConstants.WORK_TYPE;
 import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 
 /**
@@ -46,11 +47,11 @@ public class WorkerDTO {
 
     @ApiModelProperty(value = "工种（高空作业 / 受限空间 / 设备操作 / 正常作业）", required = true, example = "高空作业")
     @NotBlank(message = WORKER_TYPE_EMPTY)
-    @ValidEnum(enumClass = WorkType.class, bizName = BusinessConstants.WORK_TYPE)
+    @ValidEnum(enumClass = WorkType.class, bizName = WORK_TYPE)
     private String workTypeValue;
 
     @ApiModelProperty(value = "当前状态（正常 / 异常 / 离线）", required = true, example = "正常")
     @NotBlank(message = WORKER_STATUS_EMPTY)
-    @ValidEnum(enumClass = Status.class, bizName = BusinessConstants.STATUS)
+    @ValidEnum(enumClass = Status.class, bizName = STATUS)
     private String statusValue;
 }

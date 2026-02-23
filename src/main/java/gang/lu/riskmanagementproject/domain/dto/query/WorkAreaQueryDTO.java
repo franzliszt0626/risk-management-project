@@ -1,12 +1,13 @@
 package gang.lu.riskmanagementproject.domain.dto.query;
 
 import gang.lu.riskmanagementproject.annotation.ValidEnum;
-import gang.lu.riskmanagementproject.common.BusinessConstants;
 import gang.lu.riskmanagementproject.domain.enums.field.AreaRiskLevel;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import static gang.lu.riskmanagementproject.common.field.FieldChineseConstants.AREA_RISK_LEVEL;
 
 /**
  * 工作区域多条件分页查询传输对象。
@@ -28,7 +29,7 @@ public class WorkAreaQueryDTO extends PageQueryDTO {
     private String areaName;
 
     @ApiModelProperty(value = "区域风险等级（低风险 / 中风险 / 高风险）", example = "低风险")
-    @ValidEnum(enumClass = AreaRiskLevel.class, bizName = BusinessConstants.AREA_RISK_LEVEL)
+    @ValidEnum(enumClass = AreaRiskLevel.class, bizName = AREA_RISK_LEVEL)
     private String areaRiskLevelValue;
 
     @ApiModelProperty(value = "描述（模糊匹配）", example = "防坠落")

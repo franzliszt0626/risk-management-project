@@ -38,6 +38,8 @@ public interface FailedMessages {
     String COMMON_RUNTIME_ERROR = "【运行时异常】系统运行异常：%s！";
     String COMMON_TIME_INVALID_ERROR = "【参数校验失败】开始时间不能晚于结束时间！";
     String COMMON_MIN_MAX_INVALID_ERROR = "【参数校验失败】%s最小值不能大于最大值！";
+    String COMMON_ENUM_VALIDATE_ERROR = "【参数校验失败】无效的{bizName}（当前值：{currentValue}）！允许值为：{enumValues}！";
+    String COMMON_ID_VALIDATE_ERROR = "【参数校验失败】无效的{bizName}，请传入正整数！";
 
     /**
      * 工人业务失败信息
@@ -142,6 +144,7 @@ public interface FailedMessages {
     String AI_MODEL_INVALID = "【模型调用失败】AI 服务暂不可用！";
     String AI_MODEL_CONNECTION_FAIL = "【模型调用失败】AI 服务连接失败！";
     String AI_RESPONSE_RESOLVE_FAILURE = "【响应解析失败】AI 响应解析失败，请重试！";
-    String PDF_LIMIT_INVALID = "【参数校验失败】PDF 可接受历史记录范围为1-200条！";
+    String PDF_LIMIT_INVALID = "【参数校验失败】PDF 可接受历史记录范围为1-100条！";
     String PDF_GENERATE_FAILED = "【PDF生成失败】PDF 生成失败，请稍后重试！";
+    String PDF_FONT_NOT_FOUND = "【服务器内部错误】字体文件未找到: %s!";
 }

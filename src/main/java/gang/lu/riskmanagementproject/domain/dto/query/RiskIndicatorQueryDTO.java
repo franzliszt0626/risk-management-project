@@ -2,7 +2,6 @@ package gang.lu.riskmanagementproject.domain.dto.query;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import gang.lu.riskmanagementproject.annotation.ValidEnum;
-import gang.lu.riskmanagementproject.common.BusinessConstants;
 import gang.lu.riskmanagementproject.domain.enums.field.RiskLevel;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -15,6 +14,8 @@ import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDateTime;
 
+import static gang.lu.riskmanagementproject.common.field.FieldChineseConstants.RISK_LEVEL;
+import static gang.lu.riskmanagementproject.common.global.GlobalFormatConstants.DEFAULT_DATE_TIME_FORMAT;
 import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 
 /**
@@ -34,7 +35,7 @@ public class RiskIndicatorQueryDTO extends PageQueryDTO {
     private Long workerId;
 
     @ApiModelProperty(value = "风险等级（低风险 / 中风险 / 高风险 / 严重风险）", example = "高风险")
-    @ValidEnum(enumClass = RiskLevel.class, bizName = BusinessConstants.RISK_LEVEL)
+    @ValidEnum(enumClass = RiskLevel.class, bizName = RISK_LEVEL)
     private String riskLevelValue;
 
     @ApiModelProperty(value = "是否触发报警（true=报警 / false=未报警）", example = "true")
@@ -68,11 +69,11 @@ public class RiskIndicatorQueryDTO extends PageQueryDTO {
 
     @ApiModelProperty(value = "记录时间 - 起始（格式：yyyy-MM-dd HH:mm:ss）", example = "2026-02-01 00:00:00")
     @PastOrPresent(message = RISK_RECORD_START_TIME_INVALID)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = DEFAULT_DATE_TIME_FORMAT, timezone = "GMT+8")
     private LocalDateTime createStartTime;
 
     @ApiModelProperty(value = "记录时间 - 截止（格式：yyyy-MM-dd HH:mm:ss）", example = "2026-02-28 23:59:59")
     @PastOrPresent(message = RISK_RECORD_END_TIME_INVALID)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = DEFAULT_DATE_TIME_FORMAT, timezone = "GMT+8")
     private LocalDateTime createEndTime;
 }

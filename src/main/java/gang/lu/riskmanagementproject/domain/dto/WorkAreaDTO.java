@@ -1,7 +1,6 @@
 package gang.lu.riskmanagementproject.domain.dto;
 
 import gang.lu.riskmanagementproject.annotation.ValidEnum;
-import gang.lu.riskmanagementproject.common.BusinessConstants;
 import gang.lu.riskmanagementproject.domain.enums.field.AreaRiskLevel;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -10,6 +9,7 @@ import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
 
+import static gang.lu.riskmanagementproject.common.field.FieldChineseConstants.AREA_RISK_LEVEL;
 import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 
 /**
@@ -34,7 +34,7 @@ public class WorkAreaDTO {
 
     @ApiModelProperty(value = "区域风险等级（低风险 / 中风险 / 高风险）", required = true, example = "低风险")
     @NotBlank(message = WORK_AREA_RISK_LEVEL_EMPTY)
-    @ValidEnum(enumClass = AreaRiskLevel.class, bizName = BusinessConstants.AREA_RISK_LEVEL)
+    @ValidEnum(enumClass = AreaRiskLevel.class, bizName = AREA_RISK_LEVEL)
     private String areaRiskLevelValue;
 
     @ApiModelProperty(value = "区域描述（最多 200 字符）", example = "高空作业平台 A 区，注意防坠落")

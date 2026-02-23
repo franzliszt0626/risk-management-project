@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import static gang.lu.riskmanagementproject.common.BusinessConstants.VIDEO_SAVE;
+import static gang.lu.riskmanagementproject.common.global.GlobalBusinessConstants.VIDEO_SAVE;
 import static gang.lu.riskmanagementproject.message.FailedMessages.WORKER_NOT_EXIST;
 
 /**

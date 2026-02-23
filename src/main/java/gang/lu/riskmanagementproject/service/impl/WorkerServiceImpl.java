@@ -4,7 +4,6 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import gang.lu.riskmanagementproject.annotation.BusinessLog;
-import gang.lu.riskmanagementproject.common.BusinessConstants;
 import gang.lu.riskmanagementproject.converter.WorkerConverter;
 import gang.lu.riskmanagementproject.domain.dto.WorkerDTO;
 import gang.lu.riskmanagementproject.domain.dto.query.WorkerQueryDTO;
@@ -28,7 +27,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 
-import static gang.lu.riskmanagementproject.common.BusinessConstants.*;
+import static gang.lu.riskmanagementproject.common.global.GlobalBusinessConstants.*;
+import static gang.lu.riskmanagementproject.common.field.FieldChineseConstants.*;
+import static gang.lu.riskmanagementproject.common.field.FieldEnglishConstants.WORKER_STATUS;
+import static gang.lu.riskmanagementproject.common.field.FieldEnglishConstants.WORKER_TYPE;
 import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 
 /**
@@ -117,8 +119,8 @@ public class WorkerServiceImpl
      */
     @Override
     public void validateAdd(WorkerDTO dto) {
-        generalValidator.validateStringNotBlank(dto.getWorkerCode(), BusinessConstants.WORKER_CODE, ADD_WORKER);
-        generalValidator.validateStringNotBlank(dto.getName(), BusinessConstants.NAME, ADD_WORKER);
+        generalValidator.validateStringNotBlank(dto.getWorkerCode(), WORKER_CODE, ADD_WORKER);
+        generalValidator.validateStringNotBlank(dto.getName(), NAME, ADD_WORKER);
         if (lambdaQuery().eq(Worker::getWorkerCode, dto.getWorkerCode()).exists()) {
             throw new BizException(HttpStatus.CONFLICT,
                     String.format(WORKER_CODE_DUPLICATE, dto.getWorkerCode()));
@@ -200,7 +202,7 @@ public class WorkerServiceImpl
     @Override
     @BusinessLog(value = GET_WORKER_BY_WORKCODE, recordParams = true, logLevel = BusinessLog.LogLevel.INFO)
     public WorkerVO getWorkerByCode(String workerCode) {
-        generalValidator.validateStringNotBlank(workerCode, BusinessConstants.WORKER_CODE, GET_WORKER_BY_WORKCODE);
+        generalValidator.validateStringNotBlank(workerCode, WORKER_CODE, GET_WORKER_BY_WORKCODE);
 
         Worker worker = getWorkerByCodeWithOutVerify(workerCode);
         if (ObjectUtil.isNull(worker)) {

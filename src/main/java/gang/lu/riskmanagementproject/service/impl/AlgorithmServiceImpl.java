@@ -15,7 +15,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
-import static gang.lu.riskmanagementproject.common.BusinessConstants.*;
+import static gang.lu.riskmanagementproject.common.global.GlobalAllowTypeConstants.VIDEO;
+import static gang.lu.riskmanagementproject.common.global.GlobalAllowTypeConstants.VIDEO_MP_4;
+import static gang.lu.riskmanagementproject.common.global.GlobalBusinessConstants.*;
+import static gang.lu.riskmanagementproject.common.http.HttpConstants.ANALYZE;
 import static gang.lu.riskmanagementproject.message.FailedMessages.ALGORITHM_ERROR;
 import static gang.lu.riskmanagementproject.message.FailedMessages.ALGORITHM_UNREACHABLE;
 

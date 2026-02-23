@@ -2,7 +2,6 @@ package gang.lu.riskmanagementproject.domain.dto.query;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import gang.lu.riskmanagementproject.annotation.ValidEnum;
-import gang.lu.riskmanagementproject.common.BusinessConstants;
 import gang.lu.riskmanagementproject.domain.enums.field.AlertLevel;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -12,6 +11,8 @@ import lombok.EqualsAndHashCode;
 import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDateTime;
 
+import static gang.lu.riskmanagementproject.common.field.FieldChineseConstants.ALERT_LEVEL;
+import static gang.lu.riskmanagementproject.common.global.GlobalFormatConstants.DEFAULT_DATE_TIME_FORMAT;
 import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 
 /**
@@ -34,7 +35,7 @@ public class AlertRecordQueryDTO extends PageQueryDTO {
     private String alertType;
 
     @ApiModelProperty(value = "预警级别（警告 / 严重）", example = "警告")
-    @ValidEnum(enumClass = AlertLevel.class, bizName = BusinessConstants.ALERT_LEVEL)
+    @ValidEnum(enumClass = AlertLevel.class, bizName = ALERT_LEVEL)
     private String alertLevelValue;
 
     @ApiModelProperty(value = "是否已处理（true=已处理 / false=未处理）", example = "false")
@@ -45,21 +46,21 @@ public class AlertRecordQueryDTO extends PageQueryDTO {
 
     @ApiModelProperty(value = "创建时间 - 起始（格式：yyyy-MM-dd HH:mm:ss）", example = "2026-02-01 00:00:00")
     @PastOrPresent(message = ALERT_RECORD_START_TIME_INVALID)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = DEFAULT_DATE_TIME_FORMAT, timezone = "GMT+8")
     private LocalDateTime createdStartTime;
 
     @ApiModelProperty(value = "创建时间 - 截止（格式：yyyy-MM-dd HH:mm:ss）", example = "2026-02-28 23:59:59")
     @PastOrPresent(message = ALERT_RECORD_END_TIME_INVALID)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = DEFAULT_DATE_TIME_FORMAT, timezone = "GMT+8")
     private LocalDateTime createdEndTime;
 
     @ApiModelProperty(value = "处理时间 - 起始（格式：yyyy-MM-dd HH:mm:ss）", example = "2026-02-01 00:00:00")
     @PastOrPresent(message = ALERT_RECORD_HANDLE_START_TIME_INVALID)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = DEFAULT_DATE_TIME_FORMAT, timezone = "GMT+8")
     private LocalDateTime handleStartTime;
 
     @ApiModelProperty(value = "处理时间 - 截止（格式：yyyy-MM-dd HH:mm:ss）", example = "2026-02-28 23:59:59")
     @PastOrPresent(message = ALERT_RECORD_HANDLE_END_TIME_INVALID)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = DEFAULT_DATE_TIME_FORMAT, timezone = "GMT+8")
     private LocalDateTime handleEndTime;
 }

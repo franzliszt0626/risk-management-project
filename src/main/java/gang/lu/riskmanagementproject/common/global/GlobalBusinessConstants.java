@@ -1,7 +1,4 @@
-package gang.lu.riskmanagementproject.common;
-
-import java.util.Arrays;
-import java.util.List;
+package gang.lu.riskmanagementproject.common.global;
 
 /**
  * 业务常量集合
@@ -17,11 +14,9 @@ import java.util.List;
  * @author Franz Liszt
  * @since 2026-02-11
  */
-public interface BusinessConstants {
+public interface GlobalBusinessConstants {
 
-    // =========================================================
-    // 一、业务操作名称（@BusinessLog value）
-    // =========================================================
+    // ==================业务操作名称====================
 
     /**
      * 预警记录
@@ -78,7 +73,6 @@ public interface BusinessConstants {
     String DELETE_WORKER = "删除工人";
     String BATCH_DELETE_WORKER = "批量删除工人";
 
-
     /**
      * 视频/AI
      */
@@ -87,101 +81,17 @@ public interface BusinessConstants {
     String AI_RISK_PREDICTION = "AI 风险预测";
     String LOAD_REPORT = "导出 PDF 风险报告";
 
-    // =========================================================
-    // 二、校验场景名称（@ValidateLog value）
-    // =========================================================
+    // ==================校验场景名称名称====================
 
     String VALIDATE_STRING_NO_EMPTY = "字符串非空校验";
     String VALIDATE_ENUM_NO_EMPTY = "枚举非空校验";
     String VALIDATE_SINGLE_ID_EXIST = "单ID存在性校验";
     String VALIDATE_BATCH_ID_EXIST = "批量ID存在性校验";
 
-    // =========================================================
-    // 三、字段名称（数据库列名 / VO 属性名 / 日志展示用）
-    // =========================================================
-
 
     /**
-     * 通用字段
-     */
-    String ID = "id";
-    String ID_LIST = "ID列表";
-    String CREATE_TIME = "createTime";
-    String UPDATE_TIME = "updateTime";
-
-    /**
-     * 预警记录字段
-     */
-    String ALERT_RECORD_ID = "预警记录ID";
-    String ALERT_RECORD_ID_LIST = "预警记录ID列表";
-    String ALERT_LEVEL = "预警等级";
-    String HANDLED_BY = "处理人";
-
-    /**
-     * 风险指标字段
-     */
-    String RISK_INDICATOR_ID = "风险指标ID";
-    String RISK_INDICATOR_ID_LIST = "风险指标ID列表";
-    String RISK_LEVEL = "风险等级";
-    String HEART_RATE = "心率";
-    String RESPIRATORY_RATE = "呼吸率";
-    String FATIGUE_PERCENT = "疲劳百分比";
-
-
-    /**
-     * 工作区域字段
-     */
-    String WORK_AREA_ID = "工作区域ID";
-    String WORK_AREA_ID_LIST = "工作区域ID列表";
-    String AREA_RISK_LEVEL = "区域风险等级";
-    String WORK_AREA_CODE = "区域编码";
-    String WORK_AREA_NAME = "区域名称";
-
-
-    /**
-     * 工人字段
-     */
-    String WORKER_ID = "工人ID";
-    String WORKER_ID_LIST = "工人ID列表";
-    String WORKER_CODE = "工号";
-    String NAME = "姓名";
-    String WORK_TYPE = "工种";
-    String WORK_YEAR = "工龄";
-    String STATUS = "工人状态";
-
-    /**
-     * 数据库列名（用于 QueryWrapper 原生字段）
-     */
-    String WORKER_STATUS = "status";
-    String WORKER_TYPE = "work_type";
-
-    // =========================================================
-    // 四、算法 & AI 服务配置
-    // =========================================================
-
-
-    /**
-     * 视频文件限制
-     */
-    String VIDEO_MP_4 = "video/mp4";
-    String VIDEO = "video";
-    long MAX_FILE_SIZE = 50 * 1024 * 1024L;
-    List<String> ALLOWED_TYPES = Arrays.asList(
-            "video/mp4", "video/avi", "video/quicktime", "video/x-msvideo"
-    );
-
-
-    /**
-     * 算法服务endpoint
-     */
-    String ANALYZE = "/analyze";
-
-
-    /**
-     * MyBatis-Plus last() 拼接前缀
+     * 拼接前缀
      */
     String LIMIT = "LIMIT ";
-    int MIN_RECORDS = 1;
-    int MAX_RECORDS = 100;
-    int MAX_PDF_RECORDS = 200;
+
 }

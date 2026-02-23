@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
-import static gang.lu.riskmanagementproject.common.BusinessConstants.CREATE_TIME;
-import static gang.lu.riskmanagementproject.common.BusinessConstants.UPDATE_TIME;
+import static gang.lu.riskmanagementproject.common.field.FieldEnglishConstants.CREATE_TIME;
+import static gang.lu.riskmanagementproject.common.field.FieldEnglishConstants.UPDATE_TIME;
 
 /**
  * @author Franz Liszt
@@ -21,7 +21,6 @@ import static gang.lu.riskmanagementproject.common.BusinessConstants.UPDATE_TIME
 public class MyMetaObjectHandler implements MetaObjectHandler {
     @Override
     public void insertFill(MetaObject metaObject) {
-        log.debug("开始插入填充...");
         // 只在字段值为 null 时填充
         this.strictInsertFill(metaObject, CREATE_TIME, LocalDateTime.class, LocalDateTime.now());
         this.strictInsertFill(metaObject, UPDATE_TIME, LocalDateTime.class, LocalDateTime.now());
@@ -30,6 +29,5 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
 
     @Override
     public void updateFill(MetaObject metaObject) {
-        log.debug("更新时由数据库自动填充 updateTime");
     }
 }

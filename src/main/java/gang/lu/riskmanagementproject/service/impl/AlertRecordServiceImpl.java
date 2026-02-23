@@ -4,7 +4,6 @@ package gang.lu.riskmanagementproject.service.impl;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import gang.lu.riskmanagementproject.annotation.BusinessLog;
-import gang.lu.riskmanagementproject.common.BusinessConstants;
 import gang.lu.riskmanagementproject.converter.AlertRecordConverter;
 import gang.lu.riskmanagementproject.domain.dto.AlertRecordDTO;
 import gang.lu.riskmanagementproject.domain.dto.query.AlertRecordQueryDTO;
@@ -25,7 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
-import static gang.lu.riskmanagementproject.common.BusinessConstants.*;
+import static gang.lu.riskmanagementproject.common.global.GlobalBusinessConstants.*;
+import static gang.lu.riskmanagementproject.common.field.FieldChineseConstants.HANDLED_BY;
 import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 
 /**
@@ -191,7 +191,7 @@ public class AlertRecordServiceImpl
     @BusinessLog(value = HANDLE_ALERT_RECORD, recordParams = true, logLevel = BusinessLog.LogLevel.WARN)
     public void markAlertRecordAsHandled(Long id, String handledBy) {
         generalValidator.validateIdExist(id, baseMapper, ALERT_RECORD_NOT_EXIST);
-        generalValidator.validateStringNotBlank(handledBy, BusinessConstants.HANDLED_BY, HANDLE_ALERT_RECORD);
+        generalValidator.validateStringNotBlank(handledBy, HANDLED_BY, HANDLE_ALERT_RECORD);
         AlertRecord alertRecord = baseMapper.selectById(id);
         if (alertRecord.getIsHandled()) {
             throw new BizException(HttpStatus.BAD_REQUEST, ALERT_RECORD_ALREADY_HANDLED_ERROR);

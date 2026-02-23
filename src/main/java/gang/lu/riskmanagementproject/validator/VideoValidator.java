@@ -6,15 +6,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-import static gang.lu.riskmanagementproject.common.BusinessConstants.ALLOWED_TYPES;
-import static gang.lu.riskmanagementproject.common.BusinessConstants.MAX_FILE_SIZE;
+import static gang.lu.riskmanagementproject.common.global.GlobalAllowTypeConstants.ALLOWED_TYPES;
 import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 
 /**
  * 视频文件校验器
  * <p>
  * 对上传的视频文件做三层校验：非空、文件大小、内容类型（MIME）。
- * 合法类型列表由 {@link gang.lu.riskmanagementproject.common.BusinessConstants#ALLOWED_TYPES} 统一维护。
+ * 合法类型列表由ALLOWED_TYPES统一维护。
  *
  * @author Franz Liszt
  * @since 2026-02-22
@@ -22,17 +21,15 @@ import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 @Component
 public class VideoValidator {
 
-    /**
-     * 字节转 MB 的换算基数
-     */
+    private static final long MAX_FILE_SIZE = 50 * 1024 * 1024L;
     private static final long BYTES_PER_MB = 1024L * 1024L;
 
     /**
      * 校验视频文件合法性，依次执行以下三层校验：
      * <ol>
      *   <li>文件不能为空；</li>
-     *   <li>文件大小不能超过 {@link gang.lu.riskmanagementproject.common.BusinessConstants#MAX_FILE_SIZE}（50 MB）；</li>
-     *   <li>Content-Type 必须在 {@link gang.lu.riskmanagementproject.common.BusinessConstants#ALLOWED_TYPES} 中。</li>
+     *   <li>文件大小不能超过50 MB；</li>
+     *   <li>Content-Type 必须在 ALLOWED_TYPES中。</li>
      * </ol>
      *
      * @param video 上传的视频文件

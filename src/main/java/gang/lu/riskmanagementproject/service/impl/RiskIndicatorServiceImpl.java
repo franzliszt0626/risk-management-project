@@ -26,7 +26,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
-import static gang.lu.riskmanagementproject.common.BusinessConstants.*;
+import static gang.lu.riskmanagementproject.common.global.GlobalBusinessConstants.*;
+import static gang.lu.riskmanagementproject.common.field.FieldChineseConstants.*;
 import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 
 /**

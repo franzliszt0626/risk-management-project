@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 
-import static gang.lu.riskmanagementproject.common.BusinessConstants.WORKER_ID;
+import static gang.lu.riskmanagementproject.common.field.FieldChineseConstants.WORKER_ID;
 
 /**
  * 风险报告导出接口

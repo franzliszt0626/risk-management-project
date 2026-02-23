@@ -2,7 +2,6 @@ package gang.lu.riskmanagementproject.domain.dto;
 
 import gang.lu.riskmanagementproject.annotation.ValidEnum;
 import gang.lu.riskmanagementproject.annotation.ValidId;
-import gang.lu.riskmanagementproject.common.BusinessConstants;
 import gang.lu.riskmanagementproject.domain.enums.field.RiskLevel;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -14,6 +13,8 @@ import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
+import static gang.lu.riskmanagementproject.common.field.FieldChineseConstants.RISK_LEVEL;
+import static gang.lu.riskmanagementproject.common.field.FieldChineseConstants.WORKER_ID;
 import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 
 /**
@@ -28,7 +29,7 @@ public class RiskIndicatorDTO {
 
     @ApiModelProperty(value = "关联工人 ID", required = true, example = "1")
     @NotNull(message = WORKER_NOT_EXIST)
-    @ValidId(bizName = BusinessConstants.WORKER_ID)
+    @ValidId(bizName = WORKER_ID)
     private Long workerId;
 
     @ApiModelProperty(value = "心率（bpm）", required = true, example = "98")
@@ -49,7 +50,7 @@ public class RiskIndicatorDTO {
 
     @ApiModelProperty(value = "风险等级（低风险 / 中风险 / 高风险 / 严重风险）", required = true, example = "高风险")
     @NotBlank(message = RISK_LEVEL_EMPTY)
-    @ValidEnum(enumClass = RiskLevel.class, bizName = BusinessConstants.RISK_LEVEL)
+    @ValidEnum(enumClass = RiskLevel.class, bizName = RISK_LEVEL)
     private String riskLevelValue;
 
     @ApiModelProperty(value = "是否触发报警", required = true, example = "true")

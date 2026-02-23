@@ -5,6 +5,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import static gang.lu.riskmanagementproject.common.field.FieldEnglishConstants.*;
+
 /**
  * 算法服务响应传输对象。
  * <p>
@@ -19,22 +21,22 @@ import lombok.Data;
 public class AlgorithmResultDTO {
 
     @ApiModelProperty(value = "心率（bpm）", example = "98")
-    @JsonProperty("heart_rate")
+    @JsonProperty(HEART_RATE)
     private Integer heartRate;
 
     @ApiModelProperty(value = "呼吸率（次/min）", example = "20")
-    @JsonProperty("respiratory_rate")
+    @JsonProperty(RESPIRATORY_RATE)
     private Integer respiratoryRate;
 
     @ApiModelProperty(value = "疲劳百分比（%）", example = "72.5")
-    @JsonProperty("fatigue_percent")
+    @JsonProperty(FATIGUE_PERCENT)
     private Double fatiguePercent;
 
     @ApiModelProperty(value = "风险等级（低风险 / 中风险 / 高风险 / 严重风险）", example = "高风险")
-    @JsonProperty("risk_level")
+    @JsonProperty(RISK_LEVEL)
     private String riskLevel;
 
     @ApiModelProperty(value = "是否触发报警", example = "true")
-    @JsonProperty("alert_flag")
+    @JsonProperty(ALERT_FLAG)
     private Boolean alertFlag;
 }

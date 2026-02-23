@@ -4,7 +4,6 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import gang.lu.riskmanagementproject.annotation.BusinessLog;
-import gang.lu.riskmanagementproject.common.BusinessConstants;
 import gang.lu.riskmanagementproject.converter.WorkAreaConverter;
 import gang.lu.riskmanagementproject.domain.dto.WorkAreaDTO;
 import gang.lu.riskmanagementproject.domain.dto.query.WorkAreaQueryDTO;
@@ -27,7 +26,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static gang.lu.riskmanagementproject.common.BusinessConstants.*;
+import static gang.lu.riskmanagementproject.common.global.GlobalBusinessConstants.*;
+import static gang.lu.riskmanagementproject.common.field.FieldChineseConstants.WORK_AREA_CODE;
+import static gang.lu.riskmanagementproject.common.field.FieldChineseConstants.WORK_AREA_NAME;
 import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 
 /**
@@ -118,8 +119,8 @@ public class WorkAreaServiceImpl
     public void validateAdd(WorkAreaDTO dto) {
         String areaCode = dto.getAreaCode();
         String areaName = dto.getAreaName();
-        generalValidator.validateStringNotBlank(areaCode, BusinessConstants.WORK_AREA_CODE, ADD_WORK_AREA);
-        generalValidator.validateStringNotBlank(areaName, BusinessConstants.WORK_AREA_NAME, ADD_WORK_AREA);
+        generalValidator.validateStringNotBlank(areaCode, WORK_AREA_CODE, ADD_WORK_AREA);
+        generalValidator.validateStringNotBlank(areaName, WORK_AREA_NAME, ADD_WORK_AREA);
 
         if (lambdaQuery().eq(WorkArea::getAreaCode, areaCode).exists()) {
             throw new BizException(HttpStatus.CONFLICT, String.format(WORK_AREA_CODE_DUPLICATE, dto.getAreaCode()));
@@ -188,7 +189,7 @@ public class WorkAreaServiceImpl
     @Override
     @BusinessLog(value = GET_WORK_AREA_BY_CODE, recordParams = true, logLevel = BusinessLog.LogLevel.INFO)
     public List<WorkAreaVO> getWorkAreaByCode(String areaCode) {
-        generalValidator.validateStringNotBlank(areaCode, BusinessConstants.WORK_AREA_CODE, GET_WORK_AREA_BY_CODE);
+        generalValidator.validateStringNotBlank(areaCode, WORK_AREA_CODE, GET_WORK_AREA_BY_CODE);
 
         List<WorkArea> workAreas = lambdaQuery()
                 .like(WorkArea::getAreaCode, areaCode)

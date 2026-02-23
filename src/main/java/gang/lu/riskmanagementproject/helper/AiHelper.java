@@ -2,7 +2,6 @@ package gang.lu.riskmanagementproject.helper;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import gang.lu.riskmanagementproject.common.ai.AiConstants;
 import gang.lu.riskmanagementproject.domain.vo.normal.RiskIndicatorVO;
 import gang.lu.riskmanagementproject.domain.vo.normal.RiskPredictionVO;
 import gang.lu.riskmanagementproject.exception.BizException;
@@ -19,6 +18,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static gang.lu.riskmanagementproject.common.ai.AiFieldConstants.*;
+import static gang.lu.riskmanagementproject.common.ai.AiLogConstants.*;
+import static gang.lu.riskmanagementproject.common.ai.AiPromptConstants.*;
+import static gang.lu.riskmanagementproject.common.global.GlobalSimbolConstants.AI_TEXT_JSON_PATTERN;
+import static gang.lu.riskmanagementproject.common.global.GlobalSimbolConstants.AI_TEXT_TICK_PATTERN;
+import static gang.lu.riskmanagementproject.common.http.HttpConstants.*;
 import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 
 /**
@@ -31,24 +36,31 @@ import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class AiHelper implements AiConstants {
+public class AiHelper {
+
+    int HASH_MAP_CAPACITY_REQUEST = 3;
+    int HASH_MAP_CAPACITY_MESSAGE = 2;
 
     private final OkHttpClient okHttpClient;
     private final DashScopeProperty dashScopeProperty;
     private final ObjectMapper objectMapper;
 
-
     /**
-     * 构建提示词
+     * 构建优化后的提示词（增强约束性、规范性）
      */
     public String buildPrompt(Long workerId, List<RiskIndicatorVO> history) {
         StringBuilder sb = new StringBuilder();
+        // 1. 基础角色定位
         sb.append(PROMPT_HEADER);
-        sb.append("以下是工人ID=").append(workerId)
-                .append(" 的历史生理风险监测数据（按时间排序，最新在后）：\n\n");
+        // 2. 数据描述
+        sb.append(PROMPT_DATA_DESC_PREFIX)
+                .append(workerId)
+                .append(PROMPT_DATA_DESC_SUFFIX);
+        // 3. 表格头
         sb.append(PROMPT_TABLE_HEADER);
         sb.append(PROMPT_TABLE_DIVIDER);
 
+        // 4. 填充历史数据
         for (int i = 0; i < history.size(); i++) {
             RiskIndicatorVO r = history.get(i);
             sb.append(String.format(PROMPT_ROW_FORMAT,
@@ -61,30 +73,35 @@ public class AiHelper implements AiConstants {
                     Boolean.TRUE.equals(r.getAlertFlag()) ? PROMPT_ALERT_YES : PROMPT_ALERT_NO
             ));
         }
-        sb.append("\n请根据以上数据：\n");
-        sb.append("1. 预测该工人未来的风险趋势\n");
-        sb.append("2. 给出具体的健康与安全建议\n\n");
-        sb.append("请严格按以下JSON格式返回（不要有任何额外文字）：\n");
+
+        // 5. 任务要求（明确时间范围、建议数量，替换硬编码）
+        sb.append(PROMPT_TASK_REQUIRE);
+        sb.append(PROMPT_TASK_1);
+        sb.append(PROMPT_TASK_2);
+
+        // 6. 格式要求（增强约束，替换硬编码）
+        sb.append(PROMPT_FORMAT_REQUIRE);
         sb.append("{\n");
-        sb.append("  \"").append(AI_FIELD_PREDICTED_RISK).append("\": \"低风险|中风险|高风险|严重风险\",\n");
-        sb.append("  \"").append(AI_FIELD_RISK_TREND).append("\": \"上升|平稳|下降\",\n");
-        sb.append("  \"").append(AI_FIELD_ANALYSIS).append("\": \"一段简洁的综合分析（100字以内）\",\n");
-        sb.append("  \"").append(AI_FIELD_SUGGESTIONS).append("\": [\"建议1\", \"建议2\", \"建议3\"],\n");
-        sb.append("  \"").append(AI_FIELD_CONFIDENCE).append("\": \"置信度说明\"\n");
+        sb.append("  \"").append(AI_FIELD_PREDICTED_RISK).append("\": ").append(PROMPT_JSON_FIELD_PREDICTED_RISK_DESC).append(",\n");
+        sb.append("  \"").append(AI_FIELD_RISK_TREND).append("\": ").append(PROMPT_JSON_FIELD_TREND_DESC).append(",\n");
+        sb.append("  \"").append(AI_FIELD_ANALYSIS).append("\": ").append(PROMPT_JSON_FIELD_ANALYSIS_DESC).append(",\n");
+        sb.append("  \"").append(AI_FIELD_SUGGESTIONS).append("\": ").append(PROMPT_JSON_FIELD_SUGGESTIONS_DESC).append(",\n");
+        sb.append("  \"").append(AI_FIELD_CONFIDENCE).append("\": ").append(PROMPT_JSON_FIELD_CONFIDENCE_DESC).append("\n");
         sb.append("}");
         return sb.toString();
     }
 
     /**
-     * 调用千问
+     * 调用千问（替换硬编码常量，优化HashMap初始化）
      */
     public String callQwen(String userPrompt) {
         try {
-            Map<String, Object> requestMap = new HashMap<>();
+            // 使用常量定义HashMap初始容量，避免魔法值
+            Map<String, Object> requestMap = new HashMap<>(HASH_MAP_CAPACITY_REQUEST);
             requestMap.put(MODEL, dashScopeProperty.getModel());
             requestMap.put(MAX_TOKENS, dashScopeProperty.getMaxTokens());
             requestMap.put(MESSAGES, new Object[]{
-                    new HashMap<String, Object>() {{
+                    new HashMap<String, Object>(HASH_MAP_CAPACITY_MESSAGE) {{
                         put(ROLE, USER);
                         put(CONTENT, userPrompt);
                     }}
@@ -94,30 +111,30 @@ public class AiHelper implements AiConstants {
 
             Request request = new Request.Builder()
                     .url(dashScopeProperty.getBaseUrl() + PATH_CHAT_COMPLETIONS)
-                    .post(RequestBody.create(requestJson, MediaType.parse("application/json")))
-                    .addHeader("Authorization", "Bearer " + dashScopeProperty.getApiKey())
-                    .addHeader("Content-Type", "application/json")
+                    .post(RequestBody.create(requestJson, MediaType.parse(MEDIA_TYPE_JSON)))
+                    .addHeader(HEADER_AUTHORIZATION, AUTHORIZATION_BEARER_PREFIX + dashScopeProperty.getApiKey())
+                    .addHeader(HEADER_CONTENT_TYPE, MEDIA_TYPE_JSON)
                     .build();
 
-            log.info("[AiHelper] 调用 Qwen 模型: {}", dashScopeProperty.getModel());
+            log.info(LOG_CALL_QWEN_MODEL, dashScopeProperty.getModel());
 
             try (Response response = okHttpClient.newCall(request).execute()) {
                 if (!response.isSuccessful() || response.body() == null) {
-                    log.error("[AiHelper] Qwen API 返回非 2xx: {}", response.code());
+                    log.error(LOG_QWEN_NON_2XX, response.code());
                     throw new BizException(HttpStatus.BAD_GATEWAY, AI_MODEL_INVALID);
                 }
                 String body = response.body().string();
                 // 打印 AI 原始返回，方便排查
-                log.info("[AiHelper] Qwen 原始响应 ↓\n{}", body);
+                log.info(LOG_QWEN_RAW_RESPONSE, body);
                 // OpenAI 格式: choices[0].message.content
                 JsonNode root = objectMapper.readTree(body);
                 String content = root.path(CHOICES).get(0)
                         .path(MESSAGE).path(CONTENT).asText();
-                log.debug("[AiHelper] 提取 content ↓\n{}", content);
+                log.debug(LOG_EXTRACT_CONTENT, content);
                 return content;
             }
         } catch (IOException e) {
-            log.error("[AiHelper] Qwen API 连接异常", e);
+            log.error(LOG_QWEN_CONNECTION_EXCEPTION, e);
             throw new BizException(HttpStatus.SERVICE_UNAVAILABLE, AI_MODEL_CONNECTION_FAIL);
         }
     }
@@ -151,7 +168,7 @@ public class AiHelper implements AiConstants {
             vo.setSuggestions(suggestions);
             return vo;
         } catch (Exception e) {
-            log.error("[AiHelper] AI 响应解析失败，原始内容: {}", aiText, e);
+            log.error(LOG_PARSE_AI_RESPONSE_FAILED, aiText, e);
             throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR, AI_RESPONSE_RESOLVE_FAILURE);
         }
     }

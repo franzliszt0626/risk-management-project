@@ -1,7 +1,6 @@
 package gang.lu.riskmanagementproject.controller;
 
 import gang.lu.riskmanagementproject.annotation.ValidId;
-import gang.lu.riskmanagementproject.common.BusinessConstants;
 import gang.lu.riskmanagementproject.common.Result;
 import gang.lu.riskmanagementproject.domain.dto.RiskIndicatorDTO;
 import gang.lu.riskmanagementproject.domain.dto.query.RiskIndicatorQueryDTO;
@@ -25,7 +24,10 @@ import javax.validation.constraints.NotEmpty;
 import java.time.LocalDate;
 import java.util.List;
 
-import static gang.lu.riskmanagementproject.common.BusinessConstants.*;
+import static gang.lu.riskmanagementproject.common.global.GlobalBusinessConstants.ADD_RISK_INDICATOR;
+import static gang.lu.riskmanagementproject.common.global.GlobalBusinessConstants.UPDATE_RISK_INDICATOR;
+import static gang.lu.riskmanagementproject.common.field.FieldChineseConstants.*;
+import static gang.lu.riskmanagementproject.common.global.GlobalFormatConstants.DEFAULT_DAY_TIME_FORMAT_WITH_COLON;
 import static gang.lu.riskmanagementproject.message.FailedMessages.RISK_INDICATOR_ID_LIST_EMPTY;
 import static gang.lu.riskmanagementproject.message.SuccessMessages.*;
 
@@ -120,7 +122,7 @@ public class RiskIndicatorController {
     public Result<RiskIndicatorVO> getLatestRiskIndicatorByWorkerId(
             @ApiParam(WORKER_ID)
             @PathVariable
-            @ValidId(bizName = BusinessConstants.WORKER_ID) Long workerId) {
+            @ValidId(bizName = WORKER_ID) Long workerId) {
         RiskIndicatorVO vo = riskIndicatorService.getLatestRiskIndicatorByWorkerId(workerId);
         return Result.ok(RISK_INDICATOR_GET_LATEST_SUCCESS, vo);
     }
@@ -142,7 +144,7 @@ public class RiskIndicatorController {
     @GetMapping("/count/time-period")
     public Result<RiskTimePeriodCountVO> countHighRiskWorkerByTimePeriod(
             @ApiParam(value = "统计日期（yyyy-MM-dd），默认当天", example = "2026-02-01")
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate statDate) {
+            @RequestParam(required = false) @DateTimeFormat(pattern = DEFAULT_DAY_TIME_FORMAT_WITH_COLON) LocalDate statDate) {
         RiskTimePeriodCountVO vo = riskIndicatorService.countHighRiskWorkerByTimePeriod(statDate);
         return Result.ok(RISK_INDICATOR_STATISTIC_HIGH_RISK_COUNT_SUCCESS, vo);
     }

@@ -10,6 +10,7 @@ import gang.lu.riskmanagementproject.exception.BizException;
 import gang.lu.riskmanagementproject.helper.AiHelper;
 import gang.lu.riskmanagementproject.mapper.RiskIndicatorMapper;
 import gang.lu.riskmanagementproject.mapper.WorkerMapper;
+import gang.lu.riskmanagementproject.property.RecordLimitProperty;
 import gang.lu.riskmanagementproject.service.RiskAiService;
 import gang.lu.riskmanagementproject.converter.RiskIndicatorConverter;
 import gang.lu.riskmanagementproject.validator.GeneralValidator;
@@ -21,7 +22,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static gang.lu.riskmanagementproject.common.BusinessConstants.*;
+import static gang.lu.riskmanagementproject.common.global.GlobalBusinessConstants.*;
 import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 
 /**
@@ -39,6 +40,7 @@ public class RiskAiServiceImpl implements RiskAiService {
     private final RiskIndicatorConverter riskIndicatorConverter;
     private final WorkerMapper workerMapper;
     private final GeneralValidator generalValidator;
+    private final RecordLimitProperty recordLimitProperty;
 
     /**
      * 查询历史数据，调用 Qwen 模型，返回风险预测。
@@ -60,7 +62,7 @@ public class RiskAiServiceImpl implements RiskAiService {
         generalValidator.validateIdExist(workerId, workerMapper, WORKER_NOT_EXIST);
 
         // 2. 校验 limit 范围
-        if (limit < MIN_RECORDS || limit > MAX_RECORDS) {
+        if (limit < recordLimitProperty.getMIN_RECORDS() || limit > recordLimitProperty.getMAX_RECORDS()) {
             throw new BizException(HttpStatus.BAD_REQUEST, LIMIT_INVALID);
         }
 

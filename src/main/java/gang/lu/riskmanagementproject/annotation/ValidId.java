@@ -7,6 +7,9 @@ import javax.validation.Constraint;
 import javax.validation.Payload;
 import java.lang.annotation.*;
 
+import static gang.lu.riskmanagementproject.common.field.FieldEnglishConstants.UPCAST_ID;
+import static gang.lu.riskmanagementproject.message.FailedMessages.COMMON_ID_VALIDATE_ERROR;
+
 /**
  * @author Franz Liszt
  * @version 1.0
@@ -20,9 +23,9 @@ import java.lang.annotation.*;
 public @interface ValidId {
 
 
-    String bizName() default "ID";
+    String bizName() default UPCAST_ID;
 
-    String message() default "【参数校验失败】无效的{bizName}，请传入正整数！";
+    String message() default COMMON_ID_VALIDATE_ERROR;
 
     Class<?>[] groups() default {};
 

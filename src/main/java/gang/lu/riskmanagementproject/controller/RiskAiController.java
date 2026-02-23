@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import static gang.lu.riskmanagementproject.common.BusinessConstants.WORKER_ID;
+import static gang.lu.riskmanagementproject.common.field.FieldChineseConstants.WORKER_ID;
 import static gang.lu.riskmanagementproject.message.SuccessMessages.AI_ANALYZE_SUCCESS;
 
 /**

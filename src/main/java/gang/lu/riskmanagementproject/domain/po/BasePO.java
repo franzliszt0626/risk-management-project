@@ -6,6 +6,8 @@ import lombok.Data;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+import static gang.lu.riskmanagementproject.common.field.FieldEnglishConstants.ID;
+
 /**
  * 所有持久化实体的公共基类。
  * <p>
@@ -24,7 +26,7 @@ public abstract class BasePO implements Serializable {
     /**
      * 主键 ID，数据库自增
      */
-    @TableId(value = "id", type = IdType.AUTO)
+    @TableId(value = ID, type = IdType.AUTO)
     private Long id;
 
     /**
