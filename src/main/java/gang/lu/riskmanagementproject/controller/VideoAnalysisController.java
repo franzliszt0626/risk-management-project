@@ -20,8 +20,7 @@ import static gang.lu.riskmanagementproject.message.SuccessMessages.VIDEO_ANALYZ
  * 视频分析接口
  *
  * @author Franz Liszt
- * @version 1.0
- * @date 2026/2/22 14:38
+ * @since 2026-02-22
  */
 @Api(tags = "视频分析")
 @Validated
@@ -32,9 +31,11 @@ public class VideoAnalysisController {
 
     private final VideoAnalysisService videoAnalysisService;
 
+    // ======================== 个性化业务接口 ========================
+
     @ApiOperation(
             value = "上传视频进行风险分析",
-            notes = "接收视频文件（≤50MB，支持 mp4/avi/mov），转发算法服务完成检测，" +
+            notes = "接收视频文件（≤ 50 MB，支持 mp4 / avi / mov），转发算法服务完成检测，" +
                     "将分析结果写入风险指标表并返回。"
     )
     @PostMapping(value = "/analyze/{workerId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -42,7 +43,7 @@ public class VideoAnalysisController {
             @ApiParam(value = WORKER_ID, required = true, example = "1")
             @PathVariable
             @ValidId(bizName = WORKER_ID) Long workerId,
-            @ApiParam(value = "待分析的视频文件（mp4/avi/mov，≤50MB）", required = true)
+            @ApiParam(value = "待分析的视频文件（mp4 / avi / mov，≤ 50 MB）", required = true)
             @RequestPart("video") MultipartFile video) {
         RiskIndicatorVO vo = videoAnalysisService.analyzeAndSave(workerId, video);
         return Result.ok(VIDEO_ANALYZE_SUCCESS, vo);

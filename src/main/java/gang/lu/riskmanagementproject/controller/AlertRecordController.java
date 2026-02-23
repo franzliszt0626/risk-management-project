@@ -28,18 +28,16 @@ import static gang.lu.riskmanagementproject.message.FailedMessages.ALERT_LEVEL_I
 import static gang.lu.riskmanagementproject.message.SuccessMessages.*;
 
 /**
- * <p>
- * 预警记录表 前端控制器
- * </p>
+ * 预警记录管理接口
  *
  * @author Franz Liszt
  * @since 2026-01-31
  */
+@Api(tags = "预警记录管理")
+@Validated
 @RestController
 @RequestMapping("/api/alert-record")
-@Api(tags = "预警记录管理 API")
 @RequiredArgsConstructor
-@Validated
 public class AlertRecordController {
 
     private final AlertRecordService alertRecordService;
@@ -87,7 +85,7 @@ public class AlertRecordController {
         return Result.ok(ALERT_RECORD_UPDATE_SUCCESS, vo);
     }
 
-    @ApiOperation("根据ID查询预警记录")
+    @ApiOperation("根据 ID 查询预警记录")
     @GetMapping("/{id}")
     public Result<AlertRecordVO> getAlertRecordById(
             @ApiParam(ALERT_RECORD_ID)
@@ -98,7 +96,8 @@ public class AlertRecordController {
     }
 
     @ApiOperation("多条件组合分页查询预警记录")
-    @ApiImplicitParam(name = "queryDTO", value = "预警记录查询条件（含分页）", required = true, dataType = "AlertRecordQueryDTO", paramType = "body")
+    @ApiImplicitParam(name = "queryDTO", value = "预警记录查询条件（含分页）",
+            required = true, dataType = "AlertRecordQueryDTO", paramType = "body")
     @PostMapping("/search")
     public Result<PageVO<AlertRecordVO>> searchAlertRecords(
             @Valid @RequestBody AlertRecordQueryDTO queryDTO) {
@@ -109,7 +108,10 @@ public class AlertRecordController {
 
     // ======================== 个性化业务接口 ========================
 
-    @ApiOperation("标记预警记录为已处理")
+    @ApiOperation(
+            value = "标记预警记录为已处理",
+            notes = "同一条记录已处理后不可重复标记（幂等保护）。"
+    )
     @PutMapping("/{id}/handle")
     public Result<Void> markAlertRecordAsHandled(
             @ApiParam(ALERT_RECORD_ID)

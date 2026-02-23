@@ -1,7 +1,6 @@
 package gang.lu.riskmanagementproject.controller;
 
 import gang.lu.riskmanagementproject.annotation.ValidId;
-import gang.lu.riskmanagementproject.common.BusinessConstants;
 import gang.lu.riskmanagementproject.common.Result;
 import gang.lu.riskmanagementproject.domain.dto.WorkAreaDTO;
 import gang.lu.riskmanagementproject.domain.dto.query.WorkAreaQueryDTO;
@@ -28,18 +27,16 @@ import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 import static gang.lu.riskmanagementproject.message.SuccessMessages.*;
 
 /**
- * <p>
- * 工作区域表 前端控制器
- * </p>
+ * 工作区域管理接口
  *
  * @author Franz Liszt
  * @since 2026-01-31
  */
+@Api(tags = "工作区域管理")
+@Validated
 @RestController
 @RequestMapping("/api/work-area")
-@Api(tags = "工作区域管理 API")
 @RequiredArgsConstructor
-@Validated
 public class WorkAreaController {
 
     private final WorkAreaService workAreaService;
@@ -87,7 +84,7 @@ public class WorkAreaController {
         return Result.ok(WORK_AREA_UPDATE_SUCCESS, vo);
     }
 
-    @ApiOperation("根据ID查询工作区域")
+    @ApiOperation("根据 ID 查询工作区域")
     @GetMapping("/{id}")
     public Result<WorkAreaVO> getWorkAreaById(
             @ApiParam(WORK_AREA_ID)
@@ -98,7 +95,8 @@ public class WorkAreaController {
     }
 
     @ApiOperation("多条件组合分页查询工作区域")
-    @ApiImplicitParam(name = "queryDTO", value = "工作区域查询条件（含分页）", required = true, dataType = "WorkAreaQueryDTO", paramType = "body")
+    @ApiImplicitParam(name = "queryDTO", value = "工作区域查询条件（含分页）",
+            required = true, dataType = "WorkAreaQueryDTO", paramType = "body")
     @PostMapping("/search")
     public Result<PageVO<WorkAreaVO>> searchWorkAreas(
             @Valid @RequestBody WorkAreaQueryDTO queryDTO) {
@@ -109,8 +107,12 @@ public class WorkAreaController {
 
     // ======================== 个性化业务接口 ========================
 
-    @ApiOperation("根据区域编码查询工作区域")
-    @ApiImplicitParam(name = "areaCode", value = WORK_AREA_CODE, required = true, dataType = "String", paramType = "path", example = "AREA_001")
+    @ApiOperation(
+            value = "根据区域编码查询工作区域",
+            notes = "区域编码精确匹配，编码全局唯一时返回单条记录。"
+    )
+    @ApiImplicitParam(name = "areaCode", value = WORK_AREA_CODE,
+            required = true, dataType = "String", paramType = "path", example = "AREA_001")
     @GetMapping("/code/{areaCode}")
     public Result<List<WorkAreaVO>> getWorkAreaByCode(
             @ApiParam(WORK_AREA_CODE)
@@ -120,10 +122,13 @@ public class WorkAreaController {
         return Result.ok(String.format(WORK_AREA_GET_BY_CODE_SUCCESS, areas.size()), areas);
     }
 
-    @ApiOperation("按风险等级统计工作区域数量")
+    @ApiOperation(
+            value = "统计各风险等级工作区域数量",
+            notes = "按区域风险等级（低风险 / 中风险 / 高风险）分组统计，并返回总数。"
+    )
     @GetMapping("/count/risk-level")
     public Result<WorkAreaRiskCountVO> countWorkAreaByRiskLevel() {
-        WorkAreaRiskCountVO countVO = workAreaService.countWorkAreaByRiskLevel();
-        return Result.ok(WORK_AREA_STATISTIC_RISK_LEVEL_COUNT_SUCCESS, countVO);
+        WorkAreaRiskCountVO vo = workAreaService.countWorkAreaByRiskLevel();
+        return Result.ok(WORK_AREA_STATISTIC_RISK_LEVEL_COUNT_SUCCESS, vo);
     }
 }

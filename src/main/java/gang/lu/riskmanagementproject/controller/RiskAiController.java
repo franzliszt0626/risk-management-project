@@ -18,8 +18,7 @@ import static gang.lu.riskmanagementproject.message.SuccessMessages.AI_ANALYZE_S
  * AI 风险预测接口
  *
  * @author Franz Liszt
- * @version 1.0
- * @date 2026/2/22 15:45
+ * @since 2026-02-22
  */
 @Api(tags = "AI 风险预测")
 @Validated
@@ -30,16 +29,18 @@ public class RiskAiController {
 
     private final RiskAiService riskAiService;
 
+    // ======================== 个性化业务接口 ========================
+
     @ApiOperation(
             value = "预测工人未来风险",
-            notes = "传入工人ID，读取该工人历史风险记录，调用 AI 分析并返回预测结果与健康建议。"
+            notes = "读取工人历史风险记录，调用 Qwen 大模型分析，返回风险等级预测、趋势描述与健康建议。"
     )
     @GetMapping("/predict/{workerId}")
-    public Result<RiskPredictionVO> predict(
+    public Result<RiskPredictionVO> predictRisk(
             @ApiParam(value = WORKER_ID, required = true, example = "2")
             @PathVariable
             @ValidId(bizName = WORKER_ID) Long workerId,
-            @ApiParam(value = "最多取最近 N 条记录参与分析，默认 20", example = "20")
+            @ApiParam(value = "参与分析的最近记录条数（1-100），默认 20", example = "20")
             @RequestParam(defaultValue = "20") Integer limit) {
         RiskPredictionVO vo = riskAiService.predictRisk(workerId, limit);
         return Result.ok(AI_ANALYZE_SUCCESS, vo);
