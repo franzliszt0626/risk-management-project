@@ -88,10 +88,4 @@ public interface GlobalBusinessConstants {
     String VALIDATE_SINGLE_ID_EXIST = "单ID存在性校验";
     String VALIDATE_BATCH_ID_EXIST = "批量ID存在性校验";
 
-
-    /**
-     * 拼接前缀
-     */
-    String LIMIT = "LIMIT ";
-
 }

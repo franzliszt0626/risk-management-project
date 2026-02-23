@@ -14,4 +14,8 @@ public interface GlobalSimbolConstants {
     String AI_TEXT_JSON_PATTERN = "```json";
     String AI_TEXT_TICK_PATTERN = "```";
 
+    /**
+     * 拼接前缀
+     */
+    String LIMIT = "LIMIT ";
 }

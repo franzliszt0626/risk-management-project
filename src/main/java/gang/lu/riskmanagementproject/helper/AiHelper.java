@@ -74,12 +74,12 @@ public class AiHelper {
             ));
         }
 
-        // 5. 任务要求（明确时间范围、建议数量，替换硬编码）
+        // 5. 任务要求（明确时间范围、建议数量）
         sb.append(PROMPT_TASK_REQUIRE);
         sb.append(PROMPT_TASK_1);
         sb.append(PROMPT_TASK_2);
 
-        // 6. 格式要求（增强约束，替换硬编码）
+        // 6. 格式要求（增强约束）
         sb.append(PROMPT_FORMAT_REQUIRE);
         sb.append("{\n");
         sb.append("  \"").append(AI_FIELD_PREDICTED_RISK).append("\": ").append(PROMPT_JSON_FIELD_PREDICTED_RISK_DESC).append(",\n");

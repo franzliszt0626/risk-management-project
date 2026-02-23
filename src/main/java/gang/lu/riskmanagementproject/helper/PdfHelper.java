@@ -356,11 +356,11 @@ public class PdfHelper {
         response.reset();
         response.setContentType(CONTENT_TYPE);
         response.setCharacterEncoding(CHARSET_UTF8);
-        response.setHeader("Cache-Control", CACHE_CONTROL_HEADER);
-        response.setHeader("Pragma", PRAGMA_HEADER);
-        response.setHeader("Expires", EXPIRES_HEADER);
+        response.setHeader(CACHE_CONTROL, CACHE_CONTROL_HEADER);
+        response.setHeader(PRAGMA, PRAGMA_HEADER);
+        response.setHeader(EXPIRES, EXPIRES_HEADER);
         response.setHeader(CONTENT_DISPOSITION_KEY,
-                "attachment; filename=\"" + filename + "\"");
+                ATTACHMENT_FILENAME + filename + "\"");
     }
 
     public String resolveTimeSpan(List<RiskIndicatorVO> history) {

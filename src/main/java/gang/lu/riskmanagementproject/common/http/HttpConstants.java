@@ -30,4 +30,8 @@ public interface HttpConstants {
     String CACHE_CONTROL_HEADER = "no-cache, no-store, must-revalidate";
     String PRAGMA_HEADER = "no-cache";
     String EXPIRES_HEADER = "0";
+    String CACHE_CONTROL = "Cache-Control";
+    String PRAGMA = "Pragma";
+    String EXPIRES = "Expires";
+    String ATTACHMENT_FILENAME = "attachment; filename=\"";
 }
