@@ -16,6 +16,9 @@ import lombok.Data;
 @ApiModel(description = "工人信息 - 视图对象")
 public class WorkerVO {
 
+    @ApiModelProperty(value = "工人id", example = "1")
+    private Long id;
+
     @ApiModelProperty(value = "工号", example = "W1001")
     private String workerCode;
 
