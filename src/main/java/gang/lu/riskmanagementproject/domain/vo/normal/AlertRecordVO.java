@@ -17,6 +17,9 @@ import java.time.LocalDateTime;
 @ApiModel(description = "预警记录 - 视图对象")
 public class AlertRecordVO {
 
+    @ApiModelProperty(value = "预警记录id", example = "1")
+    private Long id;
+
     @ApiModelProperty(value = "关联工人 ID", example = "1")
     private Long workerId;
 

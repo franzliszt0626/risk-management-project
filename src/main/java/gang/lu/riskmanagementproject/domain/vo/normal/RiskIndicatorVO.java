@@ -17,6 +17,9 @@ import java.time.LocalDateTime;
 @ApiModel(description = "风险指标 - 视图对象")
 public class RiskIndicatorVO {
 
+    @ApiModelProperty(value = "风险记录id", example = "1")
+    private Long id;
+
     @ApiModelProperty(value = "关联工人 ID", example = "1")
     private Long workerId;
 

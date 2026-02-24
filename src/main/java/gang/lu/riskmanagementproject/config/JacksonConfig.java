@@ -37,7 +37,6 @@ public class JacksonConfig {
             // 2. 枚举序列化/反序列化（全局配置）
             SimpleModule enumModule = new SimpleModule();
             builder.serializerByType(ValueEnum.class, new ValueEnumSerializer());
-            // 注册各个枚举的反序列化器
             builder.deserializerByType(ValueEnum.class, new ValueEnumDeserializer());
             builder.modules(enumModule);
         };

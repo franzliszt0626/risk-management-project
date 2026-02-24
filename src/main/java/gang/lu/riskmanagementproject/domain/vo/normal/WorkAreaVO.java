@@ -15,6 +15,9 @@ import lombok.Data;
 @ApiModel(description = "工作区域 - 视图对象")
 public class WorkAreaVO {
 
+    @ApiModelProperty(value = "工作区域id", example = "1")
+    private Long id;
+
     @ApiModelProperty(value = "区域编码", example = "AREA_001")
     private String areaCode;
 
