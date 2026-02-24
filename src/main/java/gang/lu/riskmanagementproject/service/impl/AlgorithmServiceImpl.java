@@ -70,12 +70,12 @@ public class AlgorithmServiceImpl implements AlgorithmService {
                     .post(requestBody)
                     .build();
 
-            log.info(LOG_SEND_REQUEST_TO_ALGORITHM,
+            log.info(LOG_ALGORITHM_SEND_REQUEST,
                     video.getOriginalFilename(), video.getSize());
 
             try (Response response = okHttpClient.newCall(request).execute()) {
                 if (!response.isSuccessful() || ObjectUtil.isNull(response.body())) {
-                    log.error(LOG_ALGORITHM_RETURN_NO_200, response.code());
+                    log.error(LOG_ALGORITHM_NON_2XX, response.code());
                     throw new BizException(HttpStatus.BAD_GATEWAY, ALGORITHM_ERROR);
                 }
 
@@ -87,7 +87,7 @@ public class AlgorithmServiceImpl implements AlgorithmService {
             }
 
         } catch (IOException e) {
-            log.error(LOG_FAIL_TO_CONNECT_TO_ALGORITHM, e);
+            log.error(LOG_ALGORITHM_CONNECTION_FAIL, e);
             throw new BizException(HttpStatus.SERVICE_UNAVAILABLE, ALGORITHM_UNREACHABLE);
         }
     }

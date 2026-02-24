@@ -64,7 +64,7 @@ public class PdfHelper {
 
     public void writePdfToResponse(Long workerId, List<RiskIndicatorVO> history,
                                    RiskPredictionVO prediction, HttpServletResponse response) {
-        log.info(LOG_RESPONSE_COMMITTED, response.isCommitted());
+        log.info(LOG_PDF_RESPONSE_COMMITTED, response.isCommitted());
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         try {
             // 第一步：加载字体
@@ -349,7 +349,7 @@ public class PdfHelper {
                     PdfEncodings.IDENTITY_H,
                     PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED
             );
-            log.info(LOG_FONT_LOAD_SUCCESS, font.getFontProgram().getFontNames().getFontName());
+            log.info(LOG_PDF_FONT_LOAD_SUCCESS, font.getFontProgram().getFontNames().getFontName());
             return font;
         }
     }

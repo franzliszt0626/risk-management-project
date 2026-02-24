@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static gang.lu.riskmanagementproject.common.field.FieldChineseConstants.*;
 import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 
 /**
@@ -48,7 +49,6 @@ import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 public class GlobalExceptionHandler {
 
     private static final String JACKSON_PROBLEM_DELIMITER = "problem: ";
-    private static final String PARAM_TYPE_ERROR_TEMPLATE = "参数【%s】格式错误，请传入有效的 %s 类型值（当前值：%s）";
 
     // ========================1. 自定义业务异常（最高优先级）==========================
 
@@ -61,9 +61,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BizException.class)
     public Result<?> handleBizException(BizException e) {
         if (e.getStatus().is5xxServerError()) {
-            log.error("【业务异常-服务端】{}", e.getMessage(), e);
+            log.error("{}{}", COMMON_BIZ_EXCEPTION_SERVER, e.getMessage(), e);
         } else {
-            log.warn("【业务异常-客户端】{}", e.getMessage(), e);
+            log.warn("{}{}", COMMON_BIZ_EXCEPTION_CLIENT, e.getMessage(), e);
         }
         return Result.error(e.getStatus(), e.getMessage());
     }
@@ -73,13 +73,13 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(IllegalArgumentException.class)
     public Result<?> handleIllegalArgumentException(IllegalArgumentException e) {
-        log.warn("【参数不合法】{}", e.getMessage(), e);
-        // 若异常信息本身已包含枚举合法值提示，直接透传；否则加通用前缀
+        log.warn("{}{}", COMMON_BIZ_EXCEPTION_CLIENT, e.getMessage(), e);
+        // 若异常信息本身已包含枚举合法值提示，直接透传；否则使用通用模板
         String msg = (e.getMessage() != null
-                && e.getMessage().contains("不合法")
-                && e.getMessage().contains("允许值"))
+                && e.getMessage().contains(INVALID)
+                && e.getMessage().contains(ALLOW))
                 ? e.getMessage()
-                : "参数不合法：" + e.getMessage();
+                : String.format(COMMON_PARAM_ILLEGAL_ERROR, e.getMessage());
         return Result.error(HttpStatus.BAD_REQUEST, msg);
     }
 
@@ -94,7 +94,7 @@ public class GlobalExceptionHandler {
         String msg = violations.stream()
                 .map(ConstraintViolation::getMessage)
                 .collect(Collectors.joining("；"));
-        log.warn("【方法参数校验失败】{}", msg, e);
+        log.warn("{}{}", COMMON_BIZ_EXCEPTION_CLIENT, msg, e);
         return Result.error(HttpStatus.BAD_REQUEST, msg);
     }
 
@@ -104,7 +104,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public Result<?> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
         String msg = extractFirstFieldError(e.getBindingResult().getFieldErrors());
-        log.warn("【请求体参数校验失败】{}", msg, e);
+        log.warn("{}{}", COMMON_BIZ_EXCEPTION_CLIENT, msg, e);
         return Result.error(HttpStatus.BAD_REQUEST, msg);
     }
 
@@ -114,7 +114,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BindException.class)
     public Result<?> handleBindException(BindException e) {
         String msg = extractFirstFieldError(e.getBindingResult().getFieldErrors());
-        log.warn("【参数绑定失败】{}", msg, e);
+        log.warn("{}{}", COMMON_BIZ_EXCEPTION_CLIENT, msg, e);
         return Result.error(HttpStatus.BAD_REQUEST, msg);
     }
 
@@ -124,10 +124,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public Result<?> handleTypeMismatchException(MethodArgumentTypeMismatchException e) {
         String paramName = e.getName();
-        String invalidValue = e.getValue() == null ? "空值" : e.getValue().toString();
-        String expectedType = e.getRequiredType() == null ? "数字" : e.getRequiredType().getSimpleName();
-        String msg = String.format(PARAM_TYPE_ERROR_TEMPLATE, paramName, expectedType, invalidValue);
-        log.warn("【参数类型不匹配】{}", msg, e);
+        String invalidValue = e.getValue() == null ? EMPTY : e.getValue().toString();
+        String expectedType = e.getRequiredType() == null ? NUMBER : e.getRequiredType().getSimpleName();
+        String msg = String.format(COMMON_PARAM_TYPE_MISMATCH_ERROR, paramName, expectedType, invalidValue);
+        log.warn("{}{}", COMMON_BIZ_EXCEPTION_CLIENT, msg, e);
         return Result.error(HttpStatus.BAD_REQUEST, msg);
     }
 
@@ -153,7 +153,7 @@ public class GlobalExceptionHandler {
             msg = root.getMessage();
         }
 
-        log.warn("【JSON 解析失败】{}", msg, e);
+        log.warn("{}{}", COMMON_BIZ_EXCEPTION_CLIENT, msg, e);
         return Result.error(HttpStatus.BAD_REQUEST, msg);
     }
 
@@ -164,8 +164,8 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(DuplicateKeyException.class)
     public Result<?> handleDuplicateKeyException(DuplicateKeyException e) {
-        log.error("【数据库唯一约束冲突】{}", e.getMessage(), e);
-        return Result.error(HttpStatus.CONFLICT, "数据重复，请检查后重试！");
+        log.error("{}{}", COMMON_BIZ_EXCEPTION_SERVER, e.getMessage(), e);
+        return Result.error(HttpStatus.CONFLICT, COMMON_DUPLICATE_KEY_ERROR);
     }
 
     /**
@@ -173,8 +173,8 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(EmptyResultDataAccessException.class)
     public Result<?> handleEmptyResultDataAccessException(EmptyResultDataAccessException e) {
-        log.warn("【数据库空结果集】{}", e.getMessage(), e);
-        return Result.error(HttpStatus.NOT_FOUND, "未查询到相关数据！");
+        log.warn("{}{}", COMMON_BIZ_EXCEPTION_CLIENT, e.getMessage(), e);
+        return Result.error(HttpStatus.NOT_FOUND, COMMON_EMPTY_RESULT_ERROR);
     }
 
     /**
@@ -182,7 +182,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(DataAccessException.class)
     public Result<?> handleDataAccessException(DataAccessException e) {
-        log.error("【数据库通用异常】{}", e.getMessage(), e);
+        log.error("{}{}", COMMON_BIZ_EXCEPTION_SERVER, e.getMessage(), e);
         return Result.error(HttpStatus.INTERNAL_SERVER_ERROR, COMMON_DATABASE_ERROR);
     }
 
@@ -193,7 +193,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(NullPointerException.class)
     public Result<?> handleNullPointerException(NullPointerException e) {
-        log.error("【空指针异常】{}", e.getMessage(), e);
+        log.error("{}{}", COMMON_BIZ_EXCEPTION_SERVER, e.getMessage(), e);
         return Result.error(HttpStatus.INTERNAL_SERVER_ERROR, COMMON_NULL_POINTER_ERROR);
     }
 
@@ -206,11 +206,10 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(RuntimeException.class)
     public Result<?> handleRuntimeException(RuntimeException e) {
-        log.error("【运行时异常】{}", e.getMessage(), e);
+        log.error("{}{}", COMMON_BIZ_EXCEPTION_SERVER, e.getMessage(), e);
         return Result.error(HttpStatus.INTERNAL_SERVER_ERROR,
                 String.format(COMMON_RUNTIME_ERROR, e.getMessage()));
     }
-
 
     // =================6. 兜底异常（所有未捕获的 Checked Exception）=====================
 
@@ -219,7 +218,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public Result<?> handleUnexpectedException(Exception e) {
-        log.error("【系统未知异常】{}", e.getMessage(), e);
+        log.error("{}{}", COMMON_BIZ_EXCEPTION_SERVER, e.getMessage(), e);
         return Result.error(HttpStatus.INTERNAL_SERVER_ERROR, COMMON_SYSTEM_ERROR);
     }
 

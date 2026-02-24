@@ -77,13 +77,13 @@ public class RiskReportServiceImpl implements RiskReportService {
 
         // 3. 查历史数据
         List<RiskIndicatorVO> history = queryHistory(workerId, limit);
-        log.info(LOG_GET_HISTORY, workerId, history.size());
+        log.info(LOG_PDF_GET_HISTORY, workerId, history.size());
 
         // 4. 按需调 AI（AI 原始 JSON 响应在 RiskAiServiceImpl→AiHelper 中打印）
         RiskPredictionVO prediction = resolveAiPrediction(workerId, limit, includeAi, history);
 
         // 5. 生成 PDF 并写入响应流，同时打印 PDF 大小
-        log.info(LOG_START_GENERATE_PDF, workerId, includeAi);
+        log.info(LOG_PDF_START_GENERATE, workerId, includeAi);
         long before = System.currentTimeMillis();
 
         pdfHelper.writePdfToResponse(workerId, history, prediction, response);
@@ -92,10 +92,10 @@ public class RiskReportServiceImpl implements RiskReportService {
         String contentLength = response.getHeader(HEADER_CONTENT_LENGTH);
         if (contentLength != null) {
             long bytes = Long.parseLong(contentLength);
-            log.info(LOG_GENERATE_PDF_DONE,
+            log.info(LOG_PDF_GENERATE_DONE,
                     bytes / 1024, bytes, System.currentTimeMillis() - before);
         } else {
-            log.info(LOG_GENERATE_PDF_DONE_AND_PRINT,
+            log.info(LOG_PDF_GENERATE_DONE_SIMPLE,
                     System.currentTimeMillis() - before);
         }
     }
@@ -120,7 +120,7 @@ public class RiskReportServiceImpl implements RiskReportService {
         if (!Boolean.TRUE.equals(includeAi) || history.isEmpty()) {
             return null;
         }
-        log.info(LOG_INVOKE_AI, workerId);
+        log.info(LOG_PDF_INVOKE_AI, workerId);
         return riskAiService.predictRisk(workerId, limit);
     }
 }

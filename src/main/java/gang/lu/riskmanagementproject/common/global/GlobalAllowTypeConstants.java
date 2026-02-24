@@ -4,18 +4,24 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
+ * 全局允许的文件类型常量
+ * <p>
+ * 统一管理各业务模块对上传文件 MIME 类型的白名单限制。
+ *
+ * <p><b>分区说明：</b>
+ * <ol>
+ *   <li>视频文件类型</li>
+ * </ol>
+ *
  * @author Franz Liszt
- * @version 1.0
- * @date 2026/2/23 14:32
- * @description 允许的文件类型
+ * @since 2026-02-23
  */
 public interface GlobalAllowTypeConstants {
 
-    /**
-     * 视频文件限制
-     */
-    String VIDEO_MP_4 = "video/mp4";
-    String VIDEO = "video";
+    // ==============================1. 视频文件类型================================
+
+    String       VIDEO_MP_4    = "video/mp4";
+    String       VIDEO         = "video";
     List<String> ALLOWED_TYPES = Arrays.asList(
             "video/mp4", "video/avi", "video/quicktime", "video/x-msvideo"
     );

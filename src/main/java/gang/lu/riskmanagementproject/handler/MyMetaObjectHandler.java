@@ -1,7 +1,6 @@
 package gang.lu.riskmanagementproject.handler;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +15,6 @@ import static gang.lu.riskmanagementproject.common.field.FieldEnglishConstants.U
  * @date 2026/1/31 15:31
  * @description 元数据自动填充控制器
  */
-@Slf4j
 @Component
 public class MyMetaObjectHandler implements MetaObjectHandler {
     @Override

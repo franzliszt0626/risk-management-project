@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import static gang.lu.riskmanagementproject.common.global.GlobalBusinessConstants.VIDEO_SAVE;
-import static gang.lu.riskmanagementproject.common.global.GlobalLogConstants.LOG_UNKNOWN_RISK_LEVEL;
+import static gang.lu.riskmanagementproject.common.global.GlobalLogConstants.LOG_VIDEO_UNKNOWN_RISK_LEVEL;
 import static gang.lu.riskmanagementproject.common.global.GlobalLogConstants.LOG_VIDEO_SAVE;
 import static gang.lu.riskmanagementproject.message.FailedMessages.WORKER_NOT_EXIST_BY_CODE;
 
@@ -90,7 +90,7 @@ public class VideoAnalysisServiceImpl implements VideoAnalysisService {
             if (ObjectUtil.isNotNull(parsed)) {
                 riskLevel = parsed;
             } else {
-                log.warn(LOG_UNKNOWN_RISK_LEVEL,
+                log.warn(LOG_VIDEO_UNKNOWN_RISK_LEVEL,
                         result.getRiskLevel());
             }
         }

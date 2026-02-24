@@ -19,8 +19,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static gang.lu.riskmanagementproject.common.ai.AiFieldConstants.*;
 import static gang.lu.riskmanagementproject.common.ai.AiPromptConstants.*;
+import static gang.lu.riskmanagementproject.common.field.FieldChineseConstants.AI_DEFAULT_RISK;
+import static gang.lu.riskmanagementproject.common.field.FieldChineseConstants.AI_DEFAULT_TREND;
+import static gang.lu.riskmanagementproject.common.field.FieldEnglishConstants.*;
 import static gang.lu.riskmanagementproject.common.global.GlobalLogConstants.*;
 import static gang.lu.riskmanagementproject.common.global.GlobalSimbolConstants.AI_TEXT_JSON_PATTERN;
 import static gang.lu.riskmanagementproject.common.global.GlobalSimbolConstants.AI_TEXT_TICK_PATTERN;
@@ -115,25 +117,25 @@ public class AiHelper {
                     .addHeader(HEADER_CONTENT_TYPE, MEDIA_TYPE_JSON)
                     .build();
 
-            log.info(LOG_CALL_QWEN_MODEL, dashScopeProperty.getModel());
+            log.info(LOG_AI_CALL_QWEN_MODEL, dashScopeProperty.getModel());
 
             try (Response response = okHttpClient.newCall(request).execute()) {
                 if (!response.isSuccessful() || response.body() == null) {
-                    log.error(LOG_QWEN_NON_2XX, response.code());
+                    log.error(LOG_AI_QWEN_NON_2XX, response.code());
                     throw new BizException(HttpStatus.BAD_GATEWAY, AI_MODEL_INVALID);
                 }
                 String body = response.body().string();
                 // 打印 AI 原始返回，方便排查
-                log.info(LOG_QWEN_RAW_RESPONSE, body);
+                log.info(LOG_AI_QWEN_RAW_RESPONSE, body);
                 // OpenAI 格式: choices[0].message.content
                 JsonNode root = objectMapper.readTree(body);
                 String content = root.path(CHOICES).get(0)
                         .path(MESSAGE).path(CONTENT).asText();
-                log.debug(LOG_EXTRACT_CONTENT, content);
+                log.debug(LOG_AI_EXTRACT_CONTENT, content);
                 return content;
             }
         } catch (IOException e) {
-            log.error(LOG_QWEN_CONNECTION_EXCEPTION, e);
+            log.error(LOG_AI_QWEN_CONNECTION_EXCEPTION, e);
             throw new BizException(HttpStatus.SERVICE_UNAVAILABLE, AI_MODEL_CONNECTION_FAIL);
         }
     }
@@ -167,7 +169,7 @@ public class AiHelper {
             vo.setSuggestions(suggestions);
             return vo;
         } catch (Exception e) {
-            log.error(LOG_PARSE_AI_RESPONSE_FAILED, aiText, e);
+            log.error(LOG_AI_PARSE_RESPONSE_FAILED, aiText, e);
             throw new BizException(HttpStatus.INTERNAL_SERVER_ERROR, AI_RESPONSE_RESOLVE_FAILURE);
         }
     }

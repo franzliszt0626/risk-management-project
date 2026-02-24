@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static gang.lu.riskmanagementproject.common.global.GlobalBusinessConstants.*;
-import static gang.lu.riskmanagementproject.common.global.GlobalLogConstants.LOG_READY_TO_SEND_TO_AI;
+import static gang.lu.riskmanagementproject.common.global.GlobalLogConstants.LOG_AI_READY_TO_SEND;
 import static gang.lu.riskmanagementproject.common.global.GlobalSimbolConstants.LIMIT;
 import static gang.lu.riskmanagementproject.message.FailedMessages.*;
 
@@ -85,7 +85,7 @@ public class RiskAiServiceImpl implements RiskAiService {
             throw new BizException(HttpStatus.BAD_REQUEST, RISK_INDICATOR_EMPTY);
         }
 
-        log.info(LOG_READY_TO_SEND_TO_AI, workerId, history.size());
+        log.info(LOG_AI_READY_TO_SEND, workerId, history.size());
 
         // 4. 构建 Prompt → 调用 AI → 解析响应
         String prompt = aiHelper.buildPrompt(workerId, history);
