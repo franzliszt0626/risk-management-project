@@ -11,9 +11,7 @@
     <name>risk-management-project</name>
     <description>路港桥隧工程风险管理系统</description>
 
-    <!-- =========================================================
-         版本锁定
-         ========================================================= -->
+
     <properties>
         <!-- 基础配置 -->
         <java.version>1.8</java.version>
@@ -50,9 +48,7 @@
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
     </properties>
 
-    <!-- =========================================================
-         依赖管理（必须在 <dependencies> 之前声明，BOM 才能提前生效）
-         ========================================================= -->
+    <!-- 依赖管理 -->
     <dependencyManagement>
         <dependencies>
 
@@ -66,7 +62,6 @@
             </dependency>
 
             <!--
-                修复 Lombok 失效的关键：
                 DL4J 传递依赖了旧版 javassist（3.24.x），
                 该版本与 Lombok 注解处理器在编译期产生类路径冲突，
                 导致 @Data / @Slf4j 等注解静默失效。
@@ -81,12 +76,9 @@
         </dependencies>
     </dependencyManagement>
 
-    <!-- =========================================================
-         依赖声明
-         ========================================================= -->
     <dependencies>
 
-        <!-- ── Spring Boot ──────────────────────────────────── -->
+        <!-- Spring Boot -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -106,7 +98,7 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- ── 持久层 ────────────────────────────────────────── -->
+        <!-- 持久层 -->
         <dependency>
             <groupId>org.mybatis.spring.boot</groupId>
             <artifactId>mybatis-spring-boot-starter</artifactId>
@@ -129,7 +121,7 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- ── 校验 ──────────────────────────────────────────── -->
+        <!-- 校验 -->
         <dependency>
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
@@ -147,34 +139,34 @@
             <version>${mapstruct.version}</version>
         </dependency>
 
-        <!-- ── JSON ──────────────────────────────────────────── -->
+        <!-- JSON -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
 
-        <!-- ── HTTP 客户端 ───────────────────────────────────── -->
+        <!-- HTTP 客户端 -->
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
             <version>${okhttp.version}</version>
         </dependency>
 
-        <!-- ── 工具库 ─────────────────────────────────────────── -->
+        <!-- 工具库 -->
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
             <version>${hutool.version}</version>
         </dependency>
 
-        <!-- ── API 文档 ───────────────────────────────────────── -->
+        <!-- API 文档 -->
         <dependency>
             <groupId>com.github.xiaoymin</groupId>
             <artifactId>knife4j-openapi2-spring-boot-starter</artifactId>
             <version>${knife4j.version}</version>
         </dependency>
 
-        <!-- ── PDF 生成 ───────────────────────────────────────── -->
+        <!-- PDF 生成 -->
         <dependency>
             <groupId>com.itextpdf</groupId>
             <artifactId>itext7-core</artifactId>
@@ -187,14 +179,14 @@
             <version>${itext7.version}</version>
         </dependency>
 
-        <!-- ── 模板引擎（代码生成用） ────────────────────────── -->
+        <!-- 模板引擎 -->
         <dependency>
             <groupId>org.apache.velocity</groupId>
             <artifactId>velocity-engine-core</artifactId>
             <version>${velocity.version}</version>
         </dependency>
 
-        <!-- ── DL4J LSTM 深度学习 ─────────────────────────────── -->
+        <!-- DL4J LSTM 深度学习 -->
         <!--
             排除项说明：
             · javassist    —— DL4J 传递依赖旧版（3.24.x），已在 dependencyManagement
