@@ -137,4 +137,11 @@ public interface FailedMessages {
     String PDF_LIMIT_INVALID           = "【参数校验失败】PDF 可接受历史记录范围为1-100条！";
     String PDF_GENERATE_FAILED         = "【PDF生成失败】PDF 生成失败，请稍后重试！";
     String PDF_FONT_NOT_FOUND          = "【服务器内部错误】字体文件未找到: %s！";
+
+    // ==============================9. LSTM 疲劳风险预测失败信息================================
+
+    String LSTM_HISTORY_TOO_FEW  = "【参数校验失败】历史记录不足，LSTM 预测至少需要 %d 条有效数据！";
+    String LSTM_HISTORY_TOO_MANY = "【参数校验失败】历史记录超出上限，最多支持 %d 条数据参与训练！";
+    String LSTM_PREDICT_FAILED   = "【LSTM预测失败】模型训练或推理过程中发生异常，请稍后重试！";
+
 }

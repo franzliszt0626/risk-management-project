@@ -45,11 +45,11 @@ public interface HttpConstants {
 
     // ==============================4. HTTP 请求 / 响应头值================================
 
-    String MEDIA_TYPE_JSON           = "application/json";
-    String CONTENT_TYPE              = "application/pdf";
+    String MEDIA_TYPE_JSON             = "application/json";
+    String CONTENT_TYPE                = "application/pdf";
     String AUTHORIZATION_BEARER_PREFIX = "Bearer ";
-    String CHARSET_UTF8              = "UTF-8";
-    String ATTACHMENT_FILENAME       = "attachment; filename=\"";
+    String CHARSET_UTF8                = "UTF-8";
+    String ATTACHMENT_FILENAME         = "attachment; filename=\"";
 
     // ==============================5. 缓存控制================================
 

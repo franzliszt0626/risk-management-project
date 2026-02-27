@@ -67,6 +67,9 @@ public interface FieldChineseConstants {
 
     String AI_DEFAULT_RISK  = "未知";
     String AI_DEFAULT_TREND = "平稳";
+    String LSTM_STEADY      = "平稳";
+    String LSTM_UPWARD      = "上升";
+    String LSTM_DOWNWARD    = "下降";
 
     // ==============================7. 其他================================
 

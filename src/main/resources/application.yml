@@ -80,3 +80,26 @@ dashscope:
   model: qwen-turbo
   max-tokens: 1024
   base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
+
+# warning config
+warn:
+  fatigue-warn-threshold: 70.0
+  fatigue-high-threshold: 85.5
+  steady: 2
+  upward: 3.0
+  downward: -3.0
+
+# LSTM config
+lstm:
+  # 预测未来步数
+  predict-steps: 6
+  # 参与训练的最小历史记录条数
+  min-history: 5
+  # 参与训练的最大历史记录条数
+  max-history: 200
+  # 训练轮数
+  epochs: 50
+  # 学习率
+  adam-learning-rate: 0.01
+  # 隐藏层神经元数
+  hidden-size: 32

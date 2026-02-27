@@ -10,8 +10,6 @@ import org.springframework.stereotype.Component;
  * @date 2026/2/22 15:21
  * @description
  */
-
-
 @Data
 @Component
 public class DashScopeProperty {

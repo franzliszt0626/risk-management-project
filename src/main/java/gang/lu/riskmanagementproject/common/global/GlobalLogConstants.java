@@ -59,4 +59,12 @@ public interface GlobalLogConstants {
 
     String LOG_VIDEO_SAVE               = "【视频算法分析】已保存 | workerId={}, riskLevel={}！";
     String LOG_VIDEO_UNKNOWN_RISK_LEVEL = "【视频算法分析】未知风险等级 '{}'，默认使用 LOW_RISK！";
+
+    // ==============================6. LSTM算法分析日志================================
+
+    String LOG_LSTM_START_TRAINING    = "【LSTM】开始训练 | 历史序列长度={} | epochs={} | hiddenSize={}！";
+    String LOG_LSTM_TRAINING_COMPLETE = "【LSTM】训练完成！";
+    String LOG_LSTM_REASON_COMPLETE   = "【LSTM】推理完成 | 预测序列={}！";
+    String LOG_LSTM_REASON_FAILED     = "【LSTM】训练或推理异常";
+    String LOG_LSTM_ANALYSING         = "[LSTM】workerId={} | 有效历史序列长度={}！";
 }

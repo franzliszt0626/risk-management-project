@@ -66,10 +66,11 @@ public interface GlobalBusinessConstants {
 
     // ------------------------------ 视频 / AI ------------------------------
 
-    String VIDEO_ANALYZING   = "视频算法分析";
-    String VIDEO_SAVE        = "视频分析并保存";
-    String AI_RISK_PREDICTION = "AI 风险预测";
-    String LOAD_REPORT       = "导出 PDF 风险报告";
+    String VIDEO_ANALYZING         = "视频算法分析";
+    String VIDEO_SAVE              = "视频分析并保存";
+    String AI_RISK_PREDICTION      = "AI 风险预测";
+    String LOAD_REPORT             = "导出 PDF 风险报告";
+    String LSTM_FATIGUE_PREDICTION = "LSTM 风险预测";
 
     // ==============================2. 校验场景名称================================
 

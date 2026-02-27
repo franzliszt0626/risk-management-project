@@ -56,12 +56,12 @@ public interface SuccessMessages {
 
     // ==============================4. 工人================================
 
-    String WORKER_CREATE_SUCCESS                    = "新增工人信息成功！";
-    String WORKER_UPDATE_SUCCESS                    = "修改工人信息成功！";
-    String WORKER_GET_SUCCESS                       = "查询工人信息成功！";
-    String WORKER_GET_COUNT_SUCCESS                 = "查询工人信息成功，共%s条！";
-    String WORKER_DELETE_SUCCESS                    = "删除工人信息成功！";
-    String WORKER_DELETE_BATCH_SUCCESS              = "批量删除工人信息成功！";
+    String WORKER_CREATE_SUCCESS                      = "新增工人信息成功！";
+    String WORKER_UPDATE_SUCCESS                      = "修改工人信息成功！";
+    String WORKER_GET_SUCCESS                         = "查询工人信息成功！";
+    String WORKER_GET_COUNT_SUCCESS                   = "查询工人信息成功，共%s条！";
+    String WORKER_DELETE_SUCCESS                      = "删除工人信息成功！";
+    String WORKER_DELETE_BATCH_SUCCESS                = "批量删除工人信息成功！";
     String WORKER_STATISTIC_COUNT_BY_STATUS_SUCCESS   = "统计工人状态分布成功！";
     String WORKER_STATISTIC_COUNT_BY_WORKTYPE_SUCCESS = "统计工人工种分布成功！";
 
@@ -69,4 +69,5 @@ public interface SuccessMessages {
 
     String VIDEO_ANALYZE_SUCCESS = "视频分析成功！";
     String AI_ANALYZE_SUCCESS    = "AI 智能分析成功！";
+    String LSTM_PREDICT_SUCCESS  = "疲劳预测成功！";
 }
