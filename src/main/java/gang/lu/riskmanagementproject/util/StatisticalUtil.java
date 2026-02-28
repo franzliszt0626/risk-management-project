@@ -98,8 +98,8 @@ public class StatisticalUtil {
         }
         return periodList.stream()
                 .map(itemMap -> {
-                    Integer period = BasicUtil.safeLongToInt((Long) itemMap.get(PERIOD), -1);
-                    Integer count = BasicUtil.safeLongToInt((Long) itemMap.get(COUNT), 0);
+                    Integer period = BasicConvertUtil.safeLongToInt((Long) itemMap.get(PERIOD), -1);
+                    Integer count = BasicConvertUtil.safeLongToInt((Long) itemMap.get(COUNT), 0);
                     RiskTimePeriodCountVO.TimePeriodItem item = new RiskTimePeriodCountVO.TimePeriodItem();
                     item.setHighRiskCount(count);
                     item.setPeriodDesc(getPeriodDesc(period));

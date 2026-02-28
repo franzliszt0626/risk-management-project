@@ -16,9 +16,9 @@ import java.util.List;
  * @since 2026-02-09
  */
 @Slf4j
-public class BasicUtil {
+public class BasicConvertUtil {
 
-    private BasicUtil() {
+    private BasicConvertUtil() {
         // 工具类禁止实例化
     }
 

@@ -103,3 +103,4 @@ lstm:
   adam-learning-rate: 0.01
   # 隐藏层神经元数
   hidden-size: 32
+

@@ -12,7 +12,7 @@ import gang.lu.riskmanagementproject.domain.vo.normal.PageVO;
 import gang.lu.riskmanagementproject.exception.BizException;
 import gang.lu.riskmanagementproject.helper.PageHelper;
 import gang.lu.riskmanagementproject.service.BaseCrudService;
-import gang.lu.riskmanagementproject.util.BasicUtil;
+import gang.lu.riskmanagementproject.util.BasicConvertUtil;
 import gang.lu.riskmanagementproject.validator.GeneralValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -76,7 +76,7 @@ public abstract class BaseCrudServiceImpl<
         // 1. 业务特有校验
         this.validateBatchDelete(ids);
         // 2. 安全转换（无强转警告）
-        List<Long> idList = BasicUtil.safeConvertToList(ids);
+        List<Long> idList = BasicConvertUtil.safeConvertToList(ids);
         // 3. 通用空校验
         if (CollUtil.isEmpty(idList)) {
             throw new BizException(HttpStatus.BAD_REQUEST, getBatchIdEmptyMsg());

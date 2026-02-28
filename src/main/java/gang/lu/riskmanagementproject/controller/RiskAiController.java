@@ -59,7 +59,7 @@ public class RiskAiController {
             @ApiParam(value = WORKER_ID, required = true, example = "1")
             @PathVariable
             @ValidId(bizName = WORKER_ID) Long workerId,
-            @ApiParam(value = "参与训练的历史记录条数（10-200），默认 30", example = "30")
+            @ApiParam(value = "参与训练的历史记录条数（5-200），默认 30", example = "30")
             @RequestParam(defaultValue = "30") Integer limit) {
         FatiguePredictionVO vo = riskAiService.predictFatigue(workerId, limit);
         return Result.ok(LSTM_PREDICT_SUCCESS, vo);

@@ -21,7 +21,7 @@ public class DashScopeProperty {
     private String model;
 
     @Value("${dashscope.max-tokens}")
-    private int maxTokens = 1024;
+    private int maxTokens;
 
     @Value("${dashscope.base-url}")
     private String baseUrl;
